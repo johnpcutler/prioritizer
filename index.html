@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Floating Toggle Button (shown when sidebar is closed) -->
+        <button id="sidebarToggleOverlay" class="sidebar-toggle-overlay" title="Show Sidebar">☰</button>
+        
+        <!-- Left Sidebar -->
+        <div id="leftSidebar" class="left-sidebar">
+            <div class="sidebar-header">
+                <h1>Priority Manager</h1>
+                <button id="toggleSidebarBtn" class="sidebar-toggle-btn" title="Toggle Sidebar">☰</button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="command-section">
+                    <div id="addItemButtonContainer" style="display: none; margin-bottom: 20px;">
+                        <button id="addItemBtn" class="submit-btn" style="width: 100%;">Add Item</button>
+                    </div>
+                    
+                    <div id="lockedSettingDisplay" style="padding: 10px; background-color: #fff3cd; border-radius: 4px; margin-bottom: 20px;">
+                        <div style="margin-bottom: 8px;">
+                            <strong>Locked Mode:</strong> <span id="lockedStatusText">-</span>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                            <span id="lockedDescriptionText">-</span>
+                        </div>
+                        <button id="toggleLockedBtn" class="submit-btn" style="width: 100%; padding: 6px 12px; font-size: 12px;">Toggle Locked</button>
+                    </div>
+                    
+                    <h2>Commands</h2>
+                    <div class="command-selector">
+                        <select id="commandSelect">
+                            <option value="">Select a command...</option>
+                            <option value="setUrgency">Set Urgency</option>
+                            <option value="setValue">Set Value</option>
+                            <option value="setDuration">Set Duration</option>
+                            <option value="advanceStage">Advance Stage</option>
+                            <option value="backStage">Back Stage</option>
+                            <option value="setUrgencyLimit">Set Urgency Limit</option>
+                            <option value="setValueLimit">Set Value Limit</option>
+                            <option value="setUrgencyWeight">Set Urgency Weight</option>
+                            <option value="setValueWeight">Set Value Weight</option>
+                            <option value="setDurationWeight">Set Duration Weight</option>
+                            <option value="setUrgencyTitle">Set Urgency Title</option>
+                            <option value="setUrgencyDescription">Set Urgency Description</option>
+                            <option value="setValueTitle">Set Value Title</option>
+                            <option value="setValueDescription">Set Value Description</option>
+                            <option value="setDurationTitle">Set Duration Title</option>
+                            <option value="setDurationDescription">Set Duration Description</option>
+                            <option value="bulkAddItems">Bulk Add Items</option>
+                            <option value="setItemActive">Set Item Active</option>
+                            <option value="setItemInactive">Set Item Inactive</option>
+                        </select>
+                    </div>
+                    <div id="dynamicForm" class="dynamic-form" style="display: none;"></div>
+                    <div class="button-group">
+                        <button id="clearBtn">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Stage Navigation Bar (always visible) -->
+            <div class="stage-navigation-bar">
+                <div class="stage-nav-controls">
+                    <div class="stage-steps">
+                        <span class="stage-step" data-stage="Item Listing">Items</span>
+                        <span class="stage-step" data-stage="urgency">Urgency</span>
+                        <span class="stage-step" data-stage="value">Value</span>
+                        <span class="stage-step" data-stage="duration">Duration</span>
+                        <span class="stage-step" data-stage="Results">Results</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="resultsViewSection" style="display: none;" class="results-view-section">
+                <div class="results-view-header">
+                    <button id="resetOrderBtn" class="reset-order-btn" title="Reset order to CD3 descending">Reset Order</button>
+                </div>
+                <div id="resultsViewContent" class="results-view-content">
+                    <div class="results-list" id="resultsList">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="itemListingViewSection" style="display: none;" class="item-listing-view-section">
+                <div id="itemListingViewContent" class="item-listing-view-content">
+                    <div class="item-listing-callout" id="itemListingCallout">
+                        Add item names, one per line below. You can optionally include a link by adding a comma and URL after the item name.
+                    </div>
+                    <div class="item-listing-form">
+                        <textarea id="itemListingTextarea" 
+                                  class="item-listing-textarea" 
+                                  placeholder="Enter item names, one per line:&#10;Item 1&#10;Item 2, https://example.com&#10;Item 3"></textarea>
+                        <button id="itemListingSubmitBtn" class="submit-btn item-listing-submit-btn">Add Items</button>
+                    </div>
+                    <div class="item-listing-items">
+                        <h3>Added Items</h3>
+                        <div id="itemListingItemsDisplay" class="item-listing-items-list">
+                            <!-- Items will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <div id="valueViewSection" style="display: none;" class="value-view-section">
+            <div id="valueViewContent" class="value-view-content">
+                <div class="value-callout" id="valueCallout">
+                    For each of your items, move them up into the value rows. You can't move them sideways (for now)
+                </div>
+                <div class="value-grid-container">
+                    <div class="value-grid">
+                        <!-- Row 1: Empty cell | Column Headers -->
+                        <div class="value-grid-corner"></div>
+                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel1">Title</div>
+                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel2">Title</div>
+                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel3">Title</div>
+                        
+                        <!-- Rows 2-4: Row Headers | Grid Cells -->
+                        <div class="value-row-label value-grid-header" id="valueRowLabel3">Title</div>
+                        <div class="value-grid-cell" id="valueCell-3-1"></div>
+                        <div class="value-grid-cell" id="valueCell-3-2"></div>
+                        <div class="value-grid-cell" id="valueCell-3-3"></div>
+                        
+                        <div class="value-row-label value-grid-header" id="valueRowLabel2">Title</div>
+                        <div class="value-grid-cell" id="valueCell-2-1"></div>
+                        <div class="value-grid-cell" id="valueCell-2-2"></div>
+                        <div class="value-grid-cell" id="valueCell-2-3"></div>
+                        
+                        <div class="value-row-label value-grid-header" id="valueRowLabel1">Title</div>
+                        <div class="value-grid-cell" id="valueCell-1-1"></div>
+                        <div class="value-grid-cell" id="valueCell-1-2"></div>
+                        <div class="value-grid-cell" id="valueCell-1-3"></div>
+                        
+                        <!-- Row 5: Empty cell | No-Value Boxes -->
+                        <div class="value-grid-corner"></div>
+                        <div class="value-no-value-box">
+                            <div class="value-no-value-box-content" id="valueNoValueBox1"></div>
+                        </div>
+                        <div class="value-no-value-box">
+                            <div class="value-no-value-box-content" id="valueNoValueBox2"></div>
+                        </div>
+                        <div class="value-no-value-box">
+                            <div class="value-no-value-box-content" id="valueNoValueBox3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="durationViewSection" style="display: none;" class="duration-view-section">
+            <div id="durationViewContent" class="duration-view-content">
+                <div class="duration-callout" id="durationCallout">
+                    Set the duration for each item using the dropdown. This represents how long the work will take.
+                </div>
+                <div class="duration-grid-container">
+                    <div class="duration-grid">
+                        <!-- Row 1: Empty cell | Column Headers -->
+                        <div class="duration-grid-corner"></div>
+                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel1">Title</div>
+                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel2">Title</div>
+                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel3">Title</div>
+                        
+                        <!-- Rows 2-4: Row Headers | Grid Cells -->
+                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel3">Title</div>
+                        <div class="duration-grid-cell" id="durationCell-3-1"></div>
+                        <div class="duration-grid-cell" id="durationCell-3-2"></div>
+                        <div class="duration-grid-cell" id="durationCell-3-3"></div>
+                        
+                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel2">Title</div>
+                        <div class="duration-grid-cell" id="durationCell-2-1"></div>
+                        <div class="duration-grid-cell" id="durationCell-2-2"></div>
+                        <div class="duration-grid-cell" id="durationCell-2-3"></div>
+                        
+                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel1">Title</div>
+                        <div class="duration-grid-cell" id="durationCell-1-1"></div>
+                        <div class="duration-grid-cell" id="durationCell-1-2"></div>
+                        <div class="duration-grid-cell" id="durationCell-1-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="urgencyViewSection" style="display: none;" class="urgency-view-section">
+            <div id="urgencyViewContent" class="urgency-view-content">
+                <div class="urgency-callout" id="urgencyCallout">
+                    Categorize each of your items by urgency
+                </div>
+                <div class="urgency-grid-container">
+                    <div class="urgency-grid">
+                        <!-- Row 1: Empty cell | Column Headers -->
+                        <div class="urgency-grid-corner"></div>
+                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel1">Title</div>
+                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel2">Title</div>
+                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel3">Title</div>
+                        
+                        <!-- Row 2: Row Header | Columns -->
+                        <div class="urgency-row-label urgency-grid-header"></div>
+                        <div class="urgency-column">
+                            <div class="urgency-column-content" id="urgencyColumn1"></div>
+                        </div>
+                        <div class="urgency-column">
+                            <div class="urgency-column-content" id="urgencyColumn2"></div>
+                        </div>
+                        <div class="urgency-column">
+                            <div class="urgency-column-content" id="urgencyColumn3"></div>
+                        </div>
+                        
+                        <!-- Row 3: Empty cell | No-Value Box (spans columns 2-4) -->
+                        <div class="urgency-grid-corner"></div>
+                        <div class="urgency-no-value-box">
+                            <div class="urgency-no-value-content" id="urgencyNoValueContent">
+                                Items without urgency values go here
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app-api.js"></script>
+    <script type="module" src="app.js"></script>
+    <script src="test-adapter.js"></script>
+    <script src="tests.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests - Priority Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .tests-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tests-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .tests-header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        .back-link {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .back-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .test-section {
+            margin-top: 0;
+        }
+        #testResults {
+            margin-top: 20px;
+        }
+        .status-message {
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+            color: #1976d2;
+            font-weight: 500;
+        }
+        .status-message.error {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+            color: #c62828;
+        }
+        .status-message.success {
+            background-color: #e8f5e9;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="tests-container">
+        <div class="tests-header">
+            <h1>Tests - Priority Manager</h1>
+            <a href="index.html" class="back-link">← Back to App</a>
+        </div>
+        <div class="test-section">
+            <div id="statusMessage" class="status-message">Initializing test environment...</div>
+            <div class="test-actions">
+                <button id="copyFailingTestsBtn" style="display: none;">Copy Failing Tests</button>
+            </div>
+            <div id="testResults">
+                <div class="empty-state">Waiting for initialization...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load API and app modules (needed for TestAdapter, but app.js won't initialize DOM) -->
+    <script src="app-api.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="test-adapter.js"></script>
+    
+    <!-- Load tests script (non-module so it executes immediately and exposes to window) -->
+    <script src="tests.js?v=2"></script>
+    
+    <script type="module">
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.className = `status-message ${type}`;
+            }
+        }
+        
+        // Initialize and run tests
+        async function initializeAndRunTests() {
+            try {
+                // Step 1: Wait for API to be available
+                updateStatus('Initializing test environment...', 'info');
+                
+                let attempts = 0;
+                while (!window.PriorityManagerAPI && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.PriorityManagerAPI) {
+                    throw new Error('PriorityManagerAPI not available after initialization');
+                }
+                
+                // Step 2: Initialize TestAdapter
+                updateStatus('Starting app...', 'info');
+                
+                if (!window.TestAdapter) {
+                    throw new Error('TestAdapter not available');
+                }
+                
+                await window.TestAdapter.init();
+                
+                // Step 3: Start app via TestAdapter
+                updateStatus('Starting app instance...', 'info');
+                window.TestAdapter.startApp();
+                
+                // Step 4: Wait for test suite to be ready
+                updateStatus('Loading test suite...', 'info');
+                
+                // Wait longer for module to load and expose functions
+                let testAttempts = 0;
+                while (typeof window.runAllTests !== 'function' && testAttempts < 100) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    testAttempts++;
+                }
+                
+                if (typeof window.runAllTests !== 'function') {
+                    console.error('Available window properties:', Object.keys(window).filter(k => k.includes('test') || k.includes('Test')));
+                    throw new Error('Test suite not loaded. runAllTests function not found after ' + (testAttempts * 100) + 'ms');
+                }
+                
+                // Step 5: Run tests
+                updateStatus('Running tests...', 'info');
+                
+                await window.runAllTests();
+                
+                // Step 6: Tests complete
+                updateStatus('Tests complete!', 'success');
+                
+            } catch (error) {
+                console.error('Test initialization error:', error);
+                updateStatus(`Error: ${error.message}`, 'error');
+                const resultsDiv = document.getElementById('testResults');
+                if (resultsDiv) {
+                    resultsDiv.innerHTML = `<div class="empty-state" style="color: red;">Error: ${error.message}<br>Check the browser console (F12) for details.</div>`;
+                }
+            }
+        }
+        
+        // Set up copy failing tests button
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyFailingTestsBtn = document.getElementById('copyFailingTestsBtn');
+            if (copyFailingTestsBtn) {
+                copyFailingTestsBtn.addEventListener('click', () => {
+                    if (typeof window.copyFailingTests === 'function') {
+                        window.copyFailingTests();
+                    } else {
+                        alert('Copy failing tests function not available. Please run tests first.');
+                    }
+                });
+            }
+        });
+        
+        // Start initialization when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait longer for all scripts (especially tests.js) to load and execute
+            setTimeout(() => {
+                initializeAndRunTests();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

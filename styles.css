@@ -1,0 +1,1398 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Left Sidebar */
+.left-sidebar {
+    width: 350px;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, width 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 100;
+}
+
+.left-sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sidebar-header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.sidebar-toggle-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+    background: #0056b3;
+}
+
+.sidebar-content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    min-width: 0;
+    background: #f5f5f5;
+    padding: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* When sidebar is collapsed, center the content */
+.left-sidebar.collapsed ~ .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Stage Navigation Bar */
+.stage-navigation-bar {
+    background: white;
+    border-bottom: 2px solid #dee2e6;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stage-nav-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.stage-nav-controls .submit-btn {
+    flex-shrink: 0;
+    min-width: 100px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.stage-steps {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.stage-step {
+    padding: 6px 14px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: default;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.stage-step.current {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    cursor: default;
+}
+
+.stage-step.visited {
+    background-color: #e9ecef;
+    color: #495057;
+    cursor: pointer;
+}
+
+.stage-step.visited:hover {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+
+.stage-step.future {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.stage-step.future:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.stage-step.locked {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.stage-step.clickable {
+    cursor: pointer;
+}
+
+/* Legacy support for .active class */
+.stage-step.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+}
+
+/* Content wrapper for views */
+.main-content > div:not(.stage-navigation-bar) {
+    padding: 20px;
+}
+
+/* When sidebar is collapsed, add horizontal padding to content */
+.left-sidebar.collapsed ~ .main-content > div:not(.stage-navigation-bar) {
+    padding: 20px 40px;
+}
+
+/* Sidebar Toggle Button (when sidebar is collapsed) */
+.sidebar-toggle-overlay {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 200;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle-overlay.visible {
+    display: block;
+}
+
+.sidebar-toggle-overlay:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+h1 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.command-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eee;
+}
+
+.command-selector {
+    margin-bottom: 20px;
+}
+
+#commandSelect {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.dynamic-form {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+#commandForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-field label {
+    font-weight: 500;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-field input,
+.form-field select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-field select {
+    cursor: pointer;
+}
+
+.submit-btn {
+    align-self: flex-start;
+    margin-top: 5px;
+}
+
+.submit-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#clearBtn {
+    background-color: #dc3545;
+}
+
+#clearBtn:hover {
+    background-color: #c82333;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.item-link {
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 3px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.item-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.item-inactive {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+.property-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid #ddd;
+}
+
+.property-btn.increment-btn {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.property-btn.increment-btn:hover:not(:disabled) {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+.property-btn.decrement-btn {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.property-btn.decrement-btn:hover:not(:disabled) {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+.property-btn:disabled {
+    background-color: #e9ecef;
+    color: #adb5bd;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.empty-state {
+    color: #999;
+    text-align: center;
+    padding: 40px;
+}
+
+
+#jsonDisplay {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 20px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.test-section {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #eee;
+}
+
+#testResults {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 4px;
+    min-height: 100px;
+}
+
+.test-summary {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.test-summary h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.test-stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.test-stat {
+    padding: 5px 12px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.test-stat.pass {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.test-stat.fail {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.test-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.test-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: white;
+    border-left: 4px solid #ddd;
+}
+
+.test-result.pass {
+    border-left-color: #28a745;
+}
+
+.test-result.fail {
+    border-left-color: #dc3545;
+}
+
+.test-result.error {
+    border-left-color: #ffc107;
+}
+
+.test-status {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.test-result.pass .test-status {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.test-result.fail .test-status {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.test-result.error .test-status {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.test-number {
+    font-weight: 600;
+    font-size: 12px;
+    color: #666;
+    min-width: 50px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.test-message {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.test-actions {
+    margin-bottom: 15px;
+}
+
+#copyFailingTestsBtn {
+    background-color: #ffc107;
+    color: #000;
+}
+
+#copyFailingTestsBtn:hover {
+    background-color: #e0a800;
+}
+
+.start-app-btn {
+    background-color: #17a2b8;
+}
+
+.start-app-btn:hover {
+    background-color: #138496;
+}
+
+#runTestsBtn {
+    background-color: #28a745;
+}
+
+#runTestsBtn:hover {
+    background-color: #218838;
+}
+
+.form-info {
+    padding: 10px;
+    background-color: #e7f3ff;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #004085;
+}
+
+/* Item Listing View Styles */
+.item-listing-view-section {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+.item-listing-view-content {
+    display: block;
+}
+
+.item-listing-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.item-listing-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background-color: white;
+    color: #333;
+    line-height: 1.6;
+}
+
+.item-listing-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.item-listing-submit-btn {
+    align-self: flex-start;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.item-listing-items {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #dee2e6;
+}
+
+.item-listing-items h3 {
+    margin: 0 0 15px 0;
+    color: #555;
+    font-size: 1.1em;
+}
+
+.item-listing-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.item-listing-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 4px;
+    border-left: 4px solid #007bff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.item-listing-item.item-inactive {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+    border-left-color: #6c757d;
+}
+
+.item-listing-item-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.item-listing-item-name .item-link {
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 6px;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.item-listing-item-name .item-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Urgency View Styles */
+.value-view-section,
+.duration-view-section,
+.urgency-view-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+}
+
+.urgency-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.urgency-view-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.toggle-view-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toggle-view-btn:hover {
+    background-color: #5a6268;
+}
+
+.value-view-content,
+.duration-view-content,
+.urgency-view-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.urgency-callout,
+.value-callout,
+.duration-callout,
+.item-listing-callout {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 15px;
+    color: #1976d2;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.value-view-content.collapsed,
+.duration-view-content.collapsed,
+.urgency-view-content.collapsed {
+    display: none;
+}
+
+/* Grid containers use flex to contain the grid */
+
+.value-grid-header-row,
+.duration-grid-header-row,
+.urgency-grid-header-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.value-axis-label-container,
+.duration-axis-label-container,
+.urgency-axis-label-container {
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 5px;
+    flex-shrink: 0;
+}
+
+/* Urgency row labels are visible placeholders (grey background, not blue, since urgency is not the active stage for rows) */
+/* They inherit the base grid header styles automatically */
+
+/* Urgency columns are now part of the grid - no separate container needed */
+
+/* Urgency column uses same styles as grid cells (defined above) */
+
+/* Urgency column content - now just a flex container */
+.urgency-column-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.urgency-column-content .urgency-item {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.urgency-column-content .urgency-item > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.urgency-column-content .urgency-item.item-inactive {
+    opacity: 0.6;
+    background-color: #e9ecef;
+}
+
+.urgency-column-content .urgency-item-name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.urgency-item-name .item-link,
+.value-item-name .item-link {
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 4px;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.urgency-item-name .item-link:hover,
+.value-item-name .item-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.urgency-column-content .urgency-item-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.urgency-quick-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.urgency-quick-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    color: #495057;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.urgency-quick-btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.urgency-quick-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.urgency-quick-btn.active:hover:not(:disabled) {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.urgency-quick-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.urgency-column-footer {
+    background-color: #e9ecef;
+    padding: 10px;
+    text-align: center;
+    font-weight: 500;
+    color: #495057;
+    border-top: 1px solid #dee2e6;
+    font-size: 14px;
+}
+
+/* Urgency no-value content is now part of the grid */
+.urgency-no-value-content {
+    min-height: 100px;
+    padding: 10px;
+    background-color: #ffffff;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Urgency no-value items match other items */
+.urgency-no-value-content .urgency-item {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d; /* Different color for no-value items */
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.urgency-no-value-content.empty {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Value View Styles */
+
+.value-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.value-view-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.value-grid-container,
+.duration-grid-container,
+.urgency-grid-container {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Old axis label styles - no longer needed with CSS Grid */
+
+/* Old flexbox containers - no longer needed with CSS Grid */
+
+/* Base grid header styles - applied to all headers */
+.value-row-label,
+.duration-row-label,
+.urgency-row-label,
+.urgency-column-label {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #e9ecef;
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+    padding: 5px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Row headers - vertical text */
+.value-row-label,
+.duration-row-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    width: 80px;
+    flex: 1;
+    min-height: 100px;
+}
+
+/* Urgency row label - single box matching full row height */
+.urgency-row-label {
+    width: 80px;
+    flex: 1;
+    min-height: 100px;
+}
+
+/* Column headers - horizontal text */
+.urgency-column-label {
+    height: 40px;
+    min-width: 0;
+}
+
+/* Grid corner cells (empty placeholders) - no styling needed */
+
+/* Color value row labels in value view to indicate active stage */
+#valueViewSection .value-row-label {
+    background-color: #e3f2fd; /* Light blue to indicate value stage */
+}
+
+/* Value Grid: 5 rows × 4 columns */
+.value-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr 1fr 1fr auto;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+/* Duration Grid: 4 rows × 4 columns */
+.duration-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr 1fr 1fr;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+/* Urgency Grid: 3 rows × 4 columns */
+.urgency-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+/* Urgency no-value box spans columns 2-4 */
+.urgency-no-value-box {
+    grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 100px;
+}
+
+/* Base grid cell styles - applied to all cell types */
+.value-grid-cell,
+.duration-grid-cell,
+.urgency-column {
+    min-height: 100px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: white;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.value-grid-cell .value-item {
+    padding: 6px 8px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.value-grid-cell .value-item.item-inactive {
+    opacity: 0.6;
+    background-color: #e9ecef;
+}
+
+.value-grid-cell .value-item-name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.value-grid-cell .value-item-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Remove color coding from value view arrows - use neutral colors */
+.value-grid-cell .property-btn.increment-btn,
+.value-grid-cell .property-btn.decrement-btn,
+.value-no-value-box-content .property-btn.increment-btn,
+.value-no-value-box-content .property-btn.decrement-btn {
+    background-color: #f8f9fa;
+    color: #333;
+    border-color: #dee2e6;
+}
+
+.value-grid-cell .property-btn.increment-btn:hover:not(:disabled),
+.value-grid-cell .property-btn.decrement-btn:hover:not(:disabled),
+.value-no-value-box-content .property-btn.increment-btn:hover:not(:disabled),
+.value-no-value-box-content .property-btn.decrement-btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.duration-grid-cell .duration-item {
+    padding: 6px 8px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.duration-grid-cell .duration-item.item-inactive {
+    opacity: 0.6;
+    background-color: #e9ecef;
+}
+
+.duration-grid-cell .duration-item-name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.duration-grid-cell .duration-item-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.duration-select {
+    padding: 4px 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #e3f2fd; /* Light blue to indicate duration stage */
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.duration-select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.duration-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Urgency column labels are now direct grid children - no container needed */
+
+/* Urgency column label uses same styles as other headers (defined above) */
+
+/* Color urgency column labels in urgency view to indicate active stage */
+#urgencyViewSection .urgency-column-label {
+    background-color: #e3f2fd; /* Light blue to indicate urgency stage */
+}
+
+/* Value no-value boxes are now part of the grid (row 5, columns 2-4) */
+.value-no-value-box {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 100px;
+}
+
+.value-no-value-box-content {
+    min-height: 100px;
+    padding: 10px;
+    background-color: #ffffff;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.value-no-value-box-content .value-item {
+    padding: 6px 8px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.value-no-value-box-content .value-item.item-inactive {
+    opacity: 0.6;
+    background-color: #e9ecef;
+}
+
+.value-no-value-box-content .value-item-name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.value-no-value-box-content .value-item-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.value-no-value-box-content.empty {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Results View Styles */
+.results-view-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.results-view-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.results-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.results-item.item-inactive {
+    opacity: 0.6;
+    background-color: #e9ecef;
+    border-left-color: #6c757d;
+}
+
+
+.results-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.results-item.item-inactive .results-slot {
+    background-color: #6c757d;
+}
+
+.results-item-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.results-arrow-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.results-arrow-btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.results-arrow-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #e9ecef;
+}
+
+
+.results-view-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+.reset-order-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reset-order-btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.reset-order-btn:active {
+    background-color: #dee2e6;
+}
+
+.results-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.results-item-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 16px;
+}
+
+.results-item-metrics {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+}
+
+.results-metric {
+    color: #666;
+}
+
+.results-cd3 {
+    font-weight: 600;
+    color: #495057;
+}
+
