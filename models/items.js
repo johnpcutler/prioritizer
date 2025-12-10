@@ -301,6 +301,17 @@ export function assignSequenceNumbers(items) {
 }
 
 // Reorder item sequence (move up or down)
+// Remove an item from the items array
+export function removeItem(itemId, items) {
+    const index = items.findIndex(item => item.id === itemId);
+    if (index === -1) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    items.splice(index, 1);
+    return { success: true };
+}
+
 export function reorderItemSequence(itemId, direction, items) {
     // Find the item
     const item = items.find(i => i.id === itemId);

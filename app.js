@@ -19,7 +19,8 @@ import {
     validatePropertyUnset,
     recalculateAllCostOfDelay,
     recalculateAllCD3,
-    isValidUrl
+    isValidUrl,
+    removeItem as removeItemModel
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
@@ -82,6 +83,29 @@ function addItem(name) {
     
     const appStateAfter = Store.getAppState();
     persistAndRefresh(appStateAfter, items);
+    displayJson();
+    updateStageNavigation();
+    updateUrgencyView();
+    updateValueView();
+    updateDurationView();
+    updateResultsView();
+    updateItemListingView();
+    
+    return { success: true };
+}
+
+function removeItem(itemId) {
+    const items = Store.getItems();
+    const result = removeItemModel(itemId, items);
+    
+    if (!result.success) {
+        return result;
+    }
+    
+    Store.saveItems(items);
+    
+    const appState = Store.getAppState();
+    persistAndRefresh(appState, items);
     displayJson();
     updateStageNavigation();
     updateUrgencyView();
@@ -451,14 +475,49 @@ function startApp() {
     console.log('App started - all data cleared');
 }
 
-function clearAllData() {
+function clearItemDataOnly() {
+    // Clear items but preserve settings
+    localStorage.removeItem(STORAGE_KEY);
+    
+    // Get current app state
+    const appState = Store.getAppState();
+    if (appState) {
+        // Reset stage and visited stages, but keep buckets
+        appState.currentStage = 'Item Listing';
+        appState.visitedStages = ['Item Listing'];
+        Store.save(appState);
+    } else {
+        // If no state exists, create minimal state with current buckets
+        const newState = {
+            currentStage: 'Item Listing',
+            buckets: initializeBuckets(),
+            locked: true,
+            visitedStages: ['Item Listing']
+        };
+        Store.save(newState);
+    }
+    
+    // Refresh UI
+    populateSettings();
+    displayJson();
+    updateStageNavigation();
+    updateLockedDisplay();
+    updateUrgencyView();
+    updateValueView();
+    updateDurationView();
+    updateResultsView();
+    updateItemListingView();
+    console.log('Item data cleared, settings preserved');
+}
+
+function clearAllData(clearSettings = false) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(APP_STATE_KEY);
     
     // Reinitialize app state
     const appState = {
         currentStage: 'Item Listing',
-        buckets: initializeBuckets(),
+        buckets: clearSettings ? initializeBuckets() : (Store.getAppState()?.buckets || initializeBuckets()),
         locked: true,
         visitedStages: ['Item Listing']
     };
@@ -784,43 +843,84 @@ function refreshApp() {
 // ============================================================================
 
 function setupEventListeners() {
-    // Sidebar toggle
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-    const toggleOverlayBtn = document.getElementById('sidebarToggleOverlay');
-    const leftSidebar = document.getElementById('leftSidebar');
+    // Helper function to hide all stage views
+    const hideAllStageViews = () => {
+        const views = [
+            'itemListingViewSection',
+            'urgencyViewSection',
+            'valueViewSection',
+            'durationViewSection',
+            'resultsViewSection'
+        ];
+        views.forEach(viewId => {
+            const view = document.getElementById(viewId);
+            if (view) view.style.display = 'none';
+        });
+    };
     
-    const toggleSidebar = () => {
-        if (leftSidebar) {
-            leftSidebar.classList.toggle('collapsed');
-            const isCollapsed = leftSidebar.classList.contains('collapsed');
-            
-            // Update button text/icon
-            if (toggleSidebarBtn) {
-                toggleSidebarBtn.textContent = isCollapsed ? '☰' : '←';
-                toggleSidebarBtn.title = isCollapsed ? 'Show Sidebar' : 'Hide Sidebar';
-            }
-            
-            // Show/hide overlay button
-            if (toggleOverlayBtn) {
-                toggleOverlayBtn.classList.toggle('visible', isCollapsed);
-            }
+    // Helper function to show current stage view
+    const updateCurrentStageView = () => {
+        const appState = Store.getAppState();
+        const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
+        
+        // Hide all views first
+        hideAllStageViews();
+        
+        // Show appropriate view based on current stage
+        if (currentStage === 'Item Listing') {
+            updateItemListingView();
+        } else if (currentStage === 'urgency') {
+            updateUrgencyView();
+        } else if (currentStage === 'value') {
+            updateValueView();
+        } else if (currentStage === 'duration') {
+            updateDurationView();
+        } else if (currentStage === 'Results') {
+            updateResultsView();
         }
     };
     
-    if (toggleSidebarBtn) {
-        toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    // Helper function to toggle settings view
+    const toggleSettingsView = (show) => {
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsViewSection = document.getElementById('settingsViewSection');
+        
+        if (!settingsBtn || !settingsViewSection) return;
+        
+        if (show) {
+            settingsViewSection.style.display = 'block';
+            hideAllStageViews();
+            settingsBtn.classList.add('active');
+        } else {
+            settingsViewSection.style.display = 'none';
+            updateCurrentStageView();
+            settingsBtn.classList.remove('active');
+        }
+    };
+    
+    // Settings button - toggle settings view
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsViewSection = document.getElementById('settingsViewSection');
+    
+    if (settingsBtn && settingsViewSection) {
+        settingsBtn.addEventListener('click', () => {
+            const isVisible = settingsViewSection.style.display !== 'none';
+            toggleSettingsView(!isVisible);
+        });
     }
     
-    if (toggleOverlayBtn) {
-        toggleOverlayBtn.addEventListener('click', toggleSidebar);
-        // Initially hide the overlay button
-        toggleOverlayBtn.classList.remove('visible');
+    // Close settings button
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    if (closeSettingsBtn) {
+        closeSettingsBtn.addEventListener('click', () => {
+            toggleSettingsView(false);
+        });
     }
     
     // Settings save buttons - use event delegation
-    const sidebarContent = document.querySelector('.sidebar-content');
-    if (sidebarContent) {
-        sidebarContent.addEventListener('click', (e) => {
+    const settingsViewContent = document.querySelector('.settings-view-content');
+    if (settingsViewContent) {
+        settingsViewContent.addEventListener('click', (e) => {
             const saveBtn = e.target.closest('.settings-save-btn');
             if (!saveBtn) return;
             
@@ -947,13 +1047,77 @@ function setupEventListeners() {
         });
     }
     
-    // Start App button
-    // Clear button
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all data?')) {
-                clearAllData();
+    // Clear Data button - show modal
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    const clearDataModal = document.getElementById('clearDataModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+    const clearDataOption = document.getElementById('clearDataOption');
+    const clearDataConfirm = document.getElementById('clearDataConfirm');
+    
+    const showClearDataModal = () => {
+        if (clearDataModal) {
+            clearDataModal.style.display = 'flex';
+            // Reset form
+            if (clearDataOption) clearDataOption.value = 'itemsOnly';
+            if (clearDataConfirm) {
+                clearDataConfirm.value = '';
+                clearDataConfirm.focus();
+            }
+            if (modalSubmitBtn) modalSubmitBtn.disabled = true;
+        }
+    };
+    
+    const hideClearDataModal = () => {
+        if (clearDataModal) {
+            clearDataModal.style.display = 'none';
+        }
+    };
+    
+    const validateClearDataInput = () => {
+        if (clearDataConfirm && modalSubmitBtn) {
+            const inputValue = clearDataConfirm.value.trim();
+            modalSubmitBtn.disabled = inputValue !== 'Clear my data';
+        }
+    };
+    
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', showClearDataModal);
+    }
+    
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', hideClearDataModal);
+    }
+    
+    if (modalCancelBtn) {
+        modalCancelBtn.addEventListener('click', hideClearDataModal);
+    }
+    
+    // Close modal when clicking backdrop
+    if (clearDataModal) {
+        clearDataModal.addEventListener('click', (e) => {
+            if (e.target === clearDataModal) {
+                hideClearDataModal();
+            }
+        });
+    }
+    
+    // Validate input as user types
+    if (clearDataConfirm) {
+        clearDataConfirm.addEventListener('input', validateClearDataInput);
+    }
+    
+    // Handle submit
+    if (modalSubmitBtn) {
+        modalSubmitBtn.addEventListener('click', () => {
+            const option = clearDataOption ? clearDataOption.value : 'itemsOnly';
+            hideClearDataModal();
+            
+            if (option === 'itemsOnly') {
+                clearItemDataOnly();
+            } else {
+                clearAllData(true);
             }
         });
     }
@@ -978,6 +1142,27 @@ function setupEventListeners() {
                     alert(result.error);
                 }
             }
+        });
+    }
+    
+    // Item remove buttons - use event delegation
+    const itemListingViewSection = document.getElementById('itemListingViewSection');
+    if (itemListingViewSection) {
+        itemListingViewSection.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.item-remove-btn');
+            if (!removeBtn) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const itemId = removeBtn.getAttribute('data-item-id');
+            if (!itemId) return;
+            
+            const result = removeItem(itemId);
+            if (!result.success) {
+                alert(result.error || 'Failed to remove item');
+            }
+            // View will update automatically via removeItem function
         });
     }
     
@@ -1274,6 +1459,7 @@ function initializeAPI() {
         getItems: Store.getItems,
         addItem: addItem,
         bulkAddItems: bulkAddItems,
+        removeItem: removeItem,
         setItemProperty: setItemProperty,
         getCurrentStage: () => {
             const appState = Store.getAppState();

@@ -8,228 +8,226 @@
 </head>
 <body>
     <div class="app-layout">
-        <!-- Floating Toggle Button (shown when sidebar is closed) -->
-        <button id="sidebarToggleOverlay" class="sidebar-toggle-overlay" title="Show Sidebar">☰</button>
-        
-        <!-- Left Sidebar -->
-        <div id="leftSidebar" class="left-sidebar">
-            <div class="sidebar-header">
-                <h1>Priority Manager</h1>
-                <button id="toggleSidebarBtn" class="sidebar-toggle-btn" title="Toggle Sidebar">☰</button>
-            </div>
-            
-            <div class="sidebar-content">
-                <div class="settings-section">
-                    <h2>Settings</h2>
-                    
-                    <!-- Limits Section -->
-                    <div class="settings-subsection">
-                        <h3>Limits</h3>
-                        
-                        <div class="settings-group">
-                            <h4>Urgency Limits</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="number" id="urgencyLimit1" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="limit">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="number" id="urgencyLimit2" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="limit">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="number" id="urgencyLimit3" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="limit">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Value Limits</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="number" id="valueLimit1" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="1" data-type="limit">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="number" id="valueLimit2" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="2" data-type="limit">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="number" id="valueLimit3" min="0" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="3" data-type="limit">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Weights Section -->
-                    <div class="settings-subsection">
-                        <h3>Weights</h3>
-                        
-                        <div class="settings-group">
-                            <h4>Urgency Weights</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="number" id="urgencyWeight1" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="number" id="urgencyWeight2" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="number" id="urgencyWeight3" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="weight">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Value Weights</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="number" id="valueWeight1" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="1" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="number" id="valueWeight2" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="2" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="number" id="valueWeight3" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="3" data-type="weight">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Duration Weights</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="number" id="durationWeight1" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="duration" data-level="1" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="number" id="durationWeight2" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="duration" data-level="2" data-type="weight">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="number" id="durationWeight3" min="0" step="0.1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="duration" data-level="3" data-type="weight">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Titles & Descriptions Section -->
-                    <div class="settings-subsection">
-                        <h3>Titles & Descriptions</h3>
-                        
-                        <div class="settings-group">
-                            <h4>Urgency Titles</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="text" id="urgencyTitle1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="title">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="text" id="urgencyTitle2" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="title">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="text" id="urgencyTitle3" class="settings-input" />
-                                <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="title">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Urgency Descriptions</h4>
-                            <div class="settings-row-vertical">
-                                <label>Level 1:</label>
-                                <textarea id="urgencyDescription1" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="description">Save</button>
-                            </div>
-                            <div class="settings-row-vertical">
-                                <label>Level 2:</label>
-                                <textarea id="urgencyDescription2" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="description">Save</button>
-                            </div>
-                            <div class="settings-row-vertical">
-                                <label>Level 3:</label>
-                                <textarea id="urgencyDescription3" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="description">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Value Titles</h4>
-                            <div class="settings-row">
-                                <label>Level 1:</label>
-                                <input type="text" id="valueTitle1" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="1" data-type="title">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 2:</label>
-                                <input type="text" id="valueTitle2" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="2" data-type="title">Save</button>
-                            </div>
-                            <div class="settings-row">
-                                <label>Level 3:</label>
-                                <input type="text" id="valueTitle3" class="settings-input" />
-                                <button class="settings-save-btn" data-category="value" data-level="3" data-type="title">Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h4>Value Descriptions</h4>
-                            <div class="settings-row-vertical">
-                                <label>Level 1:</label>
-                                <textarea id="valueDescription1" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="value" data-level="1" data-type="description">Save</button>
-                            </div>
-                            <div class="settings-row-vertical">
-                                <label>Level 2:</label>
-                                <textarea id="valueDescription2" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="value" data-level="2" data-type="description">Save</button>
-                            </div>
-                            <div class="settings-row-vertical">
-                                <label>Level 3:</label>
-                                <textarea id="valueDescription3" class="settings-textarea" rows="3"></textarea>
-                                <button class="settings-save-btn" data-category="value" data-level="3" data-type="description">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Data Management Section -->
-                    <div class="settings-subsection">
-                        <h3>Data Management</h3>
-                        <div class="button-group">
-                            <button id="clearBtn" class="clear-data-btn">Clear All Data</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Main Content Area -->
         <div class="main-content">
             <!-- Stage Navigation Bar (always visible) -->
             <div class="stage-navigation-bar">
                 <div class="stage-nav-controls">
-                    <div class="stage-steps">
-                        <span class="stage-step" data-stage="Item Listing">Items</span>
-                        <span class="stage-step" data-stage="urgency">Urgency</span>
-                        <span class="stage-step" data-stage="value">Value</span>
-                        <span class="stage-step" data-stage="duration">Duration</span>
-                        <span class="stage-step" data-stage="Results">Results</span>
+                    <div class="workflow-container">
+                        <div class="workflow-label">Workflow</div>
+                        <div class="stage-steps">
+                            <span class="stage-step" data-stage="Item Listing">Items</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="stage-step" data-stage="urgency">Urgency</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="stage-step" data-stage="value">Value</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="stage-step" data-stage="duration">Duration</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="stage-step" data-stage="Results">Results</span>
+                        </div>
+                    </div>
+                    <div class="main-actions">
+                        <button id="settingsBtn" class="main-action-btn">Settings</button>
+                        <button id="clearDataBtn" class="main-action-btn clear-data-action-btn">Clear Data</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings View (initially hidden) -->
+            <div id="settingsViewSection" style="display: none;" class="settings-view-section">
+                <div class="settings-view-content">
+                    <div class="settings-header">
+                        <h2>Settings</h2>
+                        <button id="closeSettingsBtn" class="close-settings-btn" title="Close Settings">&times;</button>
+                    </div>
+                    <div class="settings-section">
+                        
+                        <!-- Limits Section -->
+                        <div class="settings-subsection">
+                            <h3>Limits</h3>
+                            
+                            <div class="settings-group">
+                                <h4>Urgency Limits</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="number" id="urgencyLimit1" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="limit">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="number" id="urgencyLimit2" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="limit">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="number" id="urgencyLimit3" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="limit">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Value Limits</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="number" id="valueLimit1" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="1" data-type="limit">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="number" id="valueLimit2" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="2" data-type="limit">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="number" id="valueLimit3" min="0" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="3" data-type="limit">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weights Section -->
+                        <div class="settings-subsection">
+                            <h3>Weights</h3>
+                            
+                            <div class="settings-group">
+                                <h4>Urgency Weights</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="number" id="urgencyWeight1" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="number" id="urgencyWeight2" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="number" id="urgencyWeight3" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="weight">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Value Weights</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="number" id="valueWeight1" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="1" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="number" id="valueWeight2" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="2" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="number" id="valueWeight3" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="3" data-type="weight">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Duration Weights</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="number" id="durationWeight1" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="duration" data-level="1" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="number" id="durationWeight2" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="duration" data-level="2" data-type="weight">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="number" id="durationWeight3" min="0" step="0.1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="duration" data-level="3" data-type="weight">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Titles & Descriptions Section -->
+                        <div class="settings-subsection">
+                            <h3>Titles & Descriptions</h3>
+                            
+                            <div class="settings-group">
+                                <h4>Urgency Titles</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="text" id="urgencyTitle1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="title">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="text" id="urgencyTitle2" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="title">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="text" id="urgencyTitle3" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="title">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Urgency Descriptions</h4>
+                                <div class="settings-row-vertical">
+                                    <label>Level 1:</label>
+                                    <textarea id="urgencyDescription1" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="urgency" data-level="1" data-type="description">Save</button>
+                                </div>
+                                <div class="settings-row-vertical">
+                                    <label>Level 2:</label>
+                                    <textarea id="urgencyDescription2" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="urgency" data-level="2" data-type="description">Save</button>
+                                </div>
+                                <div class="settings-row-vertical">
+                                    <label>Level 3:</label>
+                                    <textarea id="urgencyDescription3" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="urgency" data-level="3" data-type="description">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Value Titles</h4>
+                                <div class="settings-row">
+                                    <label>Level 1:</label>
+                                    <input type="text" id="valueTitle1" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="1" data-type="title">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 2:</label>
+                                    <input type="text" id="valueTitle2" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="2" data-type="title">Save</button>
+                                </div>
+                                <div class="settings-row">
+                                    <label>Level 3:</label>
+                                    <input type="text" id="valueTitle3" class="settings-input" />
+                                    <button class="settings-save-btn" data-category="value" data-level="3" data-type="title">Save</button>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-group">
+                                <h4>Value Descriptions</h4>
+                                <div class="settings-row-vertical">
+                                    <label>Level 1:</label>
+                                    <textarea id="valueDescription1" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="value" data-level="1" data-type="description">Save</button>
+                                </div>
+                                <div class="settings-row-vertical">
+                                    <label>Level 2:</label>
+                                    <textarea id="valueDescription2" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="value" data-level="2" data-type="description">Save</button>
+                                </div>
+                                <div class="settings-row-vertical">
+                                    <label>Level 3:</label>
+                                    <textarea id="valueDescription3" class="settings-textarea" rows="3"></textarea>
+                                    <button class="settings-save-btn" data-category="value" data-level="3" data-type="description">Save</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -377,6 +375,33 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear Data Modal -->
+    <div id="clearDataModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Clear Data</h2>
+                <button id="modalCloseBtn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-field">
+                    <label for="clearDataOption">Select what to clear:</label>
+                    <select id="clearDataOption" class="modal-select">
+                        <option value="itemsOnly">Clear my item data but keep my settings</option>
+                        <option value="itemsAndSettings">Clear my item data and my settings</option>
+                    </select>
+                </div>
+                <div class="modal-field">
+                    <label for="clearDataConfirm">Type "Clear my data" to confirm:</label>
+                    <input type="text" id="clearDataConfirm" class="modal-input" placeholder="Clear my data" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalCancelBtn" class="modal-btn modal-cancel-btn">Cancel</button>
+                <button id="modalSubmitBtn" class="modal-btn modal-submit-btn" disabled>Clear Data</button>
             </div>
         </div>
     </div>

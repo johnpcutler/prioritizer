@@ -28,6 +28,10 @@
             return appInstance ? appInstance.bulkAddItems(itemNamesText) : { success: false, error: 'App not initialized' };
         },
         
+        removeItem: function(itemId) {
+            return appInstance ? appInstance.removeItem(itemId) : { success: false, error: 'App not initialized' };
+        },
+        
         setItemActive: function(itemId) {
             return appInstance ? appInstance.setItemActive(itemId) : { success: false, error: 'App not initialized' };
         },

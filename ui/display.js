@@ -168,6 +168,7 @@ function displayItemListingContent() {
         return `
             <div class="item-listing-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
                 <span class="item-listing-item-name">${escapeHtml(item.name)}${linkHtml}</span>
+                <button class="item-remove-btn" data-item-id="${item.id}" title="Remove item">🗑️</button>
             </div>
         `;
     }).join('');
