@@ -23,7 +23,7 @@ import {
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
-import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStageNavigation, updateUrgencyView, updateValueView, updateDurationView, updateResultsView, updateItemListingView, resetResultsOrder } from './ui/display.js';
+import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStageNavigation, updateUrgencyView, updateValueView, updateDurationView, updateResultsView, updateItemListingView, resetResultsOrder, populateSettings } from './ui/display.js';
 import { attachResultsViewListeners } from './events/listeners.js';
 
 // Make functions available globally for event listeners
@@ -454,12 +454,26 @@ function startApp() {
 function clearAllData() {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(APP_STATE_KEY);
-    const jsonDisplay = document.getElementById('jsonDisplay');
-    jsonDisplay.textContent = JSON.stringify({
+    
+    // Reinitialize app state
+    const appState = {
         currentStage: 'Item Listing',
         buckets: initializeBuckets(),
-        items: []
-    }, null, 2);
+        locked: true,
+        visitedStages: ['Item Listing']
+    };
+    Store.save(appState);
+    
+    // Refresh UI
+    populateSettings();
+    displayJson();
+    updateStageNavigation();
+    updateLockedDisplay();
+    updateUrgencyView();
+    updateValueView();
+    updateDurationView();
+    updateResultsView();
+    updateItemListingView();
     console.log('All data cleared');
 }
 
@@ -803,15 +817,87 @@ function setupEventListeners() {
         toggleOverlayBtn.classList.remove('visible');
     }
     
-    // Command select
-    const commandSelect = document.getElementById('commandSelect');
-    if (commandSelect) {
-        commandSelect.addEventListener('change', (e) => {
-            const command = e.target.value;
-            if (command) {
-                showForm(command, COMMAND_FORMS[command], () => Store.getItems());
-            } else {
-                hideForm();
+    // Settings save buttons - use event delegation
+    const sidebarContent = document.querySelector('.sidebar-content');
+    if (sidebarContent) {
+        sidebarContent.addEventListener('click', (e) => {
+            const saveBtn = e.target.closest('.settings-save-btn');
+            if (!saveBtn) return;
+            
+            e.preventDefault();
+            
+            const category = saveBtn.getAttribute('data-category');
+            const level = parseInt(saveBtn.getAttribute('data-level'));
+            const type = saveBtn.getAttribute('data-type');
+            
+            let result;
+            
+            if (type === 'limit') {
+                const input = document.getElementById(`${category}Limit${level}`);
+                if (!input || !input.value) {
+                    alert('Please enter a value');
+                    return;
+                }
+                const value = parseInt(input.value);
+                if (category === 'urgency') {
+                    result = setUrgencyLimit(level, value);
+                } else if (category === 'value') {
+                    result = setValueLimit(level, value);
+                }
+            } else if (type === 'weight') {
+                const input = document.getElementById(`${category}Weight${level}`);
+                if (!input || !input.value) {
+                    alert('Please enter a value');
+                    return;
+                }
+                const value = parseFloat(input.value);
+                if (category === 'urgency') {
+                    result = setUrgencyWeight(level, value);
+                } else if (category === 'value') {
+                    result = setValueWeight(level, value);
+                } else if (category === 'duration') {
+                    result = setDurationWeight(level, value);
+                }
+            } else if (type === 'title') {
+                const input = document.getElementById(`${category}Title${level}`);
+                if (!input || !input.value.trim()) {
+                    alert('Please enter a title');
+                    return;
+                }
+                const value = input.value.trim();
+                if (category === 'urgency') {
+                    result = setUrgencyTitle(level, value);
+                } else if (category === 'value') {
+                    result = setValueTitle(level, value);
+                }
+            } else if (type === 'description') {
+                const input = document.getElementById(`${category}Description${level}`);
+                if (!input || !input.value.trim()) {
+                    alert('Please enter a description');
+                    return;
+                }
+                const value = input.value.trim();
+                if (category === 'urgency') {
+                    result = setUrgencyDescription(level, value);
+                } else if (category === 'value') {
+                    result = setValueDescription(level, value);
+                }
+            }
+            
+            if (result && result.success) {
+                // Update settings display with new values
+                populateSettings();
+                displayJson();
+                // Show brief feedback
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.backgroundColor = '#28a745';
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.style.backgroundColor = '';
+                }, 1000);
+            } else if (result && result.error) {
+                alert(result.error);
             }
         });
     }
@@ -1165,6 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     setupEventListeners();
+    populateSettings(); // Populate settings with current values
     updateCurrentStageDisplay();
     updateLockedDisplay();
     updateStageNavigation();

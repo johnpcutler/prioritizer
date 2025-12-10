@@ -771,3 +771,81 @@ function displayResultsContent() {
     }).join('');
 }
 
+// Populate settings form with current values from app state
+export function populateSettings() {
+    const appState = Store.getAppState();
+    const buckets = appState.buckets || {};
+    
+    // Populate Urgency Limits
+    for (let level = 1; level <= 3; level++) {
+        const limitInput = document.getElementById(`urgencyLimit${level}`);
+        if (limitInput && buckets.urgency && buckets.urgency[level]) {
+            limitInput.value = buckets.urgency[level].limit || '';
+        }
+    }
+    
+    // Populate Value Limits
+    for (let level = 1; level <= 3; level++) {
+        const limitInput = document.getElementById(`valueLimit${level}`);
+        if (limitInput && buckets.value && buckets.value[level]) {
+            limitInput.value = buckets.value[level].limit || '';
+        }
+    }
+    
+    // Populate Urgency Weights
+    for (let level = 1; level <= 3; level++) {
+        const weightInput = document.getElementById(`urgencyWeight${level}`);
+        if (weightInput && buckets.urgency && buckets.urgency[level]) {
+            weightInput.value = buckets.urgency[level].weight || '';
+        }
+    }
+    
+    // Populate Value Weights
+    for (let level = 1; level <= 3; level++) {
+        const weightInput = document.getElementById(`valueWeight${level}`);
+        if (weightInput && buckets.value && buckets.value[level]) {
+            weightInput.value = buckets.value[level].weight || '';
+        }
+    }
+    
+    // Populate Duration Weights
+    for (let level = 1; level <= 3; level++) {
+        const weightInput = document.getElementById(`durationWeight${level}`);
+        if (weightInput && buckets.duration && buckets.duration[level]) {
+            weightInput.value = buckets.duration[level].weight || '';
+        }
+    }
+    
+    // Populate Urgency Titles
+    for (let level = 1; level <= 3; level++) {
+        const titleInput = document.getElementById(`urgencyTitle${level}`);
+        if (titleInput && buckets.urgency && buckets.urgency[level]) {
+            titleInput.value = buckets.urgency[level].title || '';
+        }
+    }
+    
+    // Populate Urgency Descriptions
+    for (let level = 1; level <= 3; level++) {
+        const descInput = document.getElementById(`urgencyDescription${level}`);
+        if (descInput && buckets.urgency && buckets.urgency[level]) {
+            descInput.value = buckets.urgency[level].description || '';
+        }
+    }
+    
+    // Populate Value Titles
+    for (let level = 1; level <= 3; level++) {
+        const titleInput = document.getElementById(`valueTitle${level}`);
+        if (titleInput && buckets.value && buckets.value[level]) {
+            titleInput.value = buckets.value[level].title || '';
+        }
+    }
+    
+    // Populate Value Descriptions
+    for (let level = 1; level <= 3; level++) {
+        const descInput = document.getElementById(`valueDescription${level}`);
+        if (descInput && buckets.value && buckets.value[level]) {
+            descInput.value = buckets.value[level].description || '';
+        }
+    }
+}
+
