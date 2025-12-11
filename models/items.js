@@ -27,6 +27,9 @@ export function normalizeItem(item) {
     if (item.sequence === undefined || item.sequence === null) {
         item.sequence = null;
     }
+    if (item.addedToManuallySequencedList === undefined || item.addedToManuallySequencedList === null) {
+        item.addedToManuallySequencedList = false;
+    }
     
     // Normalize link - validate if present, otherwise set to null
     if (item.link !== undefined && item.link !== null && item.link !== '') {
@@ -339,7 +342,81 @@ export function reorderItemSequence(itemId, direction, items) {
     }
     item.sequence = targetSequence;
     
+    // Clear the "new" flag when user manually moves the item
+    item.addedToManuallySequencedList = false;
+    
     return { success: true };
+}
+
+// Insert item into sequence when it gets CD3
+export function insertItemIntoSequence(item, items, appState) {
+    const newCD3 = item.CD3 || 0;
+    if (newCD3 === 0) {
+        return; // Item doesn't have CD3 yet, nothing to do
+    }
+    
+    const manuallyReordered = appState.resultsManuallyReordered === true;
+    
+    if (!manuallyReordered) {
+        // Case 1: Results NOT manually reordered - insert in CD3-sorted position
+        // Get all items with CD3 > 0
+        const itemsWithCD3 = items.filter(i => (i.CD3 || 0) > 0);
+        
+        if (itemsWithCD3.length === 0) {
+            return; // No items with CD3, nothing to do
+        }
+        
+        // Sort by CD3 descending
+        const sortedItems = getItemsSortedByCD3(itemsWithCD3);
+        
+        // Reassign sequence numbers to maintain CD3 order
+        // Note: sortedItems contains references to original items, so modifications persist
+        sortedItems.forEach((sortedItem, index) => {
+            sortedItem.sequence = index + 1;
+        });
+    } else {
+        // Case 2: Results manually reordered - insert above highest ranked item with lower CD3
+        // Get all items with sequence numbers, sorted by sequence
+        const sequencedItems = items
+            .filter(i => i.sequence !== null && i.sequence !== undefined)
+            .sort((a, b) => a.sequence - b.sequence);
+        
+        if (sequencedItems.length === 0) {
+            // No sequenced items, assign sequence 1
+            item.sequence = 1;
+            item.addedToManuallySequencedList = true;
+            return;
+        }
+        
+        // Find items with CD3 < newItem.CD3, then find the one with highest CD3
+        const itemsWithLowerCD3 = sequencedItems.filter(i => (i.CD3 || 0) < newCD3);
+        
+        if (itemsWithLowerCD3.length > 0) {
+            // Find the item with the highest CD3 among those with lower CD3
+            // This ensures we insert above the highest CD3 item that is still lower than the new item
+            // This respects manual ordering - items with lower CD3 above it stay in place
+            const targetItem = itemsWithLowerCD3.reduce((highest, current) => {
+                return (current.CD3 || 0) > (highest.CD3 || 0) ? current : highest;
+            });
+            
+            // Insert above target item
+            const targetSequence = targetItem.sequence;
+            item.sequence = targetSequence;
+            item.addedToManuallySequencedList = true;
+            
+            // Shift all items with sequence >= targetSequence up by 1
+            sequencedItems.forEach(i => {
+                if (i.sequence >= targetSequence && i.id !== item.id) {
+                    i.sequence = i.sequence + 1;
+                }
+            });
+        } else {
+            // New item has lowest CD3, place at end
+            const maxSequence = Math.max(...sequencedItems.map(i => i.sequence));
+            item.sequence = maxSequence + 1;
+            item.addedToManuallySequencedList = true;
+        }
+    }
 }
 
 

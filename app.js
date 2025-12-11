@@ -20,7 +20,8 @@ import {
     recalculateAllCostOfDelay,
     recalculateAllCD3,
     isValidUrl,
-    removeItem as removeItemModel
+    removeItem as removeItemModel,
+    insertItemIntoSequence
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
@@ -238,10 +239,20 @@ function setItemProperty(itemId, property, value) {
         }
     }
     
+    // Store old CD3 before update to detect transition
+    const oldCD3 = item.CD3 || 0;
+    
     // Use unified update function
     const result = updateItemProperty(item, property, value, appState.buckets);
     if (!result.valid) {
         return { success: false, error: result.error };
+    }
+    
+    // Check if CD3 transitioned from 0 to >0
+    const newCD3 = item.CD3 || 0;
+    if (oldCD3 === 0 && newCD3 > 0) {
+        // Item just got CD3 - insert into sequence
+        insertItemIntoSequence(item, items, appState);
     }
     
     Store.saveItems(items);

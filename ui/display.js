@@ -697,9 +697,10 @@ export function updateResultsView() {
 export function resetResultsOrder() {
     const items = Store.getItems();
     
-    // Clear all sequence numbers
+    // Clear all sequence numbers and "new" flags
     items.forEach(item => {
         item.sequence = null;
+        item.addedToManuallySequencedList = false;
     });
     
     // Reassign based on CD3 order
@@ -820,7 +821,7 @@ function displayResultsContent() {
                             title="Move down">↓</button>
                 </div>
                 <div class="results-item-details">
-                    <div class="results-item-name">${escapeHtml(item.name)}${linkHtml}</div>
+                    <div class="results-item-name">${escapeHtml(item.name)}${item.addedToManuallySequencedList ? ' <span class="new-item-badge">[New]</span>' : ''}${linkHtml}</div>
                     <div class="results-item-metrics">
                         <span class="results-metric">Urgency: ${urgencyDisplay}</span>
                         <span class="results-metric">Value: ${valueDisplay}</span>

@@ -729,6 +729,22 @@ async function runAllTests() {
         console.log('\n--- Test 76: Can Still Change Urgency Values ---');
         await runAsyncTest(testCanStillChangeUrgencyValues);
         
+        // Test 77: Sequence assignment when CD3 assigned
+        console.log('\n--- Test 77: Sequence Assignment When CD3 Assigned ---');
+        await runAsyncTest(testSequenceAssignedWhenCD3Assigned);
+        
+        // Test 78: Sequence insertion when manually reordered
+        console.log('\n--- Test 78: Sequence Insertion When Manually Reordered ---');
+        await runAsyncTest(testSequenceInsertionWhenManuallyReordered);
+        
+        // Test 79: [New] flag cleared on reset
+        console.log('\n--- Test 79: [New] Flag Cleared On Reset ---');
+        await runAsyncTest(testNewFlagClearedOnReset);
+        
+        // Test 80: New item inserted in CD3 order
+        console.log('\n--- Test 80: New Item Inserted In CD3 Order ---');
+        await runAsyncTest(testNewItemInsertedInCD3Order);
+        
         // Display results
         displayTestResults();
         
@@ -1212,8 +1228,27 @@ function testAddItemOnlyInUrgencyStage() {
     localStorage.removeItem('priorityItems'); // App's storage key
     localStorage.removeItem('appState'); // App's state key
     
+    // Initialize app state first
+    const initialState = getAppState();
+    if (!initialState.currentStage) {
+        initialState.currentStage = 'Item Listing';
+        saveAppState(initialState);
+    }
+    
+    // Add an item first (required to advance to urgency stage)
+    const tempItem = {
+        id: 'temp-item',
+        name: 'Temp Item',
+        urgency: 0,
+        value: 0,
+        duration: 0,
+        createdAt: new Date().toISOString()
+    };
+    saveItems([tempItem]);
+    
     // Test 1: Should succeed when entry stage is urgency
-    setEntryStage('urgency');
+    const result = setEntryStage('urgency');
+    assert(result.success !== false, `setEntryStage should succeed: ${result.error || ''}`);
     const appState1 = getAppState();
     assertEqual(appState1.currentStage, 'urgency', 'Current stage should be urgency');
     
@@ -1231,35 +1266,26 @@ function testAddItemOnlyInUrgencyStage() {
     saveItems(items1);
     
     const itemsAfter1 = getItems();
-    assertEqual(itemsAfter1.length, 1, 'Should be able to add item when entry stage is urgency');
+    // Should have tempItem + newItem1 = 2 items
+    assertEqual(itemsAfter1.length, 2, 'Should be able to add item when entry stage is urgency (tempItem + newItem1)');
     
     // Test 2: Should fail when entry stage is value
     // Note: We need items with urgency to advance to value stage
     const itemsForValue = getItems();
-    // First, ensure we have an item with urgency set
+    // First, ensure ALL items have urgency set (required to advance)
     if (itemsForValue.length > 0) {
-        // Ensure we're at Item Listing stage first
-        let currentState = getAppState();
-        if (currentState.currentStage !== 'Item Listing') {
-            currentState.currentStage = 'Item Listing';
-            saveAppState(currentState);
-        }
-        
-        const itemToSetUrgency = itemsForValue[0];
-        itemToSetUrgency.urgency = 2; // Set urgency so we can advance to value stage
-        itemToSetUrgency.urgencySet = true; // Set the flag
+        // We're already at urgency stage, so set urgency on ALL items
+        itemsForValue.forEach(item => {
+            if (!item.urgencySet) {
+                item.urgency = item.id === 'temp-item' ? 1 : 2; // Set urgency on all items
+                item.urgencySet = true; // Set the flag
+            }
+        });
         saveItems(itemsForValue);
         
-        // First advance from Item Listing to urgency, then to value
-        const result1 = advanceStage(); // Item Listing -> urgency
-        assert(result1.success !== false, 'Should be able to advance from Item Listing to urgency');
-        
-        // Verify we're at urgency stage
-        const stateAfter1 = getAppState();
-        assertEqual(stateAfter1.currentStage, 'urgency', 'Should be at urgency stage after first advance');
-        
+        // Advance from urgency to value (we're already at urgency stage)
         const result2 = advanceStage(); // urgency -> value
-        assert(result2.success !== false, 'Should be able to advance to value stage when item has urgency');
+        assert(result2.success !== false, `Should be able to advance to value stage when all items have urgency: ${result2.error || ''}`);
         const appState2 = getAppState();
         assertEqual(appState2.currentStage, 'value', 'Current stage should be value');
         
@@ -1273,18 +1299,31 @@ function testAddItemOnlyInUrgencyStage() {
 function testCannotSetUrgencyWhenEntryStageIsValue() {
     localStorage.removeItem(TEST_STORAGE_KEY);
     localStorage.removeItem(TEST_APP_STATE_KEY);
+    localStorage.removeItem('priorityItems'); // App's storage key
+    localStorage.removeItem('appState'); // App's state key
     
-    // Set entry stage to urgency first and add item with urgency
-    setEntryStage('urgency');
+    // Initialize app state first
+    const initialState = getAppState();
+    if (!initialState.currentStage) {
+        initialState.currentStage = 'Item Listing';
+        saveAppState(initialState);
+    }
+    
+    // Add item first (required to advance to urgency stage)
     const item = {
         id: 'test-urgency-value-stage',
         name: 'Test Urgency Value Stage Item',
         urgency: 2,
         value: 0,
         duration: 0,
+        urgencySet: true,
         createdAt: new Date().toISOString()
     };
     saveItems([item]);
+    
+    // Advance to urgency stage first
+    const result1 = advanceStage(); // Item Listing -> urgency
+    assert(result1.success !== false, 'Should be able to advance to urgency stage');
     
     // Now set entry stage to value (should succeed because item has urgency)
     const result = setEntryStage('value');
@@ -3530,4 +3569,326 @@ async function testCanStillChangeUrgencyValues() {
     
     updatedItems = TestAdapter.getItems();
     assertEqual(updatedItems[0].urgency, 3, 'Urgency should be 3');
+}
+
+// Test sequence assignment when item gets CD3 (not manually reordered)
+async function testSequenceAssignedWhenCD3Assigned() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add two items
+    TestAdapter.addItem('Item 1');
+    TestAdapter.addItem('Item 2');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency for all items
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 1);
+    
+    // Advance to Value stage and set value for all items
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    TestAdapter.setItemProperty(items[1].id, 'value', 1);
+    
+    // Advance to Duration stage and unlock
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    
+    // Now set duration for Item 1 (CD3 = 9/1 = 9)
+    let result = TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    assert(result.success, `Setting duration should succeed: ${result.error || ''}`);
+    
+    // Get fresh items after Item 1 updates
+    items = TestAdapter.getItems();
+    const item1AfterSetup = items.find(i => i.name === 'Item 1');
+    assertEqual(item1AfterSetup.CD3, 9, 'Item 1 should have CD3 9 after setting all properties');
+    
+    // Set duration for Item 2 (CD3 = 1/1 = 1)
+    const item2Ref = items.find(i => i.name === 'Item 2');
+    if (!item2Ref) {
+        assert(false, 'Item 2 not found');
+        return;
+    }
+    result = TestAdapter.setItemProperty(item2Ref.id, 'duration', 1);
+    assert(result.success, `Setting duration for Item 2 should succeed: ${result.error || ''}`);
+    
+    const updatedItems = TestAdapter.getItems();
+    const item1 = updatedItems.find(i => i.name === 'Item 1');
+    const item2 = updatedItems.find(i => i.name === 'Item 2');
+    
+    if (!item1 || !item2) {
+        assert(false, 'Items not found after updates');
+        return;
+    }
+    
+    // Verify CD3 values first
+    assertEqual(item1.CD3, 9, 'Item 1 should have CD3 9');
+    assertEqual(item2.CD3, 1, 'Item 2 should have CD3 1');
+    
+    // Item 1 should have sequence 1 (higher CD3)
+    assertEqual(item1.sequence, 1, 'Item 1 should have sequence 1 (CD3 9)');
+    // Item 2 should have sequence 2 (lower CD3)
+    assertEqual(item2.sequence, 2, 'Item 2 should have sequence 2 (CD3 1)');
+}
+
+// Test sequence assignment when manually reordered - insert above highest CD3
+async function testSequenceInsertionWhenManuallyReordered() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add three items
+    TestAdapter.addItem('Item Low');
+    TestAdapter.addItem('Item Medium');
+    TestAdapter.addItem('Item High');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency for all items
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 1);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[2].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value for all items
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 1);
+    TestAdapter.setItemProperty(items[1].id, 'value', 2);
+    TestAdapter.setItemProperty(items[2].id, 'value', 3);
+    
+    // Advance to Duration stage and unlock
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    
+    // Set duration for all items
+    let result = TestAdapter.setItemProperty(items[0].id, 'duration', 3);
+    assert(result.success, `Setting duration should succeed: ${result.error || ''}`);
+    result = TestAdapter.setItemProperty(items[1].id, 'duration', 1);
+    assert(result.success, `Setting duration for Item Medium should succeed: ${result.error || ''}`);
+    result = TestAdapter.setItemProperty(items[2].id, 'duration', 1);
+    assert(result.success, `Setting duration for Item High should succeed: ${result.error || ''}`);
+    
+    // Reload items
+    items = TestAdapter.getItems();
+    
+    // Now manually reorder by accessing Store directly
+    const { Store } = await import('./state/appState.js');
+    const appState = Store.getAppState();
+    appState.resultsManuallyReordered = true;
+    Store.save(appState);
+    
+    // Manually set sequences: Low (seq 1), Medium (seq 2), High (seq 3)
+    // This simulates user manually reordering
+    const currentItems = Store.getItems();
+    const itemLow = currentItems.find(i => i.name === 'Item Low');
+    const itemMedium = currentItems.find(i => i.name === 'Item Medium');
+    const itemHigh = currentItems.find(i => i.name === 'Item High');
+    
+    itemLow.sequence = 1;
+    itemMedium.sequence = 2;
+    itemHigh.sequence = 3;
+    Store.saveItems(currentItems);
+    
+    // Navigate back to Item Listing stage to allow adding items
+    while (TestAdapter.getCurrentStage() !== 'Item Listing') {
+        TestAdapter.backStage();
+    }
+    
+    // Now add a new item with CD3 = 9 (same as Item High)
+    const addResult = TestAdapter.addItem('Item New');
+    assert(addResult.success, `Adding Item New should succeed: ${addResult.error || ''}`);
+    
+    // Reload items after adding
+    let newItems = TestAdapter.getItems();
+    let itemNew = newItems.find(i => i.name === 'Item New');
+    
+    if (!itemNew) {
+        // Try one more time with Store
+        newItems = Store.getItems();
+        itemNew = newItems.find(i => i.name === 'Item New');
+        if (!itemNew) {
+            assert(false, 'Item New not found after adding');
+            return;
+        }
+    }
+    
+    // Navigate forward and set properties at each stage (required to advance)
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    result = TestAdapter.setItemProperty(itemNew.id, 'urgency', 3);
+    assert(result.success, `Setting urgency for Item New should succeed: ${result.error || ''}`);
+    
+    TestAdapter.advanceStage(); // Urgency -> Value
+    result = TestAdapter.setItemProperty(itemNew.id, 'value', 3);
+    assert(result.success, `Setting value for Item New should succeed: ${result.error || ''}`);
+    
+    TestAdapter.advanceStage(); // Value -> Duration
+    result = TestAdapter.setItemProperty(itemNew.id, 'duration', 1);
+    assert(result.success, `Setting duration for Item New should succeed: ${result.error || ''}`);
+    
+    // Reload to get updated item - use TestAdapter for consistency
+    newItems = TestAdapter.getItems();
+    itemNew = newItems.find(i => i.name === 'Item New');
+    if (!itemNew) {
+        // Try Store as fallback
+        newItems = Store.getItems();
+        itemNew = newItems.find(i => i.name === 'Item New');
+        if (!itemNew) {
+            assert(false, 'Item New not found after setting properties');
+            return;
+        }
+    }
+    
+    const finalItems = TestAdapter.getItems();
+    const finalItemNew = finalItems.find(i => i.name === 'Item New');
+    const finalItemLow = finalItems.find(i => i.name === 'Item Low');
+    const finalItemMedium = finalItems.find(i => i.name === 'Item Medium');
+    const finalItemHigh = finalItems.find(i => i.name === 'Item High');
+    
+    // Item New (CD3 9) should be inserted above Item Medium (CD3 6, highest with lower CD3)
+    // So sequence should be: Low (1), New (2), Medium (3), High (4)
+    assertEqual(finalItemLow.sequence, 1, 'Item Low should remain sequence 1');
+    assertEqual(finalItemNew.sequence, 2, 'Item New should be sequence 2 (above Item Medium)');
+    assertEqual(finalItemMedium.sequence, 3, 'Item Medium should be sequence 3 (shifted)');
+    assertEqual(finalItemHigh.sequence, 4, 'Item High should be sequence 4 (shifted)');
+    assertEqual(finalItemNew.addedToManuallySequencedList, true, 'Item New should have addedToManuallySequencedList flag');
+}
+
+// Test that [New] flag is cleared on reset
+async function testNewFlagClearedOnReset() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add item and set up with CD3
+    TestAdapter.addItem('Item 1');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    let result = TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    assert(result.success, `Setting duration should succeed: ${result.error || ''}`);
+    
+    // Manually reorder to set flag
+    const { Store } = await import('./state/appState.js');
+    const appState = Store.getAppState();
+    appState.resultsManuallyReordered = true;
+    Store.save(appState);
+    
+    // Navigate back to Item Listing stage to allow adding items
+    while (TestAdapter.getCurrentStage() !== 'Item Listing') {
+        TestAdapter.backStage();
+    }
+    
+    // Add another item that will get the flag
+    const addResult = TestAdapter.addItem('Item 2');
+    assert(addResult.success, `Adding Item 2 should succeed: ${addResult.error || ''}`);
+    
+    // Reload items after adding
+    let newItems = TestAdapter.getItems();
+    let item2 = newItems.find(i => i.name === 'Item 2');
+    
+    if (!item2) {
+        // Try one more time with Store
+        newItems = Store.getItems();
+        item2 = newItems.find(i => i.name === 'Item 2');
+        if (!item2) {
+            assert(false, 'Item 2 not found after adding');
+            return;
+        }
+    }
+    
+    // Navigate forward and set properties at each stage (required to advance)
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    result = TestAdapter.setItemProperty(item2.id, 'urgency', 3);
+    assert(result.success, `Setting urgency for Item 2 should succeed: ${result.error || ''}`);
+    
+    TestAdapter.advanceStage(); // Urgency -> Value
+    result = TestAdapter.setItemProperty(item2.id, 'value', 3);
+    assert(result.success, `Setting value for Item 2 should succeed: ${result.error || ''}`);
+    
+    TestAdapter.advanceStage(); // Value -> Duration
+    result = TestAdapter.setItemProperty(item2.id, 'duration', 1);
+    assert(result.success, `Setting duration for Item 2 should succeed: ${result.error || ''}`);
+    
+    // Reload to get updated item - use TestAdapter for consistency
+    newItems = TestAdapter.getItems();
+    item2 = newItems.find(i => i.name === 'Item 2');
+    if (!item2) {
+        // Try Store as fallback
+        newItems = Store.getItems();
+        item2 = newItems.find(i => i.name === 'Item 2');
+        if (!item2) {
+            assert(false, 'Item 2 not found after setting properties');
+            return;
+        }
+    }
+    
+    // Verify flag is set
+    const itemsBeforeReset = TestAdapter.getItems();
+    const item2BeforeReset = itemsBeforeReset.find(i => i.name === 'Item 2');
+    assertEqual(item2BeforeReset.addedToManuallySequencedList, true, 'Item 2 should have flag before reset');
+    
+    // Reset order
+    const { resetResultsOrder } = await import('./ui/display.js');
+    resetResultsOrder();
+    
+    // Verify flag is cleared
+    const itemsAfterReset = Store.getItems();
+    const item2AfterReset = itemsAfterReset.find(i => i.name === 'Item 2');
+    assertEqual(item2AfterReset.addedToManuallySequencedList, false, 'Item 2 should not have flag after reset');
+}
+
+// Test that new item is inserted in CD3 order when not manually reordered
+async function testNewItemInsertedInCD3Order() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add three items
+    TestAdapter.addItem('Item A');
+    TestAdapter.addItem('Item B');
+    TestAdapter.addItem('Item C');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency for all items
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 1);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[2].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value for all items
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 1);
+    TestAdapter.setItemProperty(items[1].id, 'value', 2);
+    TestAdapter.setItemProperty(items[2].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration for all items
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    let result = TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    assert(result.success, `Setting duration for Item A should succeed: ${result.error || ''}`);
+    result = TestAdapter.setItemProperty(items[1].id, 'duration', 1);
+    assert(result.success, `Setting duration for Item B should succeed: ${result.error || ''}`);
+    result = TestAdapter.setItemProperty(items[2].id, 'duration', 1);
+    assert(result.success, `Setting duration for Item C should succeed: ${result.error || ''}`);
+    
+    // Reload items
+    items = TestAdapter.getItems();
+    
+    // Verify sequences are in CD3 order: C (9), B (6), A (1)
+    const { Store } = await import('./state/appState.js');
+    const sequencedItems = Store.getItems();
+    const itemA = sequencedItems.find(i => i.name === 'Item A');
+    const itemB = sequencedItems.find(i => i.name === 'Item B');
+    const itemC = sequencedItems.find(i => i.name === 'Item C');
+    
+    assertEqual(itemC.sequence, 1, 'Item C (CD3 9) should be sequence 1');
+    assertEqual(itemB.sequence, 2, 'Item B (CD3 6) should be sequence 2');
+    assertEqual(itemA.sequence, 3, 'Item A (CD3 1) should be sequence 3');
 }

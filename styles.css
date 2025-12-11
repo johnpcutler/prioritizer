@@ -1646,6 +1646,18 @@ button:disabled {
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
+.new-item-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    background-color: #ffc107;
+    color: #856404;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .results-item.item-inactive {
     opacity: 0.6;
     background-color: #e9ecef;
