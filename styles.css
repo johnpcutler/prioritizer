@@ -1224,7 +1224,7 @@ button:disabled {
 .urgency-no-value-content {
     min-height: 100px;
     padding: 10px;
-    background-color: #ffffff;
+    background-color: #fffbf0; /* Slightly different background for parking lot - matches value view */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -1303,16 +1303,10 @@ button:disabled {
 
 /* Row headers - vertical text */
 .value-row-label,
-.duration-row-label {
+.duration-row-label,
+.urgency-row-label {
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    width: 80px;
-    flex: 1;
-    min-height: 100px;
-}
-
-/* Urgency row label - single box matching full row height */
-.urgency-row-label {
     width: 80px;
     flex: 1;
     min-height: 100px;
@@ -1329,6 +1323,19 @@ button:disabled {
 /* Color value row labels in value view to indicate active stage */
 #valueViewSection .value-row-label {
     background-color: #e3f2fd; /* Light blue to indicate value stage */
+}
+
+/* Parking Lot label - different color from other headers, must override view-specific colors */
+.parking-lot-label {
+    background-color: #fff3cd; /* Light yellow/beige */
+    color: #856404; /* Darker brown/yellow for contrast */
+}
+
+/* Ensure parking lot label keeps its distinct color in both views (higher specificity override) */
+#valueViewSection .value-row-label.parking-lot-label,
+#urgencyViewSection .urgency-row-label.parking-lot-label {
+    background-color: #fff3cd !important; /* Light yellow/beige - override view-specific colors */
+    color: #856404 !important; /* Darker brown/yellow for contrast */
 }
 
 /* Value Grid: 5 rows × 4 columns */
@@ -1369,7 +1376,7 @@ button:disabled {
     grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background-color: #fffbf0; /* Slightly different background for parking lot */
     border: 1px solid #dee2e6;
     border-radius: 4px;
     overflow: hidden;
@@ -1504,7 +1511,7 @@ button:disabled {
 .value-no-value-box {
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background-color: #fffbf0; /* Slightly different background for parking lot */
     border: 1px solid #dee2e6;
     border-radius: 4px;
     overflow: hidden;
@@ -1515,7 +1522,7 @@ button:disabled {
 .value-no-value-box-content {
     min-height: 100px;
     padding: 10px;
-    background-color: #ffffff;
+    background-color: #fffbf0; /* Slightly different background for parking lot */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
