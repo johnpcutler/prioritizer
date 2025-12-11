@@ -31,6 +31,8 @@ export function attachResultsViewListeners() {
                 if (result.success) {
                     Store.saveItems(items);
                     const appState = Store.getAppState();
+                    // Set flag to indicate manual reordering has occurred
+                    appState.resultsManuallyReordered = true;
                     Store.save(appState);
                     
                     // Refresh the results view and JSON display

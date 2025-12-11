@@ -706,8 +706,12 @@ export function resetResultsOrder() {
     assignSequenceNumbers(items);
     Store.saveItems(items);
     
-    // Refresh the view
+    // Clear manual reorder flag
     const appState = Store.getAppState();
+    appState.resultsManuallyReordered = false;
+    Store.save(appState);
+    
+    // Refresh the view
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     if (currentStage === 'Results') {
         displayResultsContent();
@@ -721,6 +725,22 @@ function displayResultsContent() {
     const buckets = appState.buckets;
     const resultsList = document.getElementById('resultsList');
     if (!resultsList) return;
+    
+    // Show/hide reset order button based on manual reorder flag
+    const resetOrderBtn = document.getElementById('resetOrderBtn');
+    if (resetOrderBtn) {
+        resetOrderBtn.style.display = appState.resultsManuallyReordered ? 'block' : 'none';
+    }
+    
+    // Update callout message based on manual reorder flag
+    const resultsCallout = document.getElementById('resultsCallout');
+    if (resultsCallout) {
+        if (appState.resultsManuallyReordered) {
+            resultsCallout.textContent = 'Here are your items. They were originally sorted by CD3, but you adjusted sort sequence. Click Reset Order to resort';
+        } else {
+            resultsCallout.textContent = 'Here are your items sorted descending by weighted cost of delay (CD3)';
+        }
+    }
     
     if (items.length === 0) {
         resultsList.innerHTML = '<div class="empty-state" style="text-align: center; color: #999; padding: 40px; font-style: italic;">No items to display.</div>';

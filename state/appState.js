@@ -35,7 +35,8 @@ export const Store = {
                 currentStage: 'Item Listing',
                 visitedStages: ['Item Listing'],
                 buckets: initializeBuckets(),
-                locked: true
+                locked: true,
+                resultsManuallyReordered: false
             };
         }
         
@@ -53,6 +54,11 @@ export const Store = {
         // Ensure locked property exists
         if (state.locked === undefined || state.locked === null) {
             state.locked = true;
+        }
+        
+        // Ensure resultsManuallyReordered property exists (migration for existing appState)
+        if (state.resultsManuallyReordered === undefined || state.resultsManuallyReordered === null) {
+            state.resultsManuallyReordered = false;
         }
         
         // Normalize buckets
