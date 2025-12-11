@@ -1010,11 +1010,18 @@ function setupEventListeners() {
         stageStepsContainer.addEventListener('click', (e) => {
             const step = e.target.closest('.stage-step');
             if (step) {
+                // Only attempt navigation if the step is clickable
+                if (!step.classList.contains('clickable')) {
+                    return; // Silently ignore - tooltip already explains why
+                }
+                
                 const targetStage = step.getAttribute('data-stage');
                 if (targetStage) {
                     const result = navigateToStage(targetStage);
+                    // Navigation should only be attempted on clickable stages
+                    // If it fails, it's a bug, not a user error
                     if (!result.success) {
-                        alert(result.error);
+                        console.warn('Navigation failed:', result.error);
                     }
                 }
             }
