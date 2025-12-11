@@ -244,12 +244,32 @@ function displayUrgencyViewContent() {
     const urgency3Title = buckets.urgency[3]?.title || 'Title';
     
     // Update header labels (matching value/duration view structure)
+    // Make them clickable links when on urgency stage
     const label1El = document.getElementById('urgencyViewUrgencyColumnLabel1');
     const label2El = document.getElementById('urgencyViewUrgencyColumnLabel2');
     const label3El = document.getElementById('urgencyViewUrgencyColumnLabel3');
-    if (label1El) label1El.textContent = urgency1Title;
-    if (label2El) label2El.textContent = urgency2Title;
-    if (label3El) label3El.textContent = urgency3Title;
+    
+    if (label1El) {
+        if (currentStage === 'urgency') {
+            label1El.innerHTML = `<a href="#" class="header-link" data-category="urgency" data-level="1">${escapeHtml(urgency1Title)}</a>`;
+        } else {
+            label1El.textContent = urgency1Title;
+        }
+    }
+    if (label2El) {
+        if (currentStage === 'urgency') {
+            label2El.innerHTML = `<a href="#" class="header-link" data-category="urgency" data-level="2">${escapeHtml(urgency2Title)}</a>`;
+        } else {
+            label2El.textContent = urgency2Title;
+        }
+    }
+    if (label3El) {
+        if (currentStage === 'urgency') {
+            label3El.innerHTML = `<a href="#" class="header-link" data-category="urgency" data-level="3">${escapeHtml(urgency3Title)}</a>`;
+        } else {
+            label3El.textContent = urgency3Title;
+        }
+    }
     
     // Separate items by urgency
     const itemsWithUrgency1 = items.filter(item => item.urgency === 1);
@@ -356,12 +376,32 @@ function displayValueViewContent() {
     const urgency3Title = buckets.urgency[3]?.title || 'Title';
     
     // Update row labels (Value)
+    // Make them clickable links when on value stage
     const valueRowLabel1 = document.getElementById('valueRowLabel1');
     const valueRowLabel2 = document.getElementById('valueRowLabel2');
     const valueRowLabel3 = document.getElementById('valueRowLabel3');
-    if (valueRowLabel1) valueRowLabel1.textContent = value1Title;
-    if (valueRowLabel2) valueRowLabel2.textContent = value2Title;
-    if (valueRowLabel3) valueRowLabel3.textContent = value3Title;
+    
+    if (valueRowLabel1) {
+        if (currentStage === 'value') {
+            valueRowLabel1.innerHTML = `<a href="#" class="header-link" data-category="value" data-level="1">${escapeHtml(value1Title)}</a>`;
+        } else {
+            valueRowLabel1.textContent = value1Title;
+        }
+    }
+    if (valueRowLabel2) {
+        if (currentStage === 'value') {
+            valueRowLabel2.innerHTML = `<a href="#" class="header-link" data-category="value" data-level="2">${escapeHtml(value2Title)}</a>`;
+        } else {
+            valueRowLabel2.textContent = value2Title;
+        }
+    }
+    if (valueRowLabel3) {
+        if (currentStage === 'value') {
+            valueRowLabel3.innerHTML = `<a href="#" class="header-link" data-category="value" data-level="3">${escapeHtml(value3Title)}</a>`;
+        } else {
+            valueRowLabel3.textContent = value3Title;
+        }
+    }
     
     // Update column labels (Urgency)
     const urgencyColumnLabel1 = document.getElementById('urgencyColumnLabel1');

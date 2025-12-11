@@ -1115,6 +1115,82 @@ function setupEventListeners() {
         clearDataConfirm.addEventListener('input', validateClearDataInput);
     }
     
+    // Header Info Modal
+    const headerInfoModal = document.getElementById('headerInfoModal');
+    const headerInfoModalTitle = document.getElementById('headerInfoModalTitle');
+    const headerInfoModalDescription = document.getElementById('headerInfoModalDescription');
+    const headerInfoModalClose = document.getElementById('headerInfoModalClose');
+    
+    function openHeaderInfoModal(category, level) {
+        const appState = Store.getAppState();
+        const buckets = appState.buckets;
+        
+        if (!buckets || !buckets[category] || !buckets[category][level]) {
+            console.warn('Bucket not found:', category, level);
+            return;
+        }
+        
+        const bucket = buckets[category][level];
+        const title = bucket.title || `${category} ${level}`;
+        const description = bucket.description || 'No description available.';
+        
+        if (headerInfoModalTitle) {
+            headerInfoModalTitle.textContent = title;
+        }
+        if (headerInfoModalDescription) {
+            headerInfoModalDescription.textContent = description;
+        }
+        if (headerInfoModal) {
+            headerInfoModal.style.display = 'flex';
+        }
+    }
+    
+    function closeHeaderInfoModal() {
+        if (headerInfoModal) {
+            headerInfoModal.style.display = 'none';
+        }
+    }
+    
+    // Event delegation for header links
+    document.addEventListener('click', (e) => {
+        const headerLink = e.target.closest('.header-link');
+        if (!headerLink) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const category = headerLink.getAttribute('data-category');
+        const level = parseInt(headerLink.getAttribute('data-level'));
+        
+        if (category && level) {
+            openHeaderInfoModal(category, level);
+        }
+    });
+    
+    // Close modal handlers
+    if (headerInfoModalClose) {
+        headerInfoModalClose.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeHeaderInfoModal();
+        });
+    }
+    
+    if (headerInfoModal) {
+        headerInfoModal.addEventListener('click', (e) => {
+            if (e.target === headerInfoModal) {
+                closeHeaderInfoModal();
+            }
+        });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && headerInfoModal && headerInfoModal.style.display !== 'none') {
+            closeHeaderInfoModal();
+        }
+    });
+    
     // Handle submit
     if (modalSubmitBtn) {
         modalSubmitBtn.addEventListener('click', () => {
