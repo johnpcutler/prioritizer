@@ -1922,3 +1922,147 @@ button:disabled {
     color: #495057;
 }
 
+.confidence-weighted-cd3 {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Confidence Survey Styles */
+.confidence-survey-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.confidence-survey-btn {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confidence-survey-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.confidence-survey-delete-btn {
+    background-color: #dc3545;
+}
+
+.confidence-survey-delete-btn:hover {
+    background-color: #c82333;
+}
+
+.confidence-survey-form {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.confidence-survey-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.confidence-survey-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.confidence-survey-question {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.confidence-vote-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.confidence-vote-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.confidence-vote-label {
+    font-size: 12px;
+    color: #495057;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.confidence-vote-input {
+    width: 100%;
+    max-width: 100px;
+    padding: 6px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.confidence-vote-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.confidence-survey-form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.confidence-survey-submit-btn,
+.confidence-survey-cancel-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confidence-survey-submit-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.confidence-survey-submit-btn:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.confidence-survey-cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.confidence-survey-cancel-btn:hover {
+    background-color: #5a6268;
+}
+

@@ -70,6 +70,26 @@
             return this.api.getItemNotes(itemId);
         },
         
+        submitConfidenceSurvey: function(itemId, surveyData) {
+            return this.api.submitConfidenceSurvey(itemId, surveyData);
+        },
+        
+        deleteConfidenceSurvey: function(itemId) {
+            return this.api.deleteConfidenceSurvey(itemId);
+        },
+        
+        getConfidenceSurvey: function(itemId) {
+            return this.api.getConfidenceSurvey(itemId);
+        },
+        
+        getConfidenceWeights: function() {
+            return this.api.getConfidenceWeights();
+        },
+        
+        getConfidenceLevelLabels: function() {
+            return this.api.getConfidenceLevelLabels();
+        },
+        
         // Stage operations
         getCurrentStage: function() {
             return this.api.getCurrentStage();

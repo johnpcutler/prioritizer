@@ -256,6 +256,88 @@
             </ul>
             <p>Since duration bucket weight is in the denominator, higher duration bucket weights result in lower CD3 scores. This means shorter durations (lower duration bucket weights) get higher priority, which aligns with the principle that faster delivery is generally better.</p>
             <p>You can adjust these bucket weights in Settings to reflect your team's priorities. For example, if you want to heavily penalize longer durations, you could increase duration bucket weights. Or if you want to emphasize urgency more, you could increase urgency bucket weights.</p>
+            
+            <h3>Confidence-Weighted CD3</h3>
+            <p>Once you've reached the Results stage, you can run a <strong>confidence survey</strong> on any item to capture the team's confidence in the urgency, value, and duration categorizations. This allows you to adjust the CD3 calculation based on how confident the team is in each dimension.</p>
+            
+            <p>The confidence survey asks four questions:</p>
+            <ul>
+                <li><strong>Scope Confidence:</strong> How confident are you in the scoping and shaping of this item? (This is collected but not used in calculations)</li>
+                <li><strong>Urgency Confidence:</strong> How confident are you in the urgency categorization of this item?</li>
+                <li><strong>Value Confidence:</strong> How confident are you in the value categorization of this item?</li>
+                <li><strong>Duration Confidence:</strong> How confident are you in the duration categorization of this item?</li>
+            </ul>
+            
+            <p>For each question, the facilitator collects votes using a 4-point confidence scale:</p>
+            <ul>
+                <li><strong>Not Confident</strong> (rarely, unlikely, low probability) - Weight: 30%</li>
+                <li><strong>Somewhat Confident</strong> (maybe, possibly, moderate probability) - Weight: 50%</li>
+                <li><strong>Confident</strong> (likely, probably, high probability) - Weight: 70%</li>
+                <li><strong>Very Confident</strong> (almost certainly, almost always, certainly) - Weight: 90%</li>
+            </ul>
+            
+            <p>The facilitator enters vote counts for each confidence level (e.g., "5 people voted 'Not Confident', 10 voted 'Somewhat Confident', etc."). The system calculates a weighted average confidence score for each dimension.</p>
+            
+            <h4>Confidence-Weighted Calculation</h4>
+            <p>The confidence-weighted CD3 calculation applies confidence individually to each dimension:</p>
+            <ol>
+                <li><strong>Calculate confidence averages:</strong> For each dimension (urgency, value, duration), calculate a weighted average confidence score from the vote counts:
+                    <div class="highlight-box" style="background-color: #f8f9fa; border-left-color: #6c757d; margin: 15px 0;">
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Confidence Average = (Sum of (Vote Count × Confidence Weight)) ÷ Total Votes</p>
+                    </div>
+                </li>
+                <li><strong>Apply confidence to weights:</strong> Multiply each bucket weight by its confidence average:
+                    <div class="highlight-box" style="background-color: #f8f9fa; border-left-color: #6c757d; margin: 15px 0;">
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Weighted Urgency = Urgency Bucket Weight × Urgency Confidence Average</p>
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Weighted Value = Value Bucket Weight × Value Confidence Average</p>
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Weighted Duration = Duration Bucket Weight × Duration Confidence Average</p>
+                    </div>
+                </li>
+                <li><strong>Calculate confidence-weighted Cost of Delay:</strong>
+                    <div class="highlight-box" style="background-color: #f8f9fa; border-left-color: #6c757d; margin: 15px 0;">
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Confidence-Weighted CoD = Weighted Urgency × Weighted Value</p>
+                    </div>
+                </li>
+                <li><strong>Calculate confidence-weighted CD3:</strong>
+                    <div class="highlight-box" style="background-color: #f8f9fa; border-left-color: #6c757d; margin: 15px 0;">
+                        <p style="font-family: monospace; font-size: 1em; margin: 5px 0;">Confidence-Weighted CD3 = Confidence-Weighted CoD ÷ Weighted Duration</p>
+                    </div>
+                </li>
+            </ol>
+            
+            <p><strong>Example:</strong> An item has urgency=2 (weight 2), value=3 (weight 3), duration=1 (weight 1). The team votes:</p>
+            <ul>
+                <li>Urgency: 1 vote at "Somewhat Confident" (50%) → Average = 0.50</li>
+                <li>Value: 1 vote at "Confident" (70%) → Average = 0.70</li>
+                <li>Duration: 1 vote at "Very Confident" (90%) → Average = 0.90</li>
+            </ul>
+            <p>Calculations:</p>
+            <ul>
+                <li>Weighted Urgency = 2 × 0.50 = 1.0</li>
+                <li>Weighted Value = 3 × 0.70 = 1.4</li>
+                <li>Confidence-Weighted CoD = 1.0 × 1.4 = 1.4</li>
+                <li>Weighted Duration = 1 × 0.90 = 0.9</li>
+                <li>Confidence-Weighted CD3 = 1.4 ÷ 0.9 = 1.56</li>
+            </ul>
+            <p>Compare this to the base CD3: (2 × 3) ÷ 1 = 6.0. The confidence-weighted CD3 of 1.56 reflects lower confidence in the categorizations.</p>
+            
+            <h4>Using Confidence Surveys</h4>
+            <p>To run a confidence survey:</p>
+            <ol>
+                <li>Navigate to the <strong>Results</strong> stage</li>
+                <li>Click <strong>"Run confidence survey"</strong> on any item that has urgency, value, and duration set</li>
+                <li>The item will expand to show the survey form with four sections</li>
+                <li>For each section, enter the number of votes for each confidence level (0-4)</li>
+                <li>Click <strong>"Submit"</strong> to save the survey and calculate the confidence-weighted CD3</li>
+            </ol>
+            
+            <p>The confidence-weighted CD3 will be displayed alongside the base CD3, showing both the calculated value and a breakdown of the weighted values used: <strong>"Confidence Weighted CD3: 1.56 (Urgency: 1.0, Value: 1.4, Duration: 0.9)"</strong></p>
+            
+            <p>You can edit or delete surveys at any time. If you delete a survey, the item returns to showing only the base CD3.</p>
+            
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Note:</strong> Confidence surveys are optional. Items without confidence surveys will continue to show only the base CD3 calculation. The confidence survey is a tool for teams who want to factor uncertainty into their prioritization decisions.</p>
+            </div>
         </div>
         
         <div class="help-section">
@@ -340,6 +422,7 @@
                 <li>Advance to <strong>Value</strong> and categorize each item by value</li>
                 <li>Go to <strong>Duration</strong> and set how long each item will take</li>
                 <li>View <strong>Results</strong> to see your items sorted by CD3</li>
+                <li>(Optional) Run <strong>confidence surveys</strong> on items to factor team confidence into the prioritization</li>
             </ol>
         </div>
         
@@ -351,6 +434,9 @@
                 <li>You can add hyperlinks to items by including a comma and URL after the item name (e.g., "Item Name, https://example.com")</li>
                 <li>Items in the "Parking Lot" are uncategorized and need values set before they appear in results</li>
                 <li>The Results view shows items sorted by CD3 (highest first), which is your recommended sequence</li>
+                <li>You can run confidence surveys on items in the Results stage to adjust CD3 based on team confidence</li>
+                <li>Confidence surveys allow facilitators to collect and record team votes on confidence levels for each dimension</li>
+                <li>Items with confidence surveys will show both base CD3 and confidence-weighted CD3 with a breakdown of weighted values</li>
             </ul>
         </div>
         

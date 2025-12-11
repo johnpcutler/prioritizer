@@ -1,7 +1,7 @@
 import { STAGE_CONTROLLER, STAGE_ORDER } from '../models/stages.js';
 import { Store } from '../state/appState.js';
 import { escapeHtml } from './forms.js';
-import { getItemsSortedByCD3, assignSequenceNumbers, reorderItemSequence } from '../models/items.js';
+import { getItemsSortedByCD3, assignSequenceNumbers, reorderItemSequence, calculateConfidenceWeightedCD3 } from '../models/items.js';
 
 // Re-export for global access
 window.Store = Store;
@@ -789,6 +789,14 @@ function displayResultsContent() {
     const minSequence = sequences.length > 0 ? Math.min(...sequences) : 1;
     const maxSequence = sequences.length > 0 ? Math.max(...sequences) : sortedItems.length;
     
+    // Get confidence level labels
+    const confidenceLabels = appState.confidenceLevelLabels || {
+        1: "Not Confident (rarely, unlikely, low probability)",
+        2: "Somewhat Confident (maybe, possibly, moderate probability)",
+        3: "Confident (likely, probably, high probability)",
+        4: "Very Confident (almost certainly, almost always, certainly)"
+    };
+    
     // Render ranked list
     resultsList.innerHTML = sortedItems.map((item, index) => {
         const slotNumber = item.sequence !== null && item.sequence !== undefined ? item.sequence : index + 1;
@@ -811,6 +819,38 @@ function displayResultsContent() {
         const duration = item.duration || 0;
         const durationTitle = duration === 1 ? duration1Title : duration === 2 ? duration2Title : duration === 3 ? duration3Title : '—';
         const durationDisplay = duration > 0 ? `${duration} (${escapeHtml(durationTitle)})` : '—';
+        
+        // Calculate confidence-weighted CD3 if survey exists
+        let confidenceWeightedCD3Html = '';
+        if (item.hasConfidenceSurvey) {
+            const weightedCD3 = calculateConfidenceWeightedCD3(item, appState);
+            if (weightedCD3 !== null && weightedCD3 !== undefined) {
+                const weightedCD3Formatted = weightedCD3.toFixed(2);
+                const weightedValues = item.confidenceWeightedValues || {};
+                const urgencyWeighted = weightedValues.urgency !== undefined ? weightedValues.urgency.toFixed(2) : '—';
+                const valueWeighted = weightedValues.value !== undefined ? weightedValues.value.toFixed(2) : '—';
+                const durationWeighted = weightedValues.duration !== undefined ? weightedValues.duration.toFixed(2) : '—';
+                confidenceWeightedCD3Html = `<span class="results-cd3 confidence-weighted-cd3">Confidence Weighted CD3: ${weightedCD3Formatted} (Urgency: ${urgencyWeighted}, Value: ${valueWeighted}, Duration: ${durationWeighted})</span>`;
+            }
+        }
+        
+        // Confidence survey buttons
+        const hasSurvey = item.hasConfidenceSurvey === true;
+        const canShowSurvey = urgency > 0 && value > 0 && duration > 0;
+        let surveyButtonHtml = '';
+        if (canShowSurvey) {
+            if (!hasSurvey) {
+                surveyButtonHtml = `<button class="confidence-survey-btn" data-item-id="${item.id}" data-action="open">Run confidence survey</button>`;
+            } else {
+                surveyButtonHtml = `
+                    <button class="confidence-survey-btn" data-item-id="${item.id}" data-action="edit">Edit confidence survey</button>
+                    <button class="confidence-survey-btn confidence-survey-delete-btn" data-item-id="${item.id}" data-action="delete">Delete survey</button>
+                `;
+            }
+        }
+        
+        // Survey form HTML (initially hidden)
+        const surveyFormHtml = canShowSurvey ? renderConfidenceSurveyForm(item, appState, confidenceLabels) : '';
         
         const canMoveUp = item.sequence !== null && item.sequence !== undefined && item.sequence > minSequence;
         const canMoveDown = item.sequence !== null && item.sequence !== undefined && item.sequence < maxSequence;
@@ -837,11 +877,79 @@ function displayResultsContent() {
                         <span class="results-metric">Value: ${valueDisplay}</span>
                         <span class="results-metric">Duration: ${durationDisplay}</span>
                         <span class="results-cd3">CD3: ${cd3Formatted}</span>
+                        ${confidenceWeightedCD3Html}
                     </div>
+                    ${surveyButtonHtml ? `<div class="confidence-survey-buttons">${surveyButtonHtml}</div>` : ''}
+                    ${surveyFormHtml}
                 </div>
             </div>
         `;
     }).join('');
+}
+
+// Render confidence survey form
+function renderConfidenceSurveyForm(item, appState, confidenceLabels) {
+    const survey = item.confidenceSurvey || {
+        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+    };
+    
+    const urgency = item.urgency || 0;
+    const urgencyTitle = urgency === 1 ? (appState.buckets.urgency[1]?.title || 'Title') : 
+                         urgency === 2 ? (appState.buckets.urgency[2]?.title || 'Title') : 
+                         urgency === 3 ? (appState.buckets.urgency[3]?.title || 'Title') : '—';
+    
+    const value = item.value || 0;
+    const valueTitle = value === 1 ? (appState.buckets.value[1]?.title || 'Title') : 
+                       value === 2 ? (appState.buckets.value[2]?.title || 'Title') : 
+                       value === 3 ? (appState.buckets.value[3]?.title || 'Title') : '—';
+    
+    const duration = item.duration || 0;
+    const durationTitle = duration === 1 ? (appState.buckets.duration[1]?.title || '1-3d') : 
+                          duration === 2 ? (appState.buckets.duration[2]?.title || '1-3w') : 
+                          duration === 3 ? (appState.buckets.duration[3]?.title || '1-3mo') : '—';
+    
+    const renderConfidenceSection = (dimension, questionText) => {
+        const votes = survey[dimension] || {1: 0, 2: 0, 3: 0, 4: 0};
+        return `
+            <div class="confidence-survey-section">
+                <div class="confidence-survey-question">${escapeHtml(questionText)}</div>
+                <div class="confidence-vote-inputs">
+                    <div class="confidence-vote-input-group">
+                        <label class="confidence-vote-label">${escapeHtml(confidenceLabels[1])}:</label>
+                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="1" value="${votes[1] || 0}" />
+                    </div>
+                    <div class="confidence-vote-input-group">
+                        <label class="confidence-vote-label">${escapeHtml(confidenceLabels[2])}:</label>
+                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="2" value="${votes[2] || 0}" />
+                    </div>
+                    <div class="confidence-vote-input-group">
+                        <label class="confidence-vote-label">${escapeHtml(confidenceLabels[3])}:</label>
+                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="3" value="${votes[3] || 0}" />
+                    </div>
+                    <div class="confidence-vote-input-group">
+                        <label class="confidence-vote-label">${escapeHtml(confidenceLabels[4])}:</label>
+                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="4" value="${votes[4] || 0}" />
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+    
+    return `
+        <div class="confidence-survey-form" data-item-id="${item.id}" style="display: none;">
+            ${renderConfidenceSection('scopeConfidence', 'How confident are you in the scoping and shaping of this item?')}
+            ${renderConfidenceSection('urgencyConfidence', `How confident are you in the ${urgency} (${escapeHtml(urgencyTitle)}) urgency categorization of this item?`)}
+            ${renderConfidenceSection('valueConfidence', `How confident are you in the ${value} (${escapeHtml(valueTitle)}) value categorization of this item?`)}
+            ${renderConfidenceSection('durationConfidence', `How confident are you in the ${duration} (${escapeHtml(durationTitle)}) duration categorization of this item?`)}
+            <div class="confidence-survey-form-actions">
+                <button class="confidence-survey-submit-btn" data-item-id="${item.id}">Submit</button>
+                <button class="confidence-survey-cancel-btn" data-item-id="${item.id}">Cancel</button>
+            </div>
+        </div>
+    `;
 }
 
 // Populate settings form with current values from app state

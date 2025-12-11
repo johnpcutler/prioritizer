@@ -36,7 +36,19 @@ export const Store = {
                 visitedStages: ['Item Listing'],
                 buckets: initializeBuckets(),
                 locked: true,
-                resultsManuallyReordered: false
+                resultsManuallyReordered: false,
+                confidenceWeights: {
+                    1: 0.30,
+                    2: 0.50,
+                    3: 0.70,
+                    4: 0.90
+                },
+                confidenceLevelLabels: {
+                    1: "Not Confident (rarely, unlikely, low probability)",
+                    2: "Somewhat Confident (maybe, possibly, moderate probability)",
+                    3: "Confident (likely, probably, high probability)",
+                    4: "Very Confident (almost certainly, almost always, certainly)"
+                }
             };
         }
         
@@ -59,6 +71,26 @@ export const Store = {
         // Ensure resultsManuallyReordered property exists (migration for existing appState)
         if (state.resultsManuallyReordered === undefined || state.resultsManuallyReordered === null) {
             state.resultsManuallyReordered = false;
+        }
+        
+        // Initialize confidence weights if missing
+        if (!state.confidenceWeights) {
+            state.confidenceWeights = {
+                1: 0.30,
+                2: 0.50,
+                3: 0.70,
+                4: 0.90
+            };
+        }
+        
+        // Initialize confidence level labels if missing
+        if (!state.confidenceLevelLabels) {
+            state.confidenceLevelLabels = {
+                1: "Not Confident (rarely, unlikely, low probability)",
+                2: "Somewhat Confident (maybe, possibly, moderate probability)",
+                3: "Confident (likely, probably, high probability)",
+                4: "Very Confident (almost certainly, almost always, certainly)"
+            };
         }
         
         // Normalize buckets

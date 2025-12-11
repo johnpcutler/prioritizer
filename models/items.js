@@ -31,6 +31,46 @@ export function normalizeItem(item) {
         item.addedToManuallySequencedList = false;
     }
     
+    // Normalize confidence survey fields
+    if (item.hasConfidenceSurvey === undefined || item.hasConfidenceSurvey === null) {
+        item.hasConfidenceSurvey = false;
+    }
+    if (item.confidenceSurvey === undefined || item.confidenceSurvey === null) {
+        item.confidenceSurvey = {
+            scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+        };
+    } else {
+        // Ensure all confidence dimensions exist with proper structure
+        const defaultConfidence = {1: 0, 2: 0, 3: 0, 4: 0};
+        item.confidenceSurvey = {
+            scopeConfidence: item.confidenceSurvey.scopeConfidence || defaultConfidence,
+            urgencyConfidence: item.confidenceSurvey.urgencyConfidence || defaultConfidence,
+            valueConfidence: item.confidenceSurvey.valueConfidence || defaultConfidence,
+            durationConfidence: item.confidenceSurvey.durationConfidence || defaultConfidence
+        };
+        // Ensure each dimension has all 4 levels
+        ['scopeConfidence', 'urgencyConfidence', 'valueConfidence', 'durationConfidence'].forEach(dim => {
+            if (!item.confidenceSurvey[dim]) {
+                item.confidenceSurvey[dim] = {...defaultConfidence};
+            } else {
+                for (let i = 1; i <= 4; i++) {
+                    if (item.confidenceSurvey[dim][i] === undefined || item.confidenceSurvey[dim][i] === null) {
+                        item.confidenceSurvey[dim][i] = 0;
+                    }
+                }
+            }
+        });
+    }
+    if (item.confidenceWeightedCD3 === undefined || item.confidenceWeightedCD3 === null) {
+        item.confidenceWeightedCD3 = null;
+    }
+    if (item.confidenceWeightedValues === undefined || item.confidenceWeightedValues === null) {
+        item.confidenceWeightedValues = null;
+    }
+    
     // Normalize notes array
     if (item.notes === undefined || item.notes === null || !Array.isArray(item.notes)) {
         item.notes = [];
@@ -132,6 +172,101 @@ export function recomputeItemMetrics(item, buckets) {
     calculateCD3(item, buckets);
 }
 
+// Calculate confidence average from vote counts
+export function calculateConfidenceAverage(voteCounts, weights) {
+    if (!voteCounts || !weights) {
+        return null;
+    }
+    
+    let totalVotes = 0;
+    let weightedSum = 0;
+    
+    for (let level = 1; level <= 4; level++) {
+        const count = voteCounts[level] || 0;
+        const weight = weights[level] || 0;
+        totalVotes += count;
+        weightedSum += count * weight;
+    }
+    
+    if (totalVotes === 0) {
+        return null;
+    }
+    
+    return weightedSum / totalVotes;
+}
+
+// Calculate confidence-weighted CD3 for an item
+export function calculateConfidenceWeightedCD3(item, appState) {
+    if (!item.hasConfidenceSurvey || !item.confidenceSurvey) {
+        item.confidenceWeightedCD3 = null;
+        return null;
+    }
+    
+    // Get confidence weights from app state
+    const confidenceWeights = appState.confidenceWeights || {
+        1: 0.30,
+        2: 0.50,
+        3: 0.70,
+        4: 0.90
+    };
+    
+    // Get bucket weights
+    const buckets = appState.buckets;
+    if (!buckets) {
+        item.confidenceWeightedCD3 = null;
+        return null;
+    }
+    
+    // Calculate confidence averages for each dimension
+    const urgencyConfidenceAvg = calculateConfidenceAverage(
+        item.confidenceSurvey.urgencyConfidence,
+        confidenceWeights
+    );
+    const valueConfidenceAvg = calculateConfidenceAverage(
+        item.confidenceSurvey.valueConfidence,
+        confidenceWeights
+    );
+    const durationConfidenceAvg = calculateConfidenceAverage(
+        item.confidenceSurvey.durationConfidence,
+        confidenceWeights
+    );
+    
+    // If any required confidence is missing, return null
+    if (urgencyConfidenceAvg === null || valueConfidenceAvg === null || durationConfidenceAvg === null) {
+        item.confidenceWeightedCD3 = null;
+        item.confidenceWeightedValues = null;
+        return null;
+    }
+    
+    // Check if item has required properties
+    if (!item.urgency || item.urgency === 0 || !item.value || item.value === 0 || !item.duration || item.duration === 0) {
+        item.confidenceWeightedCD3 = null;
+        item.confidenceWeightedValues = null;
+        return null;
+    }
+    
+    // Calculate confidence-weighted Cost of Delay
+    const urgencyWeight = buckets.urgency[item.urgency]?.weight || 1;
+    const valueWeight = buckets.value[item.value]?.weight || 1;
+    const confidenceWeightedUrgencyWeight = urgencyWeight * urgencyConfidenceAvg;
+    const confidenceWeightedValueWeight = valueWeight * valueConfidenceAvg;
+    const confidenceWeightedCostOfDelay = confidenceWeightedUrgencyWeight * confidenceWeightedValueWeight;
+    
+    // Calculate confidence-weighted CD3
+    const durationWeight = buckets.duration[item.duration]?.weight || 1;
+    const confidenceWeightedDurationWeight = durationWeight * durationConfidenceAvg;
+    const confidenceWeightedCD3 = confidenceWeightedCostOfDelay / confidenceWeightedDurationWeight;
+    
+    item.confidenceWeightedCD3 = confidenceWeightedCD3;
+    // Store weighted values for display
+    item.confidenceWeightedValues = {
+        urgency: confidenceWeightedUrgencyWeight,
+        value: confidenceWeightedValueWeight,
+        duration: confidenceWeightedDurationWeight
+    };
+    return confidenceWeightedCD3;
+}
+
 // Counter for unique IDs (ensures uniqueness even when items are created in the same millisecond)
 let itemIdCounter = 0;
 
@@ -193,6 +328,14 @@ export function createItem(name, link = null) {
         active: true,
         sequence: null,
         notes: [],
+        hasConfidenceSurvey: false,
+        confidenceSurvey: {
+            scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+            durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+        },
+        confidenceWeightedCD3: null,
         createdAt: new Date().toISOString()
     });
 }

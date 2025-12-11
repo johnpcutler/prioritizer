@@ -63,6 +63,26 @@
             return item ? item.notes || [] : null;
         },
         
+        submitConfidenceSurvey: function(itemId, surveyData) {
+            return appInstance ? appInstance.submitConfidenceSurvey(itemId, surveyData) : { success: false, error: 'App not initialized' };
+        },
+        
+        deleteConfidenceSurvey: function(itemId) {
+            return appInstance ? appInstance.deleteConfidenceSurvey(itemId) : { success: false, error: 'App not initialized' };
+        },
+        
+        getConfidenceSurvey: function(itemId) {
+            return appInstance ? appInstance.getConfidenceSurvey(itemId) : null;
+        },
+        
+        getConfidenceWeights: function() {
+            return appInstance ? appInstance.getConfidenceWeights() : null;
+        },
+        
+        getConfidenceLevelLabels: function() {
+            return appInstance ? appInstance.getConfidenceLevelLabels() : null;
+        },
+        
         // Stage operations
         getCurrentStage: function() {
             return appInstance ? appInstance.getCurrentStage() : 'urgency';

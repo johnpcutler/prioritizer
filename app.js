@@ -24,7 +24,8 @@ import {
     insertItemIntoSequence,
     addItemNote,
     updateItemNote,
-    deleteItemNote
+    deleteItemNote,
+    calculateConfidenceWeightedCD3
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
@@ -258,6 +259,11 @@ function setItemProperty(itemId, property, value) {
         insertItemIntoSequence(item, items, appState);
     }
     
+    // Recalculate confidence-weighted CD3 if survey exists
+    if (item.hasConfidenceSurvey && (property === 'urgency' || property === 'value' || property === 'duration')) {
+        calculateConfidenceWeightedCD3(item, appState);
+    }
+    
     Store.saveItems(items);
     persistAndRefresh(appState, items);
     displayJson();
@@ -346,6 +352,132 @@ function deleteItemNoteFromItem(itemId, noteIndex) {
     const appState = Store.getAppState();
     persistAndRefresh(appState, items);
     refreshApp();
+    
+    return { success: true };
+}
+
+// ============================================================================
+// Confidence Survey Management
+// ============================================================================
+
+// Open confidence survey form
+function openConfidenceSurvey(itemId) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    // Check if item has required properties
+    if (!item.urgency || item.urgency === 0 || !item.value || item.value === 0 || !item.duration || item.duration === 0) {
+        return { success: false, error: 'Item must have urgency, value, and duration set before running confidence survey' };
+    }
+    
+    // Find and show the survey form
+    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
+    if (surveyForm) {
+        surveyForm.style.display = 'block';
+    }
+    
+    return { success: true };
+}
+
+// Submit confidence survey
+function submitConfidenceSurvey(itemId, surveyData) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    // Validate survey data
+    if (!surveyData || typeof surveyData !== 'object') {
+        return { success: false, error: 'Invalid survey data' };
+    }
+    
+    const requiredDimensions = ['scopeConfidence', 'urgencyConfidence', 'valueConfidence', 'durationConfidence'];
+    for (const dim of requiredDimensions) {
+        if (!surveyData[dim] || typeof surveyData[dim] !== 'object') {
+            return { success: false, error: `Missing or invalid ${dim} data` };
+        }
+        for (let level = 1; level <= 4; level++) {
+            const count = surveyData[dim][level];
+            if (count === undefined || count === null) {
+                surveyData[dim][level] = 0;
+            } else {
+                const numCount = parseInt(count);
+                if (isNaN(numCount) || numCount < 0) {
+                    return { success: false, error: `Invalid vote count for ${dim} level ${level}` };
+                }
+                surveyData[dim][level] = numCount;
+            }
+        }
+    }
+    
+    // Save survey data
+    item.confidenceSurvey = surveyData;
+    item.hasConfidenceSurvey = true;
+    
+    // Calculate confidence-weighted CD3
+    const appState = Store.getAppState();
+    calculateConfidenceWeightedCD3(item, appState);
+    
+    // Hide the survey form
+    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
+    if (surveyForm) {
+        surveyForm.style.display = 'none';
+    }
+    
+    Store.saveItems(items);
+    persistAndRefresh(appState, items);
+    refreshApp();
+    
+    return { success: true };
+}
+
+// Delete confidence survey
+function deleteConfidenceSurvey(itemId) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    // Remove survey data
+    item.hasConfidenceSurvey = false;
+    item.confidenceSurvey = {
+        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+    };
+    item.confidenceWeightedCD3 = null;
+    item.confidenceWeightedValues = null;
+    
+    // Hide the survey form if open
+    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
+    if (surveyForm) {
+        surveyForm.style.display = 'none';
+    }
+    
+    const appState = Store.getAppState();
+    Store.saveItems(items);
+    persistAndRefresh(appState, items);
+    refreshApp();
+    
+    return { success: true };
+}
+
+// Cancel confidence survey editing
+function cancelConfidenceSurvey(itemId) {
+    // Hide the survey form
+    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
+    if (surveyForm) {
+        surveyForm.style.display = 'none';
+    }
     
     return { success: true };
 }
@@ -1467,6 +1599,82 @@ function setupEventListeners() {
         });
     }
     
+    // Event delegation for confidence survey buttons
+    document.addEventListener('click', (e) => {
+        const surveyBtn = e.target.closest('.confidence-survey-btn');
+        if (!surveyBtn) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const itemId = surveyBtn.getAttribute('data-item-id');
+        const action = surveyBtn.getAttribute('data-action');
+        
+        if (!itemId) return;
+        
+        if (action === 'open' || action === 'edit') {
+            const result = openConfidenceSurvey(itemId);
+            if (!result.success) {
+                alert(result.error || 'Failed to open confidence survey');
+            }
+        } else if (action === 'delete') {
+            if (confirm('Are you sure you want to delete this confidence survey? This cannot be undone.')) {
+                const result = deleteConfidenceSurvey(itemId);
+                if (!result.success) {
+                    alert(result.error || 'Failed to delete confidence survey');
+                }
+            }
+        }
+    });
+    
+    // Event delegation for confidence survey form buttons
+    document.addEventListener('click', (e) => {
+        const submitBtn = e.target.closest('.confidence-survey-submit-btn');
+        const cancelBtn = e.target.closest('.confidence-survey-cancel-btn');
+        
+        if (submitBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const itemId = submitBtn.getAttribute('data-item-id');
+            if (!itemId) return;
+            
+            // Collect survey data from form inputs
+            const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
+            if (!surveyForm) return;
+            
+            const surveyData = {
+                scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+                urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+                valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+                durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+            };
+            
+            // Collect vote counts for each dimension
+            ['scopeConfidence', 'urgencyConfidence', 'valueConfidence', 'durationConfidence'].forEach(dimension => {
+                for (let level = 1; level <= 4; level++) {
+                    const input = surveyForm.querySelector(`.confidence-vote-input[data-dimension="${dimension}"][data-level="${level}"]`);
+                    if (input) {
+                        surveyData[dimension][level] = parseInt(input.value) || 0;
+                    }
+                }
+            });
+            
+            const result = submitConfidenceSurvey(itemId, surveyData);
+            if (!result.success) {
+                alert(result.error || 'Failed to submit confidence survey');
+            }
+        } else if (cancelBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const itemId = cancelBtn.getAttribute('data-item-id');
+            if (itemId) {
+                cancelConfidenceSurvey(itemId);
+            }
+        }
+    });
+    
     // Close modal handlers
     if (notesModalClose) {
         notesModalClose.addEventListener('click', (e) => {
@@ -1847,6 +2055,21 @@ function initializeAPI() {
         addItemNote: addItemNoteToItem,
         updateItemNote: updateItemNoteInItem,
         deleteItemNote: deleteItemNoteFromItem,
+        submitConfidenceSurvey: submitConfidenceSurvey,
+        deleteConfidenceSurvey: deleteConfidenceSurvey,
+        getConfidenceSurvey: (itemId) => {
+            const items = Store.getItems();
+            const item = items.find(i => i.id === itemId);
+            return item && item.hasConfidenceSurvey ? item.confidenceSurvey : null;
+        },
+        getConfidenceWeights: () => {
+            const appState = Store.getAppState();
+            return appState.confidenceWeights || null;
+        },
+        getConfidenceLevelLabels: () => {
+            const appState = Store.getAppState();
+            return appState.confidenceLevelLabels || null;
+        },
         getCurrentStage: () => {
             const appState = Store.getAppState();
             return STAGE_CONTROLLER.getCurrentStage(appState);
