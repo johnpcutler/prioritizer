@@ -243,13 +243,14 @@ function displayUrgencyViewContent() {
     const urgency2Title = buckets.urgency[2]?.title || 'Title';
     const urgency3Title = buckets.urgency[3]?.title || 'Title';
     
-    // Update header labels (matching value/duration view structure)
+    // Update header labels with info icons (active during urgency stage)
     const label1El = document.getElementById('urgencyViewUrgencyColumnLabel1');
     const label2El = document.getElementById('urgencyViewUrgencyColumnLabel2');
     const label3El = document.getElementById('urgencyViewUrgencyColumnLabel3');
-    if (label1El) label1El.textContent = urgency1Title;
-    if (label2El) label2El.textContent = urgency2Title;
-    if (label3El) label3El.textContent = urgency3Title;
+    const isActive = currentStage === 'urgency';
+    renderHeaderWithInfoIcon(label1El, urgency1Title, 'urgency', 1, isActive);
+    renderHeaderWithInfoIcon(label2El, urgency2Title, 'urgency', 2, isActive);
+    renderHeaderWithInfoIcon(label3El, urgency3Title, 'urgency', 3, isActive);
     
     // Separate items by urgency
     const itemsWithUrgency1 = items.filter(item => item.urgency === 1);
@@ -355,15 +356,16 @@ function displayValueViewContent() {
     const urgency2Title = buckets.urgency[2]?.title || 'Title';
     const urgency3Title = buckets.urgency[3]?.title || 'Title';
     
-    // Update row labels (Value)
+    // Update row labels (Value) with info icons (active during value stage)
     const valueRowLabel1 = document.getElementById('valueRowLabel1');
     const valueRowLabel2 = document.getElementById('valueRowLabel2');
     const valueRowLabel3 = document.getElementById('valueRowLabel3');
-    if (valueRowLabel1) valueRowLabel1.textContent = value1Title;
-    if (valueRowLabel2) valueRowLabel2.textContent = value2Title;
-    if (valueRowLabel3) valueRowLabel3.textContent = value3Title;
+    const isValueActive = currentStage === 'value';
+    renderHeaderWithInfoIcon(valueRowLabel1, value1Title, 'value', 1, isValueActive);
+    renderHeaderWithInfoIcon(valueRowLabel2, value2Title, 'value', 2, isValueActive);
+    renderHeaderWithInfoIcon(valueRowLabel3, value3Title, 'value', 3, isValueActive);
     
-    // Update column labels (Urgency)
+    // Update column labels (Urgency) - not active in value view, so no icons
     const urgencyColumnLabel1 = document.getElementById('urgencyColumnLabel1');
     const urgencyColumnLabel2 = document.getElementById('urgencyColumnLabel2');
     const urgencyColumnLabel3 = document.getElementById('urgencyColumnLabel3');
@@ -848,6 +850,140 @@ export function populateSettings() {
         if (descInput && buckets.value && buckets.value[level]) {
             descInput.value = buckets.value[level].description || '';
         }
+    }
+}
+
+// ============================================================================
+// Header Info Icon and Modal Functions
+// ============================================================================
+
+// Render header with clickable link when active
+function renderHeaderWithInfoIcon(headerEl, title, category, level, isActive) {
+    if (!headerEl) return;
+    
+    // Clear content
+    headerEl.innerHTML = '';
+    
+    // If active, make the title a clickable link
+    if (isActive) {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = 'header-info-link';
+        link.setAttribute('data-category', category);
+        link.setAttribute('data-level', level.toString());
+        link.setAttribute('title', 'Click for description');
+        link.textContent = title;
+        headerEl.appendChild(link);
+    } else {
+        // If not active, just show plain text
+        headerEl.textContent = title;
+    }
+}
+
+// Open header info modal with description
+function openHeaderInfoModal(category, level, title, description) {
+    const modal = document.getElementById('headerInfoModal');
+    const modalTitle = document.getElementById('headerInfoModalTitle');
+    const modalDescription = document.getElementById('headerInfoModalDescription');
+    
+    if (!modal || !modalTitle || !modalDescription) return;
+    
+    modalTitle.textContent = title;
+    modalDescription.textContent = description || 'No description available.';
+    modal.classList.add('active');
+    
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+// Close header info modal
+function closeHeaderInfoModal() {
+    const modal = document.getElementById('headerInfoModal');
+    if (!modal) return;
+    
+    modal.classList.remove('active');
+    
+    // Restore body scroll
+    document.body.style.overflow = '';
+}
+
+// Setup event delegation for header info icons (only once)
+let headerInfoListenersSetup = false;
+
+function setupHeaderInfoIconListeners() {
+    if (headerInfoListenersSetup) return;
+    headerInfoListenersSetup = true;
+    
+    // Use event delegation on document for dynamically added header links
+    document.addEventListener('click', (e) => {
+        const headerLink = e.target.closest('.header-info-link');
+        if (!headerLink) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const category = headerLink.getAttribute('data-category');
+        const level = parseInt(headerLink.getAttribute('data-level'));
+        
+        if (!category || !level) return;
+        
+        // Get description from buckets
+        const appState = Store.getAppState();
+        const buckets = appState.buckets;
+        
+        if (!buckets || !buckets[category] || !buckets[category][level]) {
+            return;
+        }
+        
+        const bucket = buckets[category][level];
+        const title = bucket.title || `${category} ${level}`;
+        const description = bucket.description || 'No description available.';
+        
+        openHeaderInfoModal(category, level, title, description);
+    });
+    
+    // Close modal when clicking backdrop or close button
+    const modal = document.getElementById('headerInfoModal');
+    const closeBtn = document.getElementById('headerInfoModalClose');
+    
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            // Close if clicking backdrop (not the container)
+            if (e.target.classList.contains('header-info-modal-backdrop')) {
+                closeHeaderInfoModal();
+            }
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeHeaderInfoModal();
+        });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('headerInfoModal');
+            if (modal && modal.classList.contains('active')) {
+                closeHeaderInfoModal();
+            }
+        }
+    });
+}
+
+// Initialize header info icon listeners on page load
+if (typeof document !== 'undefined') {
+    const initHeaderInfoListeners = () => {
+        setupHeaderInfoIconListeners();
+    };
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeaderInfoListeners);
+    } else {
+        initHeaderInfoListeners();
     }
 }
 
