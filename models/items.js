@@ -31,6 +31,28 @@ export function normalizeItem(item) {
         item.addedToManuallySequencedList = false;
     }
     
+    // Normalize notes array
+    if (item.notes === undefined || item.notes === null || !Array.isArray(item.notes)) {
+        item.notes = [];
+    } else {
+        // Ensure each note has required structure
+        item.notes = item.notes.map(note => {
+            if (typeof note === 'string') {
+                // Migrate old string notes to note objects
+                return {
+                    text: note,
+                    createdAt: new Date().toISOString(),
+                    modifiedAt: new Date().toISOString()
+                };
+            }
+            return {
+                text: note.text || '',
+                createdAt: note.createdAt || new Date().toISOString(),
+                modifiedAt: note.modifiedAt || note.createdAt || new Date().toISOString()
+            };
+        });
+    }
+    
     // Normalize link - validate if present, otherwise set to null
     if (item.link !== undefined && item.link !== null && item.link !== '') {
         if (isValidUrl(item.link)) {
@@ -170,6 +192,7 @@ export function createItem(name, link = null) {
         CD3: 0,
         active: true,
         sequence: null,
+        notes: [],
         createdAt: new Date().toISOString()
     });
 }
@@ -417,6 +440,69 @@ export function insertItemIntoSequence(item, items, appState) {
             item.addedToManuallySequencedList = true;
         }
     }
+}
+
+// Add a note to an item
+export function addItemNote(item, noteText) {
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    if (!noteText || typeof noteText !== 'string' || noteText.trim() === '') {
+        return { success: false, error: 'Note text is required' };
+    }
+    
+    // Ensure notes array exists
+    if (!Array.isArray(item.notes)) {
+        item.notes = [];
+    }
+    
+    const now = new Date().toISOString();
+    const newNote = {
+        text: noteText.trim(),
+        createdAt: now,
+        modifiedAt: now
+    };
+    
+    item.notes.push(newNote);
+    
+    return { success: true };
+}
+
+// Update an existing note
+export function updateItemNote(item, noteIndex, noteText) {
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    if (!Array.isArray(item.notes) || noteIndex < 0 || noteIndex >= item.notes.length) {
+        return { success: false, error: 'Invalid note index' };
+    }
+    
+    if (!noteText || typeof noteText !== 'string' || noteText.trim() === '') {
+        return { success: false, error: 'Note text is required' };
+    }
+    
+    const note = item.notes[noteIndex];
+    note.text = noteText.trim();
+    note.modifiedAt = new Date().toISOString();
+    
+    return { success: true };
+}
+
+// Delete a note from an item
+export function deleteItemNote(item, noteIndex) {
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    if (!Array.isArray(item.notes) || noteIndex < 0 || noteIndex >= item.notes.length) {
+        return { success: false, error: 'Invalid note index' };
+    }
+    
+    item.notes.splice(noteIndex, 1);
+    
+    return { success: true };
 }
 
 

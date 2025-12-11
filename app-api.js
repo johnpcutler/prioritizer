@@ -44,6 +44,25 @@
             return appInstance ? appInstance.setItemProperty(itemId, property, value) : { success: false, error: 'App not initialized' };
         },
         
+        addItemNote: function(itemId, noteText) {
+            return appInstance ? appInstance.addItemNote(itemId, noteText) : { success: false, error: 'App not initialized' };
+        },
+        
+        updateItemNote: function(itemId, noteIndex, noteText) {
+            return appInstance ? appInstance.updateItemNote(itemId, noteIndex, noteText) : { success: false, error: 'App not initialized' };
+        },
+        
+        deleteItemNote: function(itemId, noteIndex) {
+            return appInstance ? appInstance.deleteItemNote(itemId, noteIndex) : { success: false, error: 'App not initialized' };
+        },
+        
+        getItemNotes: function(itemId) {
+            if (!appInstance) return null;
+            const items = appInstance.getItems();
+            const item = items.find(i => i.id === itemId);
+            return item ? item.notes || [] : null;
+        },
+        
         // Stage operations
         getCurrentStage: function() {
             return appInstance ? appInstance.getCurrentStage() : 'urgency';

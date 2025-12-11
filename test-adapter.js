@@ -54,6 +54,22 @@
             return this.api.setItemProperty(itemId, property, value);
         },
         
+        addItemNote: function(itemId, noteText) {
+            return this.api.addItemNote(itemId, noteText);
+        },
+        
+        updateItemNote: function(itemId, noteIndex, noteText) {
+            return this.api.updateItemNote(itemId, noteIndex, noteText);
+        },
+        
+        deleteItemNote: function(itemId, noteIndex) {
+            return this.api.deleteItemNote(itemId, noteIndex);
+        },
+        
+        getItemNotes: function(itemId) {
+            return this.api.getItemNotes(itemId);
+        },
+        
         // Stage operations
         getCurrentStage: function() {
             return this.api.getCurrentStage();

@@ -21,7 +21,10 @@ import {
     recalculateAllCD3,
     isValidUrl,
     removeItem as removeItemModel,
-    insertItemIntoSequence
+    insertItemIntoSequence,
+    addItemNote,
+    updateItemNote,
+    deleteItemNote
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
@@ -279,6 +282,72 @@ function setItemInactive(itemId) {
     return updateItem(itemId, (item) => {
         item.active = false;
     });
+}
+
+// Add a note to an item
+function addItemNoteToItem(itemId, noteText) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    const result = addItemNote(item, noteText);
+    if (!result.success) {
+        return result;
+    }
+    
+    Store.saveItems(items);
+    const appState = Store.getAppState();
+    persistAndRefresh(appState, items);
+    refreshApp();
+    
+    return { success: true };
+}
+
+// Update an existing note
+function updateItemNoteInItem(itemId, noteIndex, noteText) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    const result = updateItemNote(item, noteIndex, noteText);
+    if (!result.success) {
+        return result;
+    }
+    
+    Store.saveItems(items);
+    const appState = Store.getAppState();
+    persistAndRefresh(appState, items);
+    refreshApp();
+    
+    return { success: true };
+}
+
+// Delete a note from an item
+function deleteItemNoteFromItem(itemId, noteIndex) {
+    const items = Store.getItems();
+    const item = items.find(i => i.id === itemId);
+    
+    if (!item) {
+        return { success: false, error: 'Item not found' };
+    }
+    
+    const result = deleteItemNote(item, noteIndex);
+    if (!result.success) {
+        return result;
+    }
+    
+    Store.saveItems(items);
+    const appState = Store.getAppState();
+    persistAndRefresh(appState, items);
+    refreshApp();
+    
+    return { success: true };
 }
 
 // ============================================================================
@@ -1202,6 +1271,226 @@ function setupEventListeners() {
         }
     });
     
+    // Notes Modal
+    const notesModal = document.getElementById('notesModal');
+    const notesModalTitle = document.getElementById('notesModalTitle');
+    const notesModalItemName = document.getElementById('notesModalItemName');
+    const notesModalNotesList = document.getElementById('notesModalNotesList');
+    const notesModalTextarea = document.getElementById('notesModalTextarea');
+    const notesModalAddBtn = document.getElementById('notesModalAddBtn');
+    const notesModalEditBtn = document.getElementById('notesModalEditBtn');
+    const notesModalCancelEditBtn = document.getElementById('notesModalCancelEditBtn');
+    const notesModalClose = document.getElementById('notesModalClose');
+    
+    let currentNotesItemId = null;
+    let currentEditingNoteIndex = null;
+    
+    function formatTimestamp(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        return date.toLocaleString();
+    }
+    
+    function renderNotesList(item) {
+        if (!item || !Array.isArray(item.notes) || item.notes.length === 0) {
+            notesModalNotesList.innerHTML = '<div style="color: #6c757d; font-style: italic; padding: 10px;">No notes yet. Add your first note below.</div>';
+            return;
+        }
+        
+        notesModalNotesList.innerHTML = item.notes.map((note, index) => {
+            const isSelected = currentEditingNoteIndex === index;
+            const createdTime = formatTimestamp(note.createdAt);
+            const modifiedTime = note.modifiedAt && note.modifiedAt !== note.createdAt 
+                ? formatTimestamp(note.modifiedAt) 
+                : null;
+            
+            return `
+                <div class="note-item ${isSelected ? 'selected' : ''}" data-note-index="${index}">
+                    <div class="note-item-text">${escapeHtml(note.text)}</div>
+                    <div class="note-item-timestamps">
+                        <span class="note-item-timestamp">Created: ${createdTime}</span>
+                        ${modifiedTime ? `<span class="note-item-timestamp">Modified: ${modifiedTime}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers to note items
+        notesModalNotesList.querySelectorAll('.note-item').forEach(noteEl => {
+            noteEl.addEventListener('click', () => {
+                const noteIndex = parseInt(noteEl.getAttribute('data-note-index'));
+                selectNoteForEditing(noteIndex);
+            });
+        });
+    }
+    
+    function selectNoteForEditing(noteIndex) {
+        const items = Store.getItems();
+        const item = items.find(i => i.id === currentNotesItemId);
+        if (!item || !item.notes || noteIndex < 0 || noteIndex >= item.notes.length) {
+            return;
+        }
+        
+        currentEditingNoteIndex = noteIndex;
+        const note = item.notes[noteIndex];
+        notesModalTextarea.value = note.text;
+        
+        notesModalAddBtn.style.display = 'none';
+        notesModalEditBtn.style.display = 'inline-block';
+        notesModalCancelEditBtn.style.display = 'inline-block';
+        
+        renderNotesList(item);
+        notesModalTextarea.focus();
+    }
+    
+    function cancelEditing() {
+        currentEditingNoteIndex = null;
+        notesModalTextarea.value = '';
+        notesModalAddBtn.style.display = 'inline-block';
+        notesModalEditBtn.style.display = 'none';
+        notesModalCancelEditBtn.style.display = 'none';
+        
+        const items = Store.getItems();
+        const item = items.find(i => i.id === currentNotesItemId);
+        if (item) {
+            renderNotesList(item);
+        }
+    }
+    
+    function openNotesModal(itemId) {
+        const items = Store.getItems();
+        const item = items.find(i => i.id === itemId);
+        
+        if (!item) {
+            console.warn('Item not found:', itemId);
+            return;
+        }
+        
+        currentNotesItemId = itemId;
+        currentEditingNoteIndex = null;
+        
+        if (notesModalItemName) {
+            notesModalItemName.textContent = item.name;
+        }
+        
+        renderNotesList(item);
+        notesModalTextarea.value = '';
+        notesModalAddBtn.style.display = 'inline-block';
+        notesModalEditBtn.style.display = 'none';
+        notesModalCancelEditBtn.style.display = 'none';
+        
+        if (notesModal) {
+            notesModal.style.display = 'flex';
+            notesModalTextarea.focus();
+        }
+    }
+    
+    function closeNotesModal() {
+        if (notesModal) {
+            notesModal.style.display = 'none';
+        }
+        currentNotesItemId = null;
+        currentEditingNoteIndex = null;
+        if (notesModalTextarea) {
+            notesModalTextarea.value = '';
+        }
+    }
+    
+    // Event delegation for notes badge clicks
+    document.addEventListener('click', (e) => {
+        const notesBadge = e.target.closest('.notes-badge');
+        if (!notesBadge) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const itemId = notesBadge.getAttribute('data-item-id');
+        if (itemId) {
+            openNotesModal(itemId);
+        }
+    });
+    
+    // Add note button
+    if (notesModalAddBtn) {
+        notesModalAddBtn.addEventListener('click', () => {
+            const noteText = notesModalTextarea.value.trim();
+            if (!noteText) {
+                alert('Please enter a note.');
+                return;
+            }
+            
+            const result = addItemNoteToItem(currentNotesItemId, noteText);
+            if (result.success) {
+                notesModalTextarea.value = '';
+                const items = Store.getItems();
+                const item = items.find(i => i.id === currentNotesItemId);
+                if (item) {
+                    renderNotesList(item);
+                }
+            } else {
+                alert(result.error || 'Failed to add note');
+            }
+        });
+    }
+    
+    // Edit note button
+    if (notesModalEditBtn) {
+        notesModalEditBtn.addEventListener('click', () => {
+            const noteText = notesModalTextarea.value.trim();
+            if (!noteText) {
+                alert('Please enter a note.');
+                return;
+            }
+            
+            if (currentEditingNoteIndex === null) {
+                return;
+            }
+            
+            const result = updateItemNoteInItem(currentNotesItemId, currentEditingNoteIndex, noteText);
+            if (result.success) {
+                cancelEditing();
+                const items = Store.getItems();
+                const item = items.find(i => i.id === currentNotesItemId);
+                if (item) {
+                    renderNotesList(item);
+                }
+            } else {
+                alert(result.error || 'Failed to update note');
+            }
+        });
+    }
+    
+    // Cancel edit button
+    if (notesModalCancelEditBtn) {
+        notesModalCancelEditBtn.addEventListener('click', () => {
+            cancelEditing();
+        });
+    }
+    
+    // Close modal handlers
+    if (notesModalClose) {
+        notesModalClose.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeNotesModal();
+        });
+    }
+    
+    if (notesModal) {
+        notesModal.addEventListener('click', (e) => {
+            if (e.target === notesModal) {
+                closeNotesModal();
+            }
+        });
+    }
+    
+    // Close notes modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && notesModal && notesModal.style.display !== 'none') {
+            closeNotesModal();
+        }
+    });
+    
     // Handle submit
     if (modalSubmitBtn) {
         modalSubmitBtn.addEventListener('click', () => {
@@ -1555,6 +1844,9 @@ function initializeAPI() {
         bulkAddItems: bulkAddItems,
         removeItem: removeItem,
         setItemProperty: setItemProperty,
+        addItemNote: addItemNoteToItem,
+        updateItemNote: updateItemNoteInItem,
+        deleteItemNote: deleteItemNoteFromItem,
         getCurrentStage: () => {
             const appState = Store.getAppState();
             return STAGE_CONTROLLER.getCurrentStage(appState);

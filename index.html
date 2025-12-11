@@ -423,6 +423,35 @@
         </div>
     </div>
 
+    <!-- Notes Modal -->
+    <div id="notesModal" class="modal-overlay notes-modal-overlay" style="display: none;">
+        <div class="modal-container notes-modal-container">
+            <div class="modal-header">
+                <h2 id="notesModalTitle">Notes</h2>
+                <button id="notesModalClose" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-content notes-modal-content">
+                <div id="notesModalItemName" class="notes-modal-item-name" style="font-weight: 600; margin-bottom: 15px; color: #495057;"></div>
+                
+                <!-- Existing Notes List -->
+                <div id="notesModalNotesList" class="notes-modal-notes-list" style="margin-bottom: 20px;">
+                    <!-- Notes will be displayed here -->
+                </div>
+                
+                <!-- Add/Edit Note Form -->
+                <div class="notes-modal-form">
+                    <label for="notesModalTextarea" style="display: block; margin-bottom: 8px; font-weight: 500; color: #495057;">Add or Edit Note:</label>
+                    <textarea id="notesModalTextarea" class="notes-modal-textarea" rows="4" placeholder="Enter your note here..."></textarea>
+                    <div class="notes-modal-buttons" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button id="notesModalAddBtn" class="notes-modal-btn notes-modal-btn-primary">Add Note</button>
+                        <button id="notesModalEditBtn" class="notes-modal-btn notes-modal-btn-secondary" style="display: none;">Update Note</button>
+                        <button id="notesModalCancelEditBtn" class="notes-modal-btn notes-modal-btn-secondary" style="display: none;">Cancel Edit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="app-api.js"></script>
     <script type="module" src="app.js"></script>
     <script src="test-adapter.js"></script>

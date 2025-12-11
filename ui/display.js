@@ -163,11 +163,13 @@ function displayItemListingContent() {
     
     itemsDisplay.innerHTML = items.map(item => {
         const isActive = item.active !== false;
+        const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
         const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
+        const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
         
         return `
             <div class="item-listing-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-                <span class="item-listing-item-name">${escapeHtml(item.name)}${linkHtml}</span>
+                <span class="item-listing-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
                 <button class="item-remove-btn" data-item-id="${item.id}" title="Remove item">🗑️</button>
             </div>
         `;
@@ -322,13 +324,15 @@ function renderUrgencyColumn(columnId, items, isLocked, urgency1Title, urgency2T
 function renderUrgencyItem(item, isLocked, urgency1Title, urgency2Title, urgency3Title) {
     const urgency = item.urgency || 0;
     const isActive = item.active !== false;
+    const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
     
     const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
+    const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
         <div class="urgency-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
             <div>
-                <span class="urgency-item-name">${escapeHtml(item.name)}${linkHtml}</span>
+                <span class="urgency-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
             </div>
             <div class="urgency-quick-buttons">
                 <button class="urgency-quick-btn ${urgency === 1 ? 'active' : ''}" 
@@ -496,6 +500,7 @@ function renderValueItem(item, isLocked) {
     const value = item.value || 0;
     const urgency = item.urgency || 0;
     const isActive = item.active !== false;
+    const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
     
     // In value stage, can set value if locked, or if unlocked and urgency is set
     const canSetValue = isLocked ? true : (item.urgencySet || urgency > 0);
@@ -505,10 +510,11 @@ function renderValueItem(item, isLocked) {
     const displayValue = value > 0 ? value : '—';
     
     const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
+    const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
         <div class="value-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-            <span class="value-item-name">${escapeHtml(item.name)}${linkHtml}</span>
+            <span class="value-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
             <div class="value-item-controls">
                 <button class="property-btn decrement-btn" 
                         data-item-id="${item.id}" 
@@ -643,15 +649,17 @@ function renderDurationItem(item, isLocked, duration1Title, duration2Title, dura
     const duration = item.duration || 0;
     const isActive = item.active !== false;
     const isEmpty = duration === 0 || !duration;
+    const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
     
     // In duration stage, can set duration if locked, or if unlocked and value is set
     const canSetDuration = isLocked ? true : (item.valueSet || (item.value && item.value > 0));
     
     const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
+    const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
         <div class="duration-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-            <span class="duration-item-name">${escapeHtml(item.name)}${linkHtml}</span>
+            <span class="duration-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
             <div class="duration-item-controls">
                 <select class="duration-select ${isEmpty ? 'duration-select-empty' : ''}" 
                         data-item-id="${item.id}" 
@@ -787,7 +795,9 @@ function displayResultsContent() {
         const cd3 = item.CD3 || 0;
         const cd3Formatted = cd3.toFixed(2);
         const isActive = item.active !== false;
+        const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
         const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
+        const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
         
         // Get bucket names for urgency, value, and duration
         const urgency = item.urgency || 0;
@@ -821,7 +831,7 @@ function displayResultsContent() {
                             title="Move down">↓</button>
                 </div>
                 <div class="results-item-details">
-                    <div class="results-item-name">${escapeHtml(item.name)}${item.addedToManuallySequencedList ? ' <span class="new-item-badge">[New]</span>' : ''}${linkHtml}</div>
+                    <div class="results-item-name">${escapeHtml(item.name)}${item.addedToManuallySequencedList ? ' <span class="new-item-badge">[New]</span>' : ''}${linkHtml} ${notesBadgeHtml}</div>
                     <div class="results-item-metrics">
                         <span class="results-metric">Urgency: ${urgencyDisplay}</span>
                         <span class="results-metric">Value: ${valueDisplay}</span>
