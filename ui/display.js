@@ -602,6 +602,7 @@ function displayDurationViewContent() {
 function renderDurationItem(item, isLocked, duration1Title, duration2Title, duration3Title) {
     const duration = item.duration || 0;
     const isActive = item.active !== false;
+    const isEmpty = duration === 0 || !duration;
     
     // In duration stage, can set duration if locked, or if unlocked and value is set
     const canSetDuration = isLocked ? true : (item.valueSet || (item.value && item.value > 0));
@@ -612,7 +613,7 @@ function renderDurationItem(item, isLocked, duration1Title, duration2Title, dura
         <div class="duration-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
             <span class="duration-item-name">${escapeHtml(item.name)}${linkHtml}</span>
             <div class="duration-item-controls">
-                <select class="duration-select" 
+                <select class="duration-select ${isEmpty ? 'duration-select-empty' : ''}" 
                         data-item-id="${item.id}" 
                         data-property="duration"
                         ${!canSetDuration ? 'disabled' : ''}
@@ -620,7 +621,7 @@ function renderDurationItem(item, isLocked, duration1Title, duration2Title, dura
                     <option value="3" ${duration === 3 ? 'selected' : ''}>${escapeHtml(duration3Title)}</option>
                     <option value="2" ${duration === 2 ? 'selected' : ''}>${escapeHtml(duration2Title)}</option>
                     <option value="1" ${duration === 1 ? 'selected' : ''}>${escapeHtml(duration1Title)}</option>
-                    <option value="" ${duration === 0 || !duration ? 'selected' : ''}>—</option>
+                    <option value="" ${isEmpty ? 'selected' : ''}>—</option>
                 </select>
             </div>
         </div>

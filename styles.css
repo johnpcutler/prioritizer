@@ -1486,6 +1486,12 @@ button:disabled {
     min-width: 80px;
 }
 
+/* Empty duration dropdowns use parking lot colors */
+.duration-select-empty {
+    background-color: #fff3cd !important; /* Light yellow/beige - matches parking lot */
+    color: #856404 !important; /* Darker brown/yellow for contrast */
+}
+
 .duration-select:disabled {
     background-color: #e9ecef;
     cursor: not-allowed;
