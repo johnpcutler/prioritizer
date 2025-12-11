@@ -262,9 +262,9 @@ function displayUrgencyViewContent() {
     if (urgencyCallout) {
         const allItemsHaveUrgency = items.length > 0 && itemsWithoutUrgency.length === 0;
         if (allItemsHaveUrgency) {
-            urgencyCallout.textContent = 'When you are done categorizing items, you can advance to Value';
+            urgencyCallout.innerHTML = 'When you are done categorizing items, you can advance to Value. To learn more about why we start with Urgency, check out this short video: <a href="https://youtu.be/ha46hhcGOY0" target="_blank" rel="noopener noreferrer">https://youtu.be/ha46hhcGOY0</a>';
         } else {
-            urgencyCallout.textContent = 'Categorize each of your items by urgency';
+            urgencyCallout.innerHTML = 'Categorize each of your items by urgency. To learn more about why we start with Urgency, check out this short video: <a href="https://youtu.be/ha46hhcGOY0" target="_blank" rel="noopener noreferrer">https://youtu.be/ha46hhcGOY0</a>';
         }
     }
     
