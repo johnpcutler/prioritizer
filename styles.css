@@ -1016,7 +1016,6 @@ button:disabled {
     border-radius: 8px;
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    max-height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
 }
