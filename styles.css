@@ -1,3 +1,83 @@
+/* ============================================================================
+   Design Tokens - CSS Variables
+   ============================================================================ */
+:root {
+    /* Colors */
+    --color-bg: #f5f5f5;
+    --color-surface: #ffffff;
+    --color-border: #dee2e6;
+    
+    --color-primary: #007bff;
+    --color-primary-dark: #0056b3;
+    --color-primary-light: #2196f3;
+    --color-primary-lighter: #e3f2fd;
+    --color-primary-text: #1976d2;
+    --color-primary-text-dark: #1565c0;
+    --color-primary-text-darker: #0d47a1;
+    
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-warning-text: #856404;
+    --color-muted: #6c757d;
+    --color-muted-dark: #5a6268;
+    --color-disabled: #adb5bd;
+    
+    --color-grid-parking-bg: #fffbf0;
+    --color-grid-parking-border: #6c757d;
+    --color-parking-lot-bg: #fff3cd;
+    --color-parking-lot-text: #856404;
+    
+    --color-text-main: #333;
+    --color-text-secondary: #495057;
+    --color-text-muted: #666;
+    --color-text-light: #555;
+    --color-text-lighter: #999;
+    
+    --color-bg-light: #f8f9fa;
+    --color-bg-lighter: #e9ecef;
+    --color-bg-hover: #f0f0f0;
+    --color-bg-selected: #e7f3ff;
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 6px;
+    --space-md: 8px;
+    --space-lg: 10px;
+    --space-xl: 12px;
+    --space-2xl: 15px;
+    --space-3xl: 20px;
+    --space-4xl: 24px;
+    --space-5xl: 30px;
+    
+    /* Border Radius */
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-2xl: 12px;
+    --radius-full: 50%;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --shadow-focus: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    --shadow-focus-strong: 0 0 0 2px rgba(0, 123, 255, 0.3);
+    
+    /* Typography */
+    --font-family-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --text-xs: 11px;
+    --text-sm: 12px;
+    --text-md: 13px;
+    --text-base: 14px;
+    --text-lg: 16px;
+    --text-xl: 18px;
+    --text-2xl: 24px;
+    --text-3xl: 28px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -5,8 +85,8 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #f5f5f5;
+    font-family: var(--font-family-system);
+    background-color: var(--color-bg);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -16,10 +96,10 @@ body {
    Base Button Component
    ============================================================================ */
 .btn {
-    padding: 8px 16px;
+    padding: var(--space-md) var(--space-lg);
     border: none;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -30,19 +110,19 @@ body {
 
 /* Button Variants */
 .btn-primary {
-    background-color: #007bff;
+    background-color: var(--color-primary);
 }
 
 .btn-primary:hover:not(.active) {
-    background-color: #0056b3;
+    background-color: var(--color-primary-dark);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: var(--color-muted);
 }
 
 .btn-secondary:hover:not(.active) {
-    background-color: #5a6268;
+    background-color: var(--color-muted-dark);
 }
 
 .btn-danger {
@@ -63,13 +143,13 @@ body {
 
 /* Button Sizes */
 .btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: var(--space-sm) var(--space-xl);
+    font-size: var(--text-sm);
 }
 
 .btn-md {
-    padding: 6px 14px;
-    font-size: 12px;
+    padding: var(--space-sm) var(--space-xl);
+    font-size: var(--text-sm);
 }
 
 /* Button States */
@@ -93,21 +173,21 @@ body {
 .textarea,
 .select {
     width: 100%;
-    padding: 8px 10px;
+    padding: var(--space-md) var(--space-lg);
     border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
     font-family: inherit;
     box-sizing: border-box;
-    color: #333;
-    background-color: white;
+    color: var(--color-text-main);
+    background-color: var(--color-surface);
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--color-primary);
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
@@ -121,25 +201,25 @@ body {
 
 /* Input Sizes */
 .input-sm {
-    padding: 4px 8px;
+    padding: var(--space-xs) var(--space-md);
     font-size: 12px;
 }
 
 .input-md {
-    padding: 6px 10px;
-    font-size: 13px;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--text-md);
 }
 
 .input-lg {
-    padding: 10px;
-    font-size: 14px;
+    padding: var(--space-lg);
+    font-size: var(--text-base);
 }
 
 .input-xl {
-    padding: 15px;
-    font-size: 14px;
+    padding: var(--space-2xl);
+    font-size: var(--text-base);
     border-width: 2px;
-    border-radius: 6px;
+    border-radius: var(--radius-lg);
 }
 
 /* Input Border Variants */
@@ -172,9 +252,9 @@ body {
 
 /* Stage Navigation Bar */
 .stage-navigation-bar {
-    background: white;
-    border-bottom: 2px solid #dee2e6;
-    padding: 10px 20px;
+    background: var(--color-surface);
+    border-bottom: 2px solid var(--color-border);
+    padding: var(--space-lg) var(--space-3xl);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -185,13 +265,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: var(--space-3xl);
 }
 
 .workflow-container {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: var(--space-2xl);
     flex: 1;
     justify-content: center;
 }
@@ -199,18 +279,18 @@ body {
 .workflow-label {
     font-size: 12px;
     font-weight: 600;
-    color: #6c757d;
+    color: var(--color-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 4px 8px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #dee2e6;
+    padding: var(--space-xs) var(--space-md);
+    background-color: var(--color-bg-light);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
 }
 
 .main-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--space-lg);
 }
 
 /* Main action buttons now use .btn base component */
@@ -219,14 +299,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: var(--space-3xl);
 }
 
 .stage-nav-controls .submit-btn {
     flex-shrink: 0;
     min-width: 100px;
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-base);
 }
 
 .stage-steps {
@@ -237,7 +317,7 @@ body {
 }
 
 .workflow-arrow {
-    color: #6c757d;
+    color: var(--color-muted);
     font-size: 18px;
     font-weight: 300;
     padding: 0 4px;
@@ -248,10 +328,10 @@ body {
     padding: 8px 16px;
     background-color: #ffffff;
     border: 2px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
     font-weight: 500;
-    color: #495057;
+    color: var(--color-text-secondary);
     cursor: default;
     transition: all 0.2s;
     white-space: nowrap;
@@ -260,15 +340,15 @@ body {
 }
 
 .stage-step:hover:not(.locked) {
-    border-color: #007bff;
+    border-color: var(--color-primary);
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     transform: translateY(-1px);
 }
 
 .stage-step.current {
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: white;
-    border-color: #007bff;
+    border-color: var(--color-primary);
     font-weight: 600;
     cursor: default;
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
@@ -276,8 +356,8 @@ body {
 }
 
 .stage-step.visited {
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: var(--color-bg-lighter);
+    color: var(--color-text-secondary);
     cursor: pointer;
 }
 
@@ -287,18 +367,18 @@ body {
 }
 
 .stage-step.future {
-    background-color: #f8f9fa;
-    color: #6c757d;
+    background-color: var(--color-bg-light);
+    color: var(--color-muted);
     cursor: pointer;
 }
 
 .stage-step.future:hover {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     border-color: #adb5bd;
 }
 
 .stage-step.locked {
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-light);
     color: #adb5bd;
     cursor: not-allowed;
     opacity: 0.6;
@@ -310,19 +390,19 @@ body {
 
 /* Legacy support for .active class */
 .stage-step.active {
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: white;
     font-weight: 600;
 }
 
 /* Content wrapper for views */
 .main-content > div:not(.stage-navigation-bar) {
-    padding: 20px;
+    padding: var(--space-3xl);
 }
 
 /* When sidebar is collapsed, add horizontal padding to content */
 .left-sidebar.collapsed ~ .main-content > div:not(.stage-navigation-bar) {
-    padding: 20px 40px;
+    padding: var(--space-3xl) var(--space-5xl);
 }
 
 /* Sidebar Toggle Button (when sidebar is collapsed) */
@@ -341,9 +421,9 @@ body {
 }
 
 .modal-container {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
     max-width: 500px;
     width: 90%;
     max-height: 90vh;
@@ -354,21 +434,21 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
+    padding: var(--space-3xl);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .modal-header h2 {
     margin: 0;
     font-size: 1.5em;
-    color: #333;
+    color: var(--color-text-main);
 }
 
 .modal-close-btn {
     background: none;
     border: none;
     font-size: 28px;
-    color: #6c757d;
+    color: var(--color-muted);
     cursor: pointer;
     padding: 0;
     width: 30px;
@@ -380,32 +460,32 @@ body {
 }
 
 .modal-close-btn:hover {
-    color: #333;
+    color: var(--color-text-main);
 }
 
 .modal-content {
-    padding: 20px;
+    padding: var(--space-3xl);
 }
 
 /* Notes Badge Styles */
 .notes-badge {
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
-    border-radius: 12px;
-    color: #495057;
+    background-color: var(--color-bg-lighter);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    color: var(--color-text-secondary);
     cursor: pointer;
-    font-size: 11px;
+    font-size: var(--text-xs);
     font-weight: 500;
-    margin-left: 6px;
-    padding: 2px 8px;
+    margin-left: var(--space-sm);
+    padding: 2px var(--space-md);
     transition: all 0.2s;
     vertical-align: middle;
     white-space: nowrap;
 }
 
 .notes-badge:hover {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
     color: white;
 }
 
@@ -413,18 +493,21 @@ body {
     transform: scale(0.95);
 }
 
-/* Notes Modal Styles */
+/* Notes Modal Styles - Uses base modal with size modifier */
 .notes-modal-overlay {
-    z-index: 1000;
+    /* Base styles inherited from .modal-overlay */
+    /* z-index already set in base */
 }
 
 .notes-modal-container {
+    /* Base styles inherited from .modal-container */
     max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
 }
 
 .notes-modal-content {
+    /* Base styles inherited from .modal-content */
     max-height: calc(80vh - 100px);
     overflow-y: auto;
 }
@@ -432,47 +515,47 @@ body {
 .notes-modal-item-name {
     font-size: 1.1em;
     padding-bottom: 10px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .notes-modal-notes-list {
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: #f8f9fa;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    background-color: var(--color-bg-light);
 }
 
 .note-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: white;
-    border-radius: 4px;
-    border-left: 3px solid #007bff;
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--color-primary);
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .note-item:hover {
-    background-color: #f0f0f0;
+    background-color: var(--color-bg-hover);
 }
 
 .note-item.selected {
-    background-color: #e7f3ff;
+    background-color: var(--color-bg-selected);
     border-left-color: #0056b3;
 }
 
 .note-item-text {
     white-space: pre-wrap;
     word-wrap: break-word;
-    margin-bottom: 8px;
-    color: #495057;
+    margin-bottom: var(--space-md);
+    color: var(--color-text-secondary);
 }
 
 .note-item-timestamps {
     font-size: 0.85em;
-    color: #6c757d;
+    color: var(--color-muted);
 }
 
 .note-item-timestamp {
@@ -486,7 +569,7 @@ body {
 
 .notes-modal-buttons {
     display: flex;
-    gap: 10px;
+    gap: var(--space-lg);
 }
 
 /* Notes modal buttons now use .btn base component */
@@ -496,14 +579,14 @@ body {
 }
 
 .modal-field {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
 }
 
 .modal-field label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-md);
     font-weight: 500;
-    color: #495057;
+    color: var(--color-text-secondary);
 }
 
 /* Modal inputs now use .input base component */
@@ -511,9 +594,9 @@ body {
 .modal-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid #dee2e6;
+    gap: var(--space-lg);
+    padding: var(--space-3xl);
+    border-top: 1px solid var(--color-border);
 }
 
 /* Modal buttons now use .btn base component */
@@ -525,29 +608,29 @@ body {
 
 h1 {
     margin-bottom: 30px;
-    color: #333;
+    color: var(--color-text-main);
 }
 
 h2 {
-    margin-bottom: 15px;
-    color: #555;
+    margin-bottom: var(--space-2xl);
+    color: var(--color-text-light);
     font-size: 1.2em;
 }
 
 /* Settings View in Main Area */
 .settings-view-section {
-    padding: 20px;
+    padding: var(--space-3xl);
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    background: white;
+    background: var(--color-surface);
     min-height: calc(100vh - 100px);
 }
 
 .settings-view-content {
     width: 50%;
     max-width: 600px;
-    padding: 20px;
+    padding: var(--space-3xl);
     margin: 0 auto;
 }
 
@@ -555,14 +638,14 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
     padding-bottom: 15px;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid var(--color-border);
 }
 
 .settings-header h2 {
     margin: 0;
-    color: #333;
+    color: var(--color-text-main);
     font-size: 1.3em;
 }
 
@@ -570,25 +653,25 @@ h2 {
     background: none;
     border: none;
     font-size: 24px;
-    color: #6c757d;
+    color: var(--color-muted);
     cursor: pointer;
-    padding: 4px 8px;
+    padding: var(--space-xs) var(--space-md);
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    border-radius: 4px;
+    border-radius: var(--radius-md);
     transition: all 0.2s;
 }
 
 .close-settings-btn:hover {
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-main);
 }
 
 /* Settings Section */
 .settings-section {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
 }
 
 
@@ -603,23 +686,23 @@ h2 {
 }
 
 .settings-subsection h3 {
-    margin-bottom: 15px;
-    color: #495057;
+    margin-bottom: var(--space-2xl);
+    color: var(--color-text-secondary);
     font-size: 1.1em;
     font-weight: 600;
 }
 
 .settings-group {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
+    margin-bottom: var(--space-3xl);
+    padding: var(--space-2xl);
+    background-color: var(--color-bg-light);
+    border-radius: var(--radius-lg);
     border: 1px solid #e9ecef;
 }
 
 .settings-group h4 {
     margin: 0 0 12px 0;
-    color: #6c757d;
+    color: var(--color-muted);
     font-size: 0.95em;
     font-weight: 600;
 }
@@ -627,8 +710,8 @@ h2 {
 .settings-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
 }
 
 .settings-row:last-child {
@@ -637,16 +720,16 @@ h2 {
 
 .settings-row label {
     min-width: 70px;
-    font-size: 13px;
-    color: #495057;
+    font-size: var(--text-md);
+    color: var(--color-text-secondary);
     font-weight: 500;
 }
 
 .settings-row-vertical {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 15px;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
 }
 
 .settings-row-vertical:last-child {
@@ -654,8 +737,8 @@ h2 {
 }
 
 .settings-row-vertical label {
-    font-size: 13px;
-    color: #495057;
+    font-size: var(--text-md);
+    color: var(--color-text-secondary);
     font-weight: 500;
 }
 
@@ -683,7 +766,7 @@ h2 {
 #commandForm {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: var(--space-2xl);
 }
 
 .form-field {
@@ -694,8 +777,8 @@ h2 {
 
 .form-field label {
     font-weight: 500;
-    color: #555;
-    font-size: 14px;
+    color: var(--color-text-light);
+    font-size: var(--text-base);
 }
 
 /* Form field inputs now use .input base component */
@@ -717,18 +800,18 @@ h2 {
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #007bff;
+    padding: var(--space-lg) var(--space-3xl);
+    background-color: var(--color-primary);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-base);
     transition: background-color 0.2s;
 }
 
 button:hover:not(:disabled) {
-    background-color: #0056b3;
+    background-color: var(--color-primary-dark);
 }
 
 button:disabled {
@@ -748,11 +831,11 @@ button:disabled {
 
 .button-group {
     display: flex;
-    gap: 10px;
+    gap: var(--space-lg);
 }
 
 .item-link {
-    color: #007bff;
+    color: var(--color-primary);
     text-decoration: none;
     margin-left: 3px;
     font-size: 12px;
@@ -760,21 +843,21 @@ button:disabled {
 }
 
 .item-link:hover {
-    color: #0056b3;
+    color: var(--color-primary-dark);
     text-decoration: underline;
 }
 
 .item-inactive {
     opacity: 0.6;
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-light);
 }
 
 .property-btn {
     width: 24px;
     height: 24px;
     padding: 0;
-    border-radius: 3px;
-    font-size: 14px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -807,7 +890,7 @@ button:disabled {
 }
 
 .property-btn:disabled {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     color: #adb5bd;
     border-color: #dee2e6;
     cursor: not-allowed;
@@ -815,7 +898,7 @@ button:disabled {
 }
 
 .empty-state {
-    color: #999;
+    color: var(--color-text-lighter);
     text-align: center;
     padding: 40px;
 }
@@ -824,11 +907,11 @@ button:disabled {
 #jsonDisplay {
     background-color: #282c34;
     color: #abb2bf;
-    padding: 20px;
-    border-radius: 4px;
+    padding: var(--space-3xl);
+    border-radius: var(--radius-md);
     overflow-x: auto;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 13px;
+    font-size: var(--text-md);
     line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -838,40 +921,40 @@ button:disabled {
 
 .test-section {
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
     padding-top: 15px;
     border-top: 2px solid #eee;
 }
 
 #testResults {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 4px;
+    background-color: var(--color-bg-light);
+    padding: var(--space-3xl);
+    border-radius: var(--radius-md);
     min-height: 100px;
 }
 
 .test-summary {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
     padding-bottom: 15px;
     border-bottom: 2px solid #ddd;
 }
 
 .test-summary h3 {
-    margin-bottom: 10px;
-    color: #333;
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-main);
 }
 
 .test-stats {
     display: flex;
-    gap: 20px;
+    gap: var(--space-3xl);
     flex-wrap: wrap;
 }
 
 .test-stat {
-    padding: 5px 12px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: var(--space-xs) var(--space-xl);
+    background-color: var(--color-bg-lighter);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
     font-weight: 500;
 }
 
@@ -888,16 +971,16 @@ button:disabled {
 .test-details {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-md);
 }
 
 .test-result {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    background-color: white;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
     border-left: 4px solid #ddd;
 }
 
@@ -916,8 +999,8 @@ button:disabled {
 .test-status {
     font-weight: 600;
     font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 3px;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-sm);
     min-width: 50px;
     text-align: center;
 }
@@ -933,14 +1016,14 @@ button:disabled {
 }
 
 .test-result.error .test-status {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: var(--color-parking-lot-bg);
+    color: var(--color-parking-lot-text);
 }
 
 .test-number {
     font-weight: 600;
     font-size: 12px;
-    color: #666;
+    color: var(--color-text-muted);
     min-width: 50px;
     text-align: right;
     margin-right: 10px;
@@ -948,12 +1031,12 @@ button:disabled {
 
 .test-message {
     flex: 1;
-    font-size: 14px;
-    color: #333;
+    font-size: var(--text-base);
+    color: var(--color-text-main);
 }
 
 .test-actions {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-2xl);
 }
 
 #copyFailingTestsBtn {
@@ -982,23 +1065,19 @@ button:disabled {
 }
 
 .form-info {
-    padding: 10px;
-    background-color: #e7f3ff;
-    border-left: 4px solid #007bff;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    font-size: 14px;
+    padding: var(--space-lg);
+    background-color: var(--color-bg-selected);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2xl);
+    font-size: var(--text-base);
     color: #004085;
 }
 
 /* Item Listing View Styles */
 .item-listing-view-section {
-    margin-bottom: 20px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Base styles inherited from .view-section */
+    padding: var(--space-3xl);
 }
 
 
@@ -1009,7 +1088,7 @@ button:disabled {
 .item-listing-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: var(--space-2xl);
 }
 
 /* Item listing textarea now uses .textarea base component */
@@ -1020,7 +1099,7 @@ button:disabled {
 
 .item-listing-submit-btn {
     align-self: flex-start;
-    padding: 12px 24px;
+    padding: var(--space-xl) var(--space-4xl);
     font-size: 16px;
     font-weight: 500;
 }
@@ -1033,44 +1112,35 @@ button:disabled {
 
 .item-listing-items h3 {
     margin: 0 0 15px 0;
-    color: #555;
+    color: var(--color-text-light);
     font-size: 1.1em;
 }
 
 .item-listing-items-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-md);
     max-height: 400px;
     overflow-y: auto;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
+    padding: var(--space-lg);
+    background-color: var(--color-bg-light);
+    border-radius: var(--radius-lg);
 }
 
 .item-listing-item {
-    display: flex;
-    align-items: center;
+    /* Base styles inherited from .list-item-card */
     justify-content: space-between;
-    padding: 10px 15px;
-    background-color: white;
-    border-radius: 4px;
-    border-left: 4px solid #007bff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    gap: 10px;
+    padding: var(--space-lg) var(--space-2xl);
+    background-color: var(--color-surface);
+    gap: var(--space-lg);
 }
 
 .item-listing-item.item-inactive {
-    opacity: 0.6;
-    background-color: #f8f9fa;
-    border-left-color: #6c757d;
+    /* Base styles inherited from .list-item-card-inactive */
 }
 
 .item-listing-item-name {
-    font-weight: 500;
-    color: #333;
-    font-size: 14px;
-    flex: 1;
+    /* Base styles inherited from .list-item-card-name */
 }
 
 .item-remove-btn {
@@ -1078,8 +1148,8 @@ button:disabled {
     border: none;
     font-size: 16px;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-md);
     transition: all 0.2s;
     opacity: 0.6;
     flex-shrink: 0;
@@ -1087,7 +1157,7 @@ button:disabled {
 
 .item-remove-btn:hover {
     opacity: 1;
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-light);
     transform: scale(1.1);
 }
 
@@ -1096,62 +1166,58 @@ button:disabled {
 }
 
 .item-listing-item-name .item-link {
-    color: #007bff;
+    color: var(--color-primary);
     text-decoration: none;
-    margin-left: 6px;
-    font-size: 14px;
+    margin-left: var(--space-sm);
+    font-size: var(--text-base);
     display: inline-block;
 }
 
 .item-listing-item-name .item-link:hover {
-    color: #0056b3;
+    color: var(--color-primary-dark);
     text-decoration: underline;
 }
 
-/* Urgency View Styles */
-.value-view-section,
-.duration-view-section,
-.urgency-view-section {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: white;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* ============================================================================
+   Base View Components
+   ============================================================================ */
+
+/* View Section - Base component for all view sections */
+.view-section {
+    margin-bottom: var(--space-3xl);
+    padding: var(--space-2xl);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
 }
 
-.urgency-view-header {
+/* View Section Padding Variants */
+.view-section-padding-sm {
+    padding: var(--space-2xl);
+}
+
+.view-section-padding-md {
+    padding: var(--space-3xl);
+}
+
+/* View Header - Base component for view headers */
+.view-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-2xl);
 }
 
-.urgency-view-header h2 {
+.view-header h2 {
     margin: 0;
-    color: #333;
+    color: var(--color-text-main);
 }
 
-.toggle-view-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.toggle-view-btn:hover {
-    background-color: #5a6268;
-}
-
-.value-view-content,
-.duration-view-content,
-.urgency-view-content {
+/* View Content - Base component for view content */
+.view-content {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -1159,18 +1225,85 @@ button:disabled {
     overflow: hidden;
 }
 
+.view-content.collapsed {
+    display: none;
+}
+
+/* List Item Card - Base component for items in lists (results, item-listing) */
+.list-item-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--space-2xl);
+    background-color: var(--color-bg-light);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.list-item-card.list-item-card-inactive {
+    opacity: 0.6;
+    background-color: var(--color-bg-lighter);
+    border-left-color: var(--color-muted);
+}
+
+.list-item-card-name {
+    font-weight: 500;
+    color: var(--color-text-main);
+    font-size: var(--text-base);
+    flex: 1;
+}
+
+/* ============================================================================
+   Urgency View Styles
+   ============================================================================ */
+.value-view-section,
+.duration-view-section,
+.urgency-view-section {
+    /* Base styles inherited from .view-section */
+}
+
+.urgency-view-header {
+    /* Base styles inherited from .view-header */
+}
+
+.urgency-view-header h2 {
+    /* Base styles inherited from .view-header h2 */
+}
+
+.toggle-view-btn {
+    padding: var(--space-sm) var(--space-xl);
+    font-size: var(--text-md);
+    background-color: var(--color-muted);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toggle-view-btn:hover {
+    background-color: var(--color-muted-dark);
+}
+
+.value-view-content,
+.duration-view-content,
+.urgency-view-content {
+    /* Base styles inherited from .view-content */
+}
+
 .urgency-callout,
 .value-callout,
 .duration-callout,
 .results-callout,
 .item-listing-callout {
-    background-color: #e3f2fd;
+    background-color: var(--color-primary-lighter);
     border-left: 4px solid #2196f3;
-    border-radius: 4px;
-    padding: 12px 16px;
-    margin-bottom: 15px;
-    color: #1976d2;
-    font-size: 14px;
+    border-radius: var(--radius-md);
+    padding: var(--space-xl) var(--space-lg);
+    margin-bottom: var(--space-2xl);
+    color: var(--color-primary-text);
+    font-size: var(--text-base);
     font-weight: 500;
 }
 
@@ -1179,7 +1312,7 @@ button:disabled {
 .duration-callout a,
 .results-callout a,
 .item-listing-callout a {
-    color: #1565c0;
+    color: var(--color-primary-text-dark);
     text-decoration: underline;
     font-weight: 600;
 }
@@ -1189,15 +1322,11 @@ button:disabled {
 .duration-callout a:hover,
 .results-callout a:hover,
 .item-listing-callout a:hover {
-    color: #0d47a1;
+    color: var(--color-primary-text-darker);
     text-decoration: none;
 }
 
-.value-view-content.collapsed,
-.duration-view-content.collapsed,
-.urgency-view-content.collapsed {
-    display: none;
-}
+/* Collapsed state handled by .view-content.collapsed */
 
 /* Grid containers use flex to contain the grid */
 
@@ -1205,8 +1334,8 @@ button:disabled {
 .duration-grid-header-row,
 .urgency-grid-header-row {
     display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
     align-items: flex-end;
     flex-shrink: 0;
     width: 100%;
@@ -1236,74 +1365,70 @@ button:disabled {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--space-sm);
 }
 
 .urgency-column-content .urgency-item {
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #007bff;
-    border-radius: 4px;
-    font-size: 13px;
-    display: flex;
+    /* Base styles inherited from .item-card */
+    /* Note: urgency items use flex-direction: column, which is unique to urgency view */
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    margin-bottom: var(--space-sm);
 }
 
 .urgency-column-content .urgency-item > div:first-child {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-lg);
     width: 100%;
 }
 
 .urgency-column-content .urgency-item.item-inactive {
-    opacity: 0.6;
-    background-color: #e9ecef;
+    /* Base styles inherited from .item-card-inactive */
 }
 
 .urgency-column-content .urgency-item-name {
-    flex: 1;
-    font-weight: 500;
-    color: #333;
+    /* Base styles inherited from .item-name */
 }
 
+/* Item link styles - work with both base .item-name and view-specific classes */
+.item-name .item-link,
 .urgency-item-name .item-link,
-.value-item-name .item-link {
-    color: #007bff;
+.value-item-name .item-link,
+.duration-item-name .item-link {
+    color: var(--color-primary);
     text-decoration: none;
-    margin-left: 4px;
-    font-size: 14px;
+    margin-left: var(--space-xs);
+    font-size: var(--text-base);
     display: inline-block;
 }
 
+.item-name .item-link:hover,
 .urgency-item-name .item-link:hover,
-.value-item-name .item-link:hover {
-    color: #0056b3;
+.value-item-name .item-link:hover,
+.duration-item-name .item-link:hover {
+    color: var(--color-primary-dark);
     text-decoration: underline;
 }
 
 .urgency-column-content .urgency-item-controls {
-    display: flex;
-    gap: 4px;
+    /* Base styles inherited from .item-controls */
 }
 
 .urgency-quick-buttons {
     display: flex;
-    gap: 6px;
+    gap: var(--space-sm);
     margin-top: 8px;
     flex-wrap: wrap;
 }
 
 .urgency-quick-btn {
-    padding: 4px 10px;
-    font-size: 11px;
-    border-radius: 4px;
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-    color: #495057;
+    padding: var(--space-xs) var(--space-lg);
+    font-size: var(--text-xs);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-light);
+    color: var(--color-text-secondary);
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s;
@@ -1311,19 +1436,19 @@ button:disabled {
 }
 
 .urgency-quick-btn:hover:not(:disabled) {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     border-color: #adb5bd;
 }
 
 .urgency-quick-btn.active {
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: white;
-    border-color: #007bff;
+    border-color: var(--color-primary);
 }
 
 .urgency-quick-btn.active:hover:not(:disabled) {
-    background-color: #0056b3;
-    border-color: #0056b3;
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
 }
 
 .urgency-quick-btn:disabled {
@@ -1332,65 +1457,48 @@ button:disabled {
 }
 
 .urgency-column-footer {
-    background-color: #e9ecef;
-    padding: 10px;
+    background-color: var(--color-bg-lighter);
+    padding: var(--space-lg);
     text-align: center;
     font-weight: 500;
-    color: #495057;
-    border-top: 1px solid #dee2e6;
-    font-size: 14px;
+    color: var(--color-text-secondary);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-base);
 }
 
 /* Urgency no-value content is now part of the grid */
 .urgency-no-value-content {
-    min-height: 100px;
-    padding: 10px;
-    background-color: #fffbf0; /* Slightly different background for parking lot - matches value view */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    /* Base styles inherited from .parking-lot-content */
 }
 
 /* Urgency no-value items match other items */
 .urgency-no-value-content .urgency-item {
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #6c757d; /* Different color for no-value items */
-    border-radius: 4px;
-    font-size: 13px;
+    /* Base styles inherited from .item-card */
+    /* Note: parking lot items use different border color (#6c757d) and flex-direction: column */
+    border-left-color: var(--color-muted);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
 }
 
-.urgency-no-value-content.empty {
-    text-align: center;
-    color: #999;
-    padding: 20px;
-    font-style: italic;
-    font-size: 12px;
-}
+/* Empty state handled by .parking-lot-content.empty */
 
 /* Value View Styles */
 
 .value-view-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    /* Base styles inherited from .view-header */
 }
 
 .value-view-header h2 {
-    margin: 0;
-    color: #333;
+    /* Base styles inherited from .view-header h2 */
 }
 
-.value-grid-container,
-.duration-grid-container,
-.urgency-grid-container {
+/* ============================================
+   BASE GRID COMPONENT CLASSES
+   ============================================ */
+
+/* Grid Container - Base class for all grid containers */
+.grid-container {
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1399,22 +1507,50 @@ button:disabled {
     flex-direction: column;
 }
 
+/* Grid Base - Common grid properties */
+.grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr;
+    gap: var(--space-sm);
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
 
-/* Old axis label styles - no longer needed with CSS Grid */
+/* Grid row count modifiers */
+.grid-rows-3 {
+    grid-template-rows: auto minmax(120px, auto) auto;
+}
 
-/* Old flexbox containers - no longer needed with CSS Grid */
+.grid-rows-4 {
+    grid-template-rows: auto minmax(120px, auto) minmax(120px, auto) minmax(120px, auto);
+}
 
-/* Base grid header styles - applied to all headers */
-.value-row-label,
-.duration-row-label,
-.urgency-row-label,
-.urgency-column-label {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background-color: #e9ecef;
+.grid-rows-5 {
+    grid-template-rows: auto minmax(120px, auto) minmax(120px, auto) minmax(120px, auto) auto;
+}
+
+/* Grid Cell - Base class for all grid cells */
+.grid-cell {
+    min-height: 100px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    padding: var(--space-lg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Grid Label - Base class for all grid labels */
+.grid-label {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-lighter);
     font-weight: 600;
-    font-size: 14px;
-    color: #495057;
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
     padding: 5px;
     box-sizing: border-box;
     display: flex;
@@ -1422,10 +1558,8 @@ button:disabled {
     justify-content: center;
 }
 
-/* Row headers - vertical text */
-.value-row-label,
-.duration-row-label,
-.urgency-row-label {
+/* Grid Label Row - Vertical text labels */
+.grid-label-row {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     width: 80px;
@@ -1433,23 +1567,114 @@ button:disabled {
     min-height: 100px;
 }
 
-/* Column headers - horizontal text */
-.urgency-column-label {
+/* Grid Label Column - Horizontal text labels */
+.grid-label-column {
     height: 40px;
     min-width: 0;
+}
+
+/* Item Card - Base class for all item cards */
+.item-card {
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--color-bg-light);
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--text-md);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+/* Item Card - Inactive state */
+.item-card-inactive {
+    opacity: 0.6;
+    background-color: var(--color-bg-lighter);
+}
+
+/* Item Name - Base class for item names */
+.item-name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--color-text-main);
+}
+
+/* Item Controls - Base class for item controls */
+.item-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Parking Lot Box - Base class for parking lot containers */
+.parking-lot-box {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-grid-parking-bg); /* Slightly different background for parking lot */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 100px;
+}
+
+/* Parking Lot Content - Inner content area */
+.parking-lot-content {
+    min-height: 100px;
+    padding: var(--space-lg);
+    background-color: var(--color-grid-parking-bg); /* Slightly different background for parking lot */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.parking-lot-content.empty {
+    text-align: center;
+    color: var(--color-text-lighter);
+    padding: var(--space-3xl);
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* ============================================
+   EXISTING VIEW-SPECIFIC CLASSES (to be migrated)
+   ============================================ */
+
+/* Grid containers now extend .grid-container base class */
+.value-grid-container,
+.duration-grid-container,
+.urgency-grid-container {
+    /* Base styles inherited from .grid-container */
+}
+
+
+/* Old axis label styles - no longer needed with CSS Grid */
+
+/* Old flexbox containers - no longer needed with CSS Grid */
+
+/* Grid labels now extend .grid-label base class with modifiers */
+.value-row-label,
+.duration-row-label,
+.urgency-row-label {
+    /* Base styles inherited from .grid-label and .grid-label-row */
+}
+
+.urgency-column-label {
+    /* Base styles inherited from .grid-label and .grid-label-column */
 }
 
 /* Grid corner cells (empty placeholders) - no styling needed */
 
 /* Color value row labels in value view to indicate active stage */
 #valueViewSection .value-row-label {
-    background-color: #e3f2fd; /* Light blue to indicate value stage */
+    background-color: var(--color-primary-lighter); /* Light blue to indicate value stage */
 }
 
 /* Parking Lot label - different color from other headers, must override view-specific colors */
 .parking-lot-label {
-    background-color: #fff3cd; /* Light yellow/beige */
-    color: #856404; /* Darker brown/yellow for contrast */
+    background-color: var(--color-parking-lot-bg); /* Light yellow/beige */
+    color: var(--color-parking-lot-text); /* Darker brown/yellow for contrast */
 }
 
 /* Ensure parking lot label keeps its distinct color in both views (higher specificity override) */
@@ -1459,94 +1684,46 @@ button:disabled {
     color: #856404 !important; /* Darker brown/yellow for contrast */
 }
 
-/* Value Grid: 5 rows × 4 columns */
+/* Grid definitions now extend .grid base class with row modifiers */
 .value-grid {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr;
-    grid-template-rows: auto minmax(120px, auto) minmax(120px, auto) minmax(120px, auto) auto;
-    gap: 6px;
-    flex: 1;
-    min-height: 0;
-    width: 100%;
+    /* Base styles inherited from .grid and .grid-rows-5 */
 }
 
-/* Duration Grid: 4 rows × 4 columns */
 .duration-grid {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr;
-    grid-template-rows: auto minmax(120px, auto) minmax(120px, auto) minmax(120px, auto);
-    gap: 6px;
-    flex: 1;
-    min-height: 0;
-    width: 100%;
+    /* Base styles inherited from .grid and .grid-rows-4 */
 }
 
-/* Urgency Grid: 3 rows × 4 columns */
 .urgency-grid {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr;
-    grid-template-rows: auto minmax(120px, auto) auto;
-    gap: 6px;
-    flex: 1;
-    min-height: 0;
-    width: 100%;
+    /* Base styles inherited from .grid and .grid-rows-3 */
 }
 
 /* Urgency no-value box spans columns 2-4 */
 .urgency-no-value-box {
     grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
-    display: flex;
-    flex-direction: column;
-    background-color: #fffbf0; /* Slightly different background for parking lot */
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    overflow: hidden;
-    box-sizing: border-box;
-    min-height: 100px;
+    /* Base styles inherited from .parking-lot-box */
 }
 
-/* Base grid cell styles - applied to all cell types */
+/* Grid cells now extend .grid-cell base class */
 .value-grid-cell,
 .duration-grid-cell,
 .urgency-column {
-    min-height: 100px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background-color: white;
-    padding: 10px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
+    /* Base styles inherited from .grid-cell */
 }
 
 .value-grid-cell .value-item {
-    padding: 6px 8px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #007bff;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    /* Base styles inherited from .item-card */
 }
 
 .value-grid-cell .value-item.item-inactive {
-    opacity: 0.6;
-    background-color: #e9ecef;
+    /* Base styles inherited from .item-card-inactive */
 }
 
 .value-grid-cell .value-item-name {
-    flex: 1;
-    font-weight: 500;
-    color: #333;
+    /* Base styles inherited from .item-name */
 }
 
 .value-grid-cell .value-item-controls {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+    /* Base styles inherited from .item-controls */
 }
 
 /* Remove color coding from value view arrows - use neutral colors */
@@ -1554,8 +1731,8 @@ button:disabled {
 .value-grid-cell .property-btn.decrement-btn,
 .value-no-value-box-content .property-btn.increment-btn,
 .value-no-value-box-content .property-btn.decrement-btn {
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-main);
     border-color: #dee2e6;
 }
 
@@ -1563,42 +1740,29 @@ button:disabled {
 .value-grid-cell .property-btn.decrement-btn:hover:not(:disabled),
 .value-no-value-box-content .property-btn.increment-btn:hover:not(:disabled),
 .value-no-value-box-content .property-btn.decrement-btn:hover:not(:disabled) {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     border-color: #adb5bd;
 }
 
 .duration-grid-cell .duration-item {
-    padding: 6px 8px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #007bff;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    /* Base styles inherited from .item-card */
 }
 
 .duration-grid-cell .duration-item.item-inactive {
-    opacity: 0.6;
-    background-color: #e9ecef;
+    /* Base styles inherited from .item-card-inactive */
 }
 
 .duration-grid-cell .duration-item-name {
-    flex: 1;
-    font-weight: 500;
-    color: #333;
+    /* Base styles inherited from .item-name */
 }
 
 .duration-grid-cell .duration-item-controls {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+    /* Base styles inherited from .item-controls */
 }
 
 /* Duration select now uses .select base component */
 .duration-select {
-    background-color: #e3f2fd; /* Light blue to indicate duration stage */
+    background-color: var(--color-primary-lighter); /* Light blue to indicate duration stage */
     min-width: 80px;
 }
 
@@ -1609,7 +1773,7 @@ button:disabled {
 }
 
 .duration-select:disabled {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -1622,7 +1786,7 @@ button:disabled {
 
 /* Color urgency column labels in urgency view to indicate active stage */
 #urgencyViewSection .urgency-column-label {
-    background-color: #e3f2fd; /* Light blue to indicate urgency stage */
+    background-color: var(--color-primary-lighter); /* Light blue to indicate urgency stage */
 }
 
 /* Clickable header links */
@@ -1648,111 +1812,67 @@ button:disabled {
 
 /* Value no-value boxes are now part of the grid (row 5, columns 2-4) */
 .value-no-value-box {
-    display: flex;
-    flex-direction: column;
-    background-color: #fffbf0; /* Slightly different background for parking lot */
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    overflow: hidden;
-    box-sizing: border-box;
-    min-height: 100px;
+    /* Base styles inherited from .parking-lot-box */
 }
 
 .value-no-value-box-content {
-    min-height: 100px;
-    padding: 10px;
-    background-color: #fffbf0; /* Slightly different background for parking lot */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    /* Base styles inherited from .parking-lot-content */
 }
 
 .value-no-value-box-content .value-item {
-    padding: 6px 8px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #6c757d;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    /* Base styles inherited from .item-card */
+    /* Note: parking lot items use different border color (#6c757d) */
+    border-left-color: var(--color-muted);
 }
 
 .value-no-value-box-content .value-item.item-inactive {
-    opacity: 0.6;
-    background-color: #e9ecef;
+    /* Base styles inherited from .item-card-inactive */
 }
 
 .value-no-value-box-content .value-item-name {
-    flex: 1;
-    font-weight: 500;
-    color: #333;
+    /* Base styles inherited from .item-name */
 }
 
 .value-no-value-box-content .value-item-controls {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+    /* Base styles inherited from .item-controls */
 }
 
-.value-no-value-box-content.empty {
-    text-align: center;
-    color: #999;
-    padding: 20px;
-    font-style: italic;
-    font-size: 12px;
-}
+/* Empty state handled by .parking-lot-content.empty */
 
 /* Results View Styles */
 .results-view-section {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: white;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Base styles inherited from .view-section */
 }
 
 .results-view-content {
-    display: flex;
-    flex-direction: column;
+    /* Base styles inherited from .view-content */
+    overflow: visible; /* Override for results view */
 }
 
 .results-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-xl);
 }
 
 .results-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 15px;
-    background-color: #f8f9fa;
-    border-left: 4px solid #007bff;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    /* Base styles inherited from .list-item-card */
 }
 
 .new-item-badge {
     display: inline-block;
-    margin-left: 6px;
-    padding: 2px 6px;
-    background-color: #ffc107;
-    color: #856404;
-    border-radius: 3px;
-    font-size: 11px;
+    margin-left: var(--space-sm);
+    padding: 2px var(--space-sm);
+    background-color: var(--color-warning);
+    color: var(--color-warning-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
     font-weight: 600;
     text-transform: uppercase;
 }
 
 .results-item.item-inactive {
-    opacity: 0.6;
-    background-color: #e9ecef;
-    border-left-color: #6c757d;
+    /* Base styles inherited from .list-item-card-inactive */
 }
 
 
@@ -1762,16 +1882,16 @@ button:disabled {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: white;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     font-weight: 700;
     font-size: 18px;
     flex-shrink: 0;
 }
 
 .results-item.item-inactive .results-slot {
-    background-color: #6c757d;
+    background-color: var(--color-muted);
 }
 
 .results-item-controls {
@@ -1785,10 +1905,10 @@ button:disabled {
     width: 28px;
     height: 28px;
     padding: 0;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    color: #333;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-light);
+    color: var(--color-text-main);
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
@@ -1799,37 +1919,37 @@ button:disabled {
 }
 
 .results-arrow-btn:hover:not(:disabled) {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     border-color: #adb5bd;
 }
 
 .results-arrow-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
 }
 
 
 .results-view-header {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-2xl);
 }
 
 .reset-order-btn {
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-base);
     font-weight: 500;
-    color: #333;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .reset-order-btn:hover {
-    background-color: #e9ecef;
+    background-color: var(--color-bg-lighter);
     border-color: #adb5bd;
 }
 
@@ -1841,30 +1961,30 @@ button:disabled {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--space-sm);
 }
 
 .results-item-name {
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-main);
     font-size: 16px;
 }
 
 .results-item-metrics {
     display: flex;
-    gap: 15px;
-    font-size: 14px;
-    color: #666;
+    gap: var(--space-2xl);
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
     flex-wrap: wrap;
 }
 
 .results-metric {
-    color: #666;
+    color: var(--color-text-muted);
 }
 
 .results-cd3 {
     font-weight: 600;
-    color: #495057;
+    color: var(--color-text-secondary);
 }
 
 .confidence-weighted-cd3 {
@@ -1876,29 +1996,29 @@ button:disabled {
 .confidence-survey-buttons {
     margin-top: 10px;
     display: flex;
-    gap: 10px;
+    gap: var(--space-lg);
     flex-wrap: wrap;
 }
 
 /* Confidence survey buttons now use .btn base component */
 .confidence-survey-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .confidence-survey-form {
     margin-top: 15px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
+    padding: var(--space-2xl);
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     transition: all 0.3s ease;
 }
 
 .confidence-survey-section {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3xl);
     padding-bottom: 15px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .confidence-survey-section:last-child {
@@ -1908,15 +2028,15 @@ button:disabled {
 
 .confidence-survey-question {
     font-weight: 500;
-    color: #495057;
+    color: var(--color-text-secondary);
     margin-bottom: 12px;
-    font-size: 14px;
+    font-size: var(--text-base);
 }
 
 .confidence-vote-inputs {
     display: flex;
     flex-direction: row;
-    gap: 15px;
+    gap: var(--space-2xl);
     flex-wrap: wrap;
     align-items: flex-start;
 }
@@ -1925,14 +2045,14 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: var(--space-sm);
     flex: 1;
     min-width: 200px;
 }
 
 .confidence-vote-label {
     font-size: 12px;
-    color: #495057;
+    color: var(--color-text-secondary);
     font-weight: 400;
     line-height: 1.3;
 }
@@ -1946,13 +2066,13 @@ button:disabled {
 .confidence-survey-form-actions {
     margin-top: 20px;
     display: flex;
-    gap: 10px;
+    gap: var(--space-lg);
     justify-content: flex-end;
 }
 
 /* Confidence survey buttons now use .btn base component */
 .confidence-survey-submit-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
 }
 

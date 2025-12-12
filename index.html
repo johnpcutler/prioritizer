@@ -233,8 +233,8 @@
                 </div>
             </div>
             
-            <div id="resultsViewSection" style="display: none;" class="results-view-section">
-                <div class="results-view-header">
+            <div id="resultsViewSection" style="display: none;" class="view-section results-view-section">
+                <div class="view-header results-view-header">
                     <button id="resetOrderBtn" class="reset-order-btn" title="Reset order to CD3 descending">Reset Order</button>
                 </div>
                 <div id="resultsViewContent" class="results-view-content">
@@ -247,7 +247,7 @@
                 </div>
             </div>
             
-            <div id="itemListingViewSection" style="display: none;" class="item-listing-view-section">
+            <div id="itemListingViewSection" style="display: none;" class="view-section item-listing-view-section">
                 <div id="itemListingViewContent" class="item-listing-view-content">
                     <div class="item-listing-callout" id="itemListingCallout">
                         Add item names, one per line below. You can optionally include a link by adding a comma and URL after the item name.
@@ -267,113 +267,113 @@
                 </div>
             </div>
 
-        <div id="valueViewSection" style="display: none;" class="value-view-section">
-            <div id="valueViewContent" class="value-view-content">
+        <div id="valueViewSection" style="display: none;" class="view-section value-view-section">
+            <div id="valueViewContent" class="view-content value-view-content">
                 <div class="value-callout" id="valueCallout">
                     For each of your items, move them up into the value rows. You can't move them sideways (for now)
                 </div>
-                <div class="value-grid-container">
-                    <div class="value-grid">
+                <div class="grid-container value-grid-container">
+                    <div class="grid grid-rows-5 value-grid">
                         <!-- Row 1: Empty cell | Column Headers -->
                         <div class="value-grid-corner"></div>
-                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel1">Title</div>
-                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel2">Title</div>
-                        <div class="urgency-column-label value-grid-header" id="urgencyColumnLabel3">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label value-grid-header" id="urgencyColumnLabel1">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label value-grid-header" id="urgencyColumnLabel2">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label value-grid-header" id="urgencyColumnLabel3">Title</div>
                         
                         <!-- Rows 2-4: Row Headers | Grid Cells -->
-                        <div class="value-row-label value-grid-header" id="valueRowLabel3">Title</div>
-                        <div class="value-grid-cell" id="valueCell-3-1"></div>
-                        <div class="value-grid-cell" id="valueCell-3-2"></div>
-                        <div class="value-grid-cell" id="valueCell-3-3"></div>
+                        <div class="grid-label grid-label-row value-row-label value-grid-header" id="valueRowLabel3">Title</div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-3-1"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-3-2"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-3-3"></div>
                         
-                        <div class="value-row-label value-grid-header" id="valueRowLabel2">Title</div>
-                        <div class="value-grid-cell" id="valueCell-2-1"></div>
-                        <div class="value-grid-cell" id="valueCell-2-2"></div>
-                        <div class="value-grid-cell" id="valueCell-2-3"></div>
+                        <div class="grid-label grid-label-row value-row-label value-grid-header" id="valueRowLabel2">Title</div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-2-1"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-2-2"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-2-3"></div>
                         
-                        <div class="value-row-label value-grid-header" id="valueRowLabel1">Title</div>
-                        <div class="value-grid-cell" id="valueCell-1-1"></div>
-                        <div class="value-grid-cell" id="valueCell-1-2"></div>
-                        <div class="value-grid-cell" id="valueCell-1-3"></div>
+                        <div class="grid-label grid-label-row value-row-label value-grid-header" id="valueRowLabel1">Title</div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-1-1"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-1-2"></div>
+                        <div class="grid-cell value-grid-cell" id="valueCell-1-3"></div>
                         
                         <!-- Row 5: Parking Lot label | No-Value Boxes -->
-                        <div class="value-row-label value-grid-header parking-lot-label">PARKING LOT</div>
-                        <div class="value-no-value-box">
-                            <div class="value-no-value-box-content" id="valueNoValueBox1"></div>
+                        <div class="grid-label grid-label-row value-row-label value-grid-header parking-lot-label">PARKING LOT</div>
+                        <div class="parking-lot-box value-no-value-box">
+                            <div class="parking-lot-content value-no-value-box-content" id="valueNoValueBox1"></div>
                         </div>
-                        <div class="value-no-value-box">
-                            <div class="value-no-value-box-content" id="valueNoValueBox2"></div>
+                        <div class="parking-lot-box value-no-value-box">
+                            <div class="parking-lot-content value-no-value-box-content" id="valueNoValueBox2"></div>
                         </div>
-                        <div class="value-no-value-box">
-                            <div class="value-no-value-box-content" id="valueNoValueBox3"></div>
+                        <div class="parking-lot-box value-no-value-box">
+                            <div class="parking-lot-content value-no-value-box-content" id="valueNoValueBox3"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="durationViewSection" style="display: none;" class="duration-view-section">
-            <div id="durationViewContent" class="duration-view-content">
+        <div id="durationViewSection" style="display: none;" class="view-section duration-view-section">
+            <div id="durationViewContent" class="view-content duration-view-content">
                 <div class="duration-callout" id="durationCallout">
                     Set the duration for each item using the dropdown. This represents how long the work will take.
                 </div>
-                <div class="duration-grid-container">
-                    <div class="duration-grid">
+                <div class="grid-container duration-grid-container">
+                    <div class="grid grid-rows-4 duration-grid">
                         <!-- Row 1: Empty cell | Column Headers -->
                         <div class="duration-grid-corner"></div>
-                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel1">Title</div>
-                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel2">Title</div>
-                        <div class="urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel3">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel1">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel2">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label duration-grid-header" id="durationUrgencyColumnLabel3">Title</div>
                         
                         <!-- Rows 2-4: Row Headers | Grid Cells -->
-                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel3">Title</div>
-                        <div class="duration-grid-cell" id="durationCell-3-1"></div>
-                        <div class="duration-grid-cell" id="durationCell-3-2"></div>
-                        <div class="duration-grid-cell" id="durationCell-3-3"></div>
+                        <div class="grid-label grid-label-row duration-row-label duration-grid-header" id="durationValueRowLabel3">Title</div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-3-1"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-3-2"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-3-3"></div>
                         
-                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel2">Title</div>
-                        <div class="duration-grid-cell" id="durationCell-2-1"></div>
-                        <div class="duration-grid-cell" id="durationCell-2-2"></div>
-                        <div class="duration-grid-cell" id="durationCell-2-3"></div>
+                        <div class="grid-label grid-label-row duration-row-label duration-grid-header" id="durationValueRowLabel2">Title</div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-2-1"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-2-2"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-2-3"></div>
                         
-                        <div class="duration-row-label duration-grid-header" id="durationValueRowLabel1">Title</div>
-                        <div class="duration-grid-cell" id="durationCell-1-1"></div>
-                        <div class="duration-grid-cell" id="durationCell-1-2"></div>
-                        <div class="duration-grid-cell" id="durationCell-1-3"></div>
+                        <div class="grid-label grid-label-row duration-row-label duration-grid-header" id="durationValueRowLabel1">Title</div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-1-1"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-1-2"></div>
+                        <div class="grid-cell duration-grid-cell" id="durationCell-1-3"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="urgencyViewSection" style="display: none;" class="urgency-view-section">
-            <div id="urgencyViewContent" class="urgency-view-content">
+        <div id="urgencyViewSection" style="display: none;" class="view-section urgency-view-section">
+            <div id="urgencyViewContent" class="view-content urgency-view-content">
                 <div class="urgency-callout" id="urgencyCallout">
                     Categorize each of your items by urgency
                 </div>
-                <div class="urgency-grid-container">
-                    <div class="urgency-grid">
+                <div class="grid-container urgency-grid-container">
+                    <div class="grid grid-rows-3 urgency-grid">
                         <!-- Row 1: Empty cell | Column Headers -->
                         <div class="urgency-grid-corner"></div>
-                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel1">Title</div>
-                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel2">Title</div>
-                        <div class="urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel3">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel1">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel2">Title</div>
+                        <div class="grid-label grid-label-column urgency-column-label urgency-grid-header" id="urgencyViewUrgencyColumnLabel3">Title</div>
                         
                         <!-- Row 2: Row Header | Columns -->
-                        <div class="urgency-row-label urgency-grid-header"></div>
-                        <div class="urgency-column">
+                        <div class="grid-label grid-label-row urgency-row-label urgency-grid-header"></div>
+                        <div class="grid-cell urgency-column">
                             <div class="urgency-column-content" id="urgencyColumn1"></div>
                         </div>
-                        <div class="urgency-column">
+                        <div class="grid-cell urgency-column">
                             <div class="urgency-column-content" id="urgencyColumn2"></div>
                         </div>
-                        <div class="urgency-column">
+                        <div class="grid-cell urgency-column">
                             <div class="urgency-column-content" id="urgencyColumn3"></div>
                         </div>
                         
                         <!-- Row 3: Parking Lot label | No-Value Box (spans columns 2-4) -->
-                        <div class="urgency-row-label urgency-grid-header parking-lot-label">PARKING LOT</div>
-                        <div class="urgency-no-value-box">
-                            <div class="urgency-no-value-content" id="urgencyNoValueContent">
+                        <div class="grid-label grid-label-row urgency-row-label urgency-grid-header parking-lot-label">PARKING LOT</div>
+                        <div class="parking-lot-box urgency-no-value-box">
+                            <div class="parking-lot-content urgency-no-value-content" id="urgencyNoValueContent">
                                 Items without urgency values go here
                             </div>
                         </div>

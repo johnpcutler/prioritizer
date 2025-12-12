@@ -168,8 +168,8 @@ function displayItemListingContent() {
         const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
         
         return `
-            <div class="item-listing-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-                <span class="item-listing-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
+            <div class="list-item-card item-listing-item ${!isActive ? 'list-item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
+                <span class="list-item-card-name item-listing-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
                 <button class="item-remove-btn" data-item-id="${item.id}" title="Remove item">🗑️</button>
             </div>
         `;
@@ -330,9 +330,9 @@ function renderUrgencyItem(item, isLocked, urgency1Title, urgency2Title, urgency
     const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
-        <div class="urgency-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
+        <div class="item-card urgency-item ${!isActive ? 'item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
             <div>
-                <span class="urgency-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
+                <span class="item-name urgency-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
             </div>
             <div class="urgency-quick-buttons">
                 <button class="urgency-quick-btn ${urgency === 1 ? 'active' : ''}" 
@@ -513,9 +513,9 @@ function renderValueItem(item, isLocked) {
     const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
-        <div class="value-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-            <span class="value-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
-            <div class="value-item-controls">
+        <div class="item-card value-item ${!isActive ? 'item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
+            <span class="item-name value-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
+            <div class="item-controls value-item-controls">
                 <button class="property-btn decrement-btn" 
                         data-item-id="${item.id}" 
                         data-property="value" 
@@ -658,9 +658,9 @@ function renderDurationItem(item, isLocked, duration1Title, duration2Title, dura
     const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
     
     return `
-        <div class="duration-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
-            <span class="duration-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
-            <div class="duration-item-controls">
+        <div class="item-card duration-item ${!isActive ? 'item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
+            <span class="item-name duration-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
+            <div class="item-controls duration-item-controls">
                 <select class="select input-sm input-border-light duration-select ${isEmpty ? 'duration-select-empty' : ''}" 
                         data-item-id="${item.id}" 
                         data-property="duration"
@@ -856,7 +856,7 @@ function displayResultsContent() {
         const canMoveDown = item.sequence !== null && item.sequence !== undefined && item.sequence < maxSequence;
         
         return `
-            <div class="results-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
+            <div class="list-item-card results-item ${!isActive ? 'list-item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
                 <div class="results-slot">${slotNumber}</div>
                 <div class="results-item-controls">
                     <button class="results-arrow-btn results-arrow-up" 
