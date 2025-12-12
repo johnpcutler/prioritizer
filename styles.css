@@ -126,7 +126,7 @@ body {
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: var(--color-danger);
 }
 
 .btn-danger:hover:not(.active) {
@@ -134,7 +134,7 @@ body {
 }
 
 .btn-success {
-    background-color: #28a745;
+    background-color: var(--color-success);
 }
 
 .btn-success:hover:not(.active) {
@@ -142,11 +142,7 @@ body {
 }
 
 /* Button Sizes */
-.btn-sm {
-    padding: var(--space-sm) var(--space-xl);
-    font-size: var(--text-sm);
-}
-
+.btn-sm,
 .btn-md {
     padding: var(--space-sm) var(--space-xl);
     font-size: var(--text-sm);
@@ -159,7 +155,7 @@ body {
 }
 
 .btn.active {
-    background-color: #28a745 !important;
+    background-color: var(--color-success) !important;
 }
 
 .btn.active:hover {
@@ -174,7 +170,7 @@ body {
 .select {
     width: 100%;
     padding: var(--space-md) var(--space-lg);
-    border: 1px solid #ced4da;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font-size: var(--text-base);
     font-family: inherit;
@@ -224,15 +220,15 @@ body {
 
 /* Input Border Variants */
 .input-border-light {
-    border-color: #dee2e6;
+    border-color: var(--color-border);
 }
 
 .input-border-default {
-    border-color: #ced4da;
+    border-color: var(--color-border);
 }
 
 .input-border-muted {
-    border-color: #ddd;
+    border-color: var(--color-border);
 }
 
 .app-layout {
@@ -242,7 +238,7 @@ body {
 /* Main Content Area */
 .main-content {
     min-width: 0;
-    background: #f5f5f5;
+    background: var(--color-bg);
     padding: 0;
     overflow-y: auto;
     transition: all 0.3s ease;
@@ -295,13 +291,6 @@ body {
 
 /* Main action buttons now use .btn base component */
 
-.stage-nav-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3xl);
-}
-
 .stage-nav-controls .submit-btn {
     flex-shrink: 0;
     min-width: 100px;
@@ -326,8 +315,8 @@ body {
 
 .stage-step {
     padding: 8px 16px;
-    background-color: #ffffff;
-    border: 2px solid #dee2e6;
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-border);
     border-radius: var(--radius-lg);
     font-size: var(--text-base);
     font-weight: 500;
@@ -335,7 +324,7 @@ body {
     cursor: default;
     transition: all 0.2s;
     white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     position: relative;
 }
 
@@ -362,8 +351,8 @@ body {
 }
 
 .stage-step.visited:hover {
-    background-color: #dee2e6;
-    border-color: #adb5bd;
+    background-color: var(--color-border);
+    border-color: var(--color-disabled);
 }
 
 .stage-step.future {
@@ -374,12 +363,12 @@ body {
 
 .stage-step.future:hover {
     background-color: var(--color-bg-lighter);
-    border-color: #adb5bd;
+    border-color: var(--color-disabled);
 }
 
 .stage-step.locked {
     background-color: var(--color-bg-light);
-    color: #adb5bd;
+    color: var(--color-disabled);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -494,11 +483,6 @@ body {
 }
 
 /* Notes Modal Styles - Uses base modal with size modifier */
-.notes-modal-overlay {
-    /* Base styles inherited from .modal-overlay */
-    /* z-index already set in base */
-}
-
 .notes-modal-container {
     /* Base styles inherited from .modal-container */
     max-width: 600px;
@@ -543,7 +527,7 @@ body {
 
 .note-item.selected {
     background-color: var(--color-bg-selected);
-    border-left-color: #0056b3;
+    border-left-color: var(--color-primary-dark);
 }
 
 .note-item-text {
@@ -564,7 +548,7 @@ body {
 
 /* Notes modal textarea now uses .textarea base component */
 .notes-modal-textarea {
-    border-color: #dee2e6;
+    border-color: var(--color-border);
 }
 
 .notes-modal-buttons {
@@ -601,7 +585,7 @@ body {
 
 /* Modal buttons now use .btn base component */
 .modal-submit-btn:disabled {
-    background-color: #ccc;
+    background-color: var(--color-disabled);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -678,7 +662,7 @@ h2 {
 .settings-subsection {
     margin-bottom: 25px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--color-bg-lighter);
 }
 
 .settings-subsection:last-child {
@@ -697,7 +681,7 @@ h2 {
     padding: var(--space-2xl);
     background-color: var(--color-bg-light);
     border-radius: var(--radius-lg);
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--color-bg-lighter);
 }
 
 .settings-group h4 {
@@ -784,7 +768,7 @@ h2 {
 /* Form field inputs now use .input base component */
 .form-field input,
 .form-field select {
-    border-color: #ddd;
+    border-color: var(--color-border);
 }
 
 .submit-btn {
@@ -793,12 +777,13 @@ h2 {
 }
 
 .submit-btn:disabled {
-    background-color: #cccccc;
-    color: #666666;
+    background-color: var(--color-disabled);
+    color: var(--color-text-muted);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
+/* Note: button element selector conflicts with .btn component - consider removing or scoping */
 button {
     padding: var(--space-lg) var(--space-3xl);
     background-color: var(--color-primary);
@@ -815,14 +800,14 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
-    background-color: #cccccc;
-    color: #666666;
+    background-color: var(--color-disabled);
+    color: var(--color-text-muted);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
 #clearBtn {
-    background-color: #dc3545;
+    background-color: var(--color-danger);
 }
 
 #clearBtn:hover {
@@ -864,13 +849,13 @@ button:disabled {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
 }
 
 .property-btn.increment-btn {
-    background-color: #28a745;
+    background-color: var(--color-success);
     color: white;
-    border-color: #28a745;
+    border-color: var(--color-success);
 }
 
 .property-btn.increment-btn:hover:not(:disabled) {
@@ -879,9 +864,9 @@ button:disabled {
 }
 
 .property-btn.decrement-btn {
-    background-color: #dc3545;
+    background-color: var(--color-danger);
     color: white;
-    border-color: #dc3545;
+    border-color: var(--color-danger);
 }
 
 .property-btn.decrement-btn:hover:not(:disabled) {
@@ -891,8 +876,8 @@ button:disabled {
 
 .property-btn:disabled {
     background-color: var(--color-bg-lighter);
-    color: #adb5bd;
-    border-color: #dee2e6;
+    color: var(--color-disabled);
+    border-color: var(--color-border);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -917,13 +902,14 @@ button:disabled {
     word-wrap: break-word;
     max-height: 500px;
     overflow-y: auto;
+    /* Note: #282c34 and #abb2bf are code editor colors - consider adding to design tokens if reused */
 }
 
 .test-section {
     margin-top: 20px;
     margin-bottom: var(--space-3xl);
     padding-top: 15px;
-    border-top: 2px solid #eee;
+    border-top: 2px solid var(--color-bg-lighter);
 }
 
 #testResults {
@@ -936,7 +922,7 @@ button:disabled {
 .test-summary {
     margin-bottom: var(--space-3xl);
     padding-bottom: 15px;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--color-border);
 }
 
 .test-summary h3 {
@@ -961,11 +947,13 @@ button:disabled {
 .test-stat.pass {
     background-color: #d4edda;
     color: #155724;
+    /* Note: Test-specific colors - consider adding to design tokens if reused */
 }
 
 .test-stat.fail {
     background-color: #f8d7da;
     color: #721c24;
+    /* Note: Test-specific colors - consider adding to design tokens if reused */
 }
 
 .test-details {
@@ -981,19 +969,19 @@ button:disabled {
     padding: var(--space-lg);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
-    border-left: 4px solid #ddd;
+    border-left: 4px solid var(--color-border);
 }
 
 .test-result.pass {
-    border-left-color: #28a745;
+    border-left-color: var(--color-success);
 }
 
 .test-result.fail {
-    border-left-color: #dc3545;
+    border-left-color: var(--color-danger);
 }
 
 .test-result.error {
-    border-left-color: #ffc107;
+    border-left-color: var(--color-warning);
 }
 
 .test-status {
@@ -1008,11 +996,13 @@ button:disabled {
 .test-result.pass .test-status {
     background-color: #d4edda;
     color: #155724;
+    /* Note: Test-specific colors - consider adding to design tokens if reused */
 }
 
 .test-result.fail .test-status {
     background-color: #f8d7da;
     color: #721c24;
+    /* Note: Test-specific colors - consider adding to design tokens if reused */
 }
 
 .test-result.error .test-status {
@@ -1040,7 +1030,7 @@ button:disabled {
 }
 
 #copyFailingTestsBtn {
-    background-color: #ffc107;
+    background-color: var(--color-warning);
     color: #000;
 }
 
@@ -1050,6 +1040,7 @@ button:disabled {
 
 .start-app-btn {
     background-color: #17a2b8;
+    /* Note: Specific button color - consider adding to design tokens if reused */
 }
 
 .start-app-btn:hover {
@@ -1057,7 +1048,7 @@ button:disabled {
 }
 
 #runTestsBtn {
-    background-color: #28a745;
+    background-color: var(--color-success);
 }
 
 #runTestsBtn:hover {
@@ -1071,7 +1062,7 @@ button:disabled {
     border-radius: var(--radius-md);
     margin-bottom: var(--space-2xl);
     font-size: var(--text-base);
-    color: #004085;
+    color: var(--color-primary-text-darker);
 }
 
 /* Item Listing View Styles */
@@ -1107,7 +1098,7 @@ button:disabled {
 .item-listing-items {
     margin-top: 25px;
     padding-top: 20px;
-    border-top: 2px solid #dee2e6;
+    border-top: 2px solid var(--color-border);
 }
 
 .item-listing-items h3 {
@@ -1133,14 +1124,6 @@ button:disabled {
     padding: var(--space-lg) var(--space-2xl);
     background-color: var(--color-surface);
     gap: var(--space-lg);
-}
-
-.item-listing-item.item-inactive {
-    /* Base styles inherited from .list-item-card-inactive */
-}
-
-.item-listing-item-name {
-    /* Base styles inherited from .list-item-card-name */
 }
 
 .item-remove-btn {
@@ -1257,20 +1240,6 @@ button:disabled {
 /* ============================================================================
    Urgency View Styles
    ============================================================================ */
-.value-view-section,
-.duration-view-section,
-.urgency-view-section {
-    /* Base styles inherited from .view-section */
-}
-
-.urgency-view-header {
-    /* Base styles inherited from .view-header */
-}
-
-.urgency-view-header h2 {
-    /* Base styles inherited from .view-header h2 */
-}
-
 .toggle-view-btn {
     padding: var(--space-sm) var(--space-xl);
     font-size: var(--text-md);
@@ -1286,19 +1255,13 @@ button:disabled {
     background-color: var(--color-muted-dark);
 }
 
-.value-view-content,
-.duration-view-content,
-.urgency-view-content {
-    /* Base styles inherited from .view-content */
-}
-
 .urgency-callout,
 .value-callout,
 .duration-callout,
 .results-callout,
 .item-listing-callout {
     background-color: var(--color-primary-lighter);
-    border-left: 4px solid #2196f3;
+    border-left: 4px solid var(--color-primary-light);
     border-radius: var(--radius-md);
     padding: var(--space-xl) var(--space-lg);
     margin-bottom: var(--space-2xl);
@@ -1383,14 +1346,6 @@ button:disabled {
     width: 100%;
 }
 
-.urgency-column-content .urgency-item.item-inactive {
-    /* Base styles inherited from .item-card-inactive */
-}
-
-.urgency-column-content .urgency-item-name {
-    /* Base styles inherited from .item-name */
-}
-
 /* Item link styles - work with both base .item-name and view-specific classes */
 .item-name .item-link,
 .urgency-item-name .item-link,
@@ -1409,10 +1364,6 @@ button:disabled {
 .duration-item-name .item-link:hover {
     color: var(--color-primary-dark);
     text-decoration: underline;
-}
-
-.urgency-column-content .urgency-item-controls {
-    /* Base styles inherited from .item-controls */
 }
 
 .urgency-quick-buttons {
@@ -1437,7 +1388,7 @@ button:disabled {
 
 .urgency-quick-btn:hover:not(:disabled) {
     background-color: var(--color-bg-lighter);
-    border-color: #adb5bd;
+    border-color: var(--color-disabled);
 }
 
 .urgency-quick-btn.active {
@@ -1466,11 +1417,6 @@ button:disabled {
     font-size: var(--text-base);
 }
 
-/* Urgency no-value content is now part of the grid */
-.urgency-no-value-content {
-    /* Base styles inherited from .parking-lot-content */
-}
-
 /* Urgency no-value items match other items */
 .urgency-no-value-content .urgency-item {
     /* Base styles inherited from .item-card */
@@ -1484,14 +1430,6 @@ button:disabled {
 /* Empty state handled by .parking-lot-content.empty */
 
 /* Value View Styles */
-
-.value-view-header {
-    /* Base styles inherited from .view-header */
-}
-
-.value-view-header h2 {
-    /* Base styles inherited from .view-header h2 */
-}
 
 /* ============================================
    BASE GRID COMPONENT CLASSES
@@ -1642,28 +1580,9 @@ button:disabled {
    ============================================ */
 
 /* Grid containers now extend .grid-container base class */
-.value-grid-container,
-.duration-grid-container,
-.urgency-grid-container {
-    /* Base styles inherited from .grid-container */
-}
-
-
 /* Old axis label styles - no longer needed with CSS Grid */
-
 /* Old flexbox containers - no longer needed with CSS Grid */
-
 /* Grid labels now extend .grid-label base class with modifiers */
-.value-row-label,
-.duration-row-label,
-.urgency-row-label {
-    /* Base styles inherited from .grid-label and .grid-label-row */
-}
-
-.urgency-column-label {
-    /* Base styles inherited from .grid-label and .grid-label-column */
-}
-
 /* Grid corner cells (empty placeholders) - no styling needed */
 
 /* Color value row labels in value view to indicate active stage */
@@ -1680,51 +1599,18 @@ button:disabled {
 /* Ensure parking lot label keeps its distinct color in both views (higher specificity override) */
 #valueViewSection .value-row-label.parking-lot-label,
 #urgencyViewSection .urgency-row-label.parking-lot-label {
-    background-color: #fff3cd !important; /* Light yellow/beige - override view-specific colors */
-    color: #856404 !important; /* Darker brown/yellow for contrast */
+    background-color: var(--color-parking-lot-bg) !important;
+    color: var(--color-parking-lot-text) !important;
 }
 
 /* Grid definitions now extend .grid base class with row modifiers */
-.value-grid {
-    /* Base styles inherited from .grid and .grid-rows-5 */
-}
-
-.duration-grid {
-    /* Base styles inherited from .grid and .grid-rows-4 */
-}
-
-.urgency-grid {
-    /* Base styles inherited from .grid and .grid-rows-3 */
-}
-
 /* Urgency no-value box spans columns 2-4 */
 .urgency-no-value-box {
     grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
-    /* Base styles inherited from .parking-lot-box */
 }
 
 /* Grid cells now extend .grid-cell base class */
-.value-grid-cell,
-.duration-grid-cell,
-.urgency-column {
-    /* Base styles inherited from .grid-cell */
-}
 
-.value-grid-cell .value-item {
-    /* Base styles inherited from .item-card */
-}
-
-.value-grid-cell .value-item.item-inactive {
-    /* Base styles inherited from .item-card-inactive */
-}
-
-.value-grid-cell .value-item-name {
-    /* Base styles inherited from .item-name */
-}
-
-.value-grid-cell .value-item-controls {
-    /* Base styles inherited from .item-controls */
-}
 
 /* Remove color coding from value view arrows - use neutral colors */
 .value-grid-cell .property-btn.increment-btn,
@@ -1733,7 +1619,7 @@ button:disabled {
 .value-no-value-box-content .property-btn.decrement-btn {
     background-color: var(--color-bg-light);
     color: var(--color-text-main);
-    border-color: #dee2e6;
+    border-color: var(--color-border);
 }
 
 .value-grid-cell .property-btn.increment-btn:hover:not(:disabled),
@@ -1741,24 +1627,9 @@ button:disabled {
 .value-no-value-box-content .property-btn.increment-btn:hover:not(:disabled),
 .value-no-value-box-content .property-btn.decrement-btn:hover:not(:disabled) {
     background-color: var(--color-bg-lighter);
-    border-color: #adb5bd;
+    border-color: var(--color-disabled);
 }
 
-.duration-grid-cell .duration-item {
-    /* Base styles inherited from .item-card */
-}
-
-.duration-grid-cell .duration-item.item-inactive {
-    /* Base styles inherited from .item-card-inactive */
-}
-
-.duration-grid-cell .duration-item-name {
-    /* Base styles inherited from .item-name */
-}
-
-.duration-grid-cell .duration-item-controls {
-    /* Base styles inherited from .item-controls */
-}
 
 /* Duration select now uses .select base component */
 .duration-select {
@@ -1768,8 +1639,8 @@ button:disabled {
 
 /* Empty duration dropdowns use parking lot colors */
 .duration-select-empty {
-    background-color: #fff3cd !important; /* Light yellow/beige - matches parking lot */
-    color: #856404 !important; /* Darker brown/yellow for contrast */
+    background-color: var(--color-parking-lot-bg) !important;
+    color: var(--color-parking-lot-text) !important;
 }
 
 .duration-select:disabled {
@@ -1811,39 +1682,14 @@ button:disabled {
 }
 
 /* Value no-value boxes are now part of the grid (row 5, columns 2-4) */
-.value-no-value-box {
-    /* Base styles inherited from .parking-lot-box */
-}
-
-.value-no-value-box-content {
-    /* Base styles inherited from .parking-lot-content */
-}
-
 .value-no-value-box-content .value-item {
-    /* Base styles inherited from .item-card */
-    /* Note: parking lot items use different border color (#6c757d) */
+    /* Note: parking lot items use different border color */
     border-left-color: var(--color-muted);
-}
-
-.value-no-value-box-content .value-item.item-inactive {
-    /* Base styles inherited from .item-card-inactive */
-}
-
-.value-no-value-box-content .value-item-name {
-    /* Base styles inherited from .item-name */
-}
-
-.value-no-value-box-content .value-item-controls {
-    /* Base styles inherited from .item-controls */
 }
 
 /* Empty state handled by .parking-lot-content.empty */
 
 /* Results View Styles */
-.results-view-section {
-    /* Base styles inherited from .view-section */
-}
-
 .results-view-content {
     /* Base styles inherited from .view-content */
     overflow: visible; /* Override for results view */
@@ -1853,10 +1699,6 @@ button:disabled {
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
-}
-
-.results-item {
-    /* Base styles inherited from .list-item-card */
 }
 
 .new-item-badge {
@@ -1870,11 +1712,6 @@ button:disabled {
     font-weight: 600;
     text-transform: uppercase;
 }
-
-.results-item.item-inactive {
-    /* Base styles inherited from .list-item-card-inactive */
-}
-
 
 .results-slot {
     display: flex;
@@ -1920,7 +1757,7 @@ button:disabled {
 
 .results-arrow-btn:hover:not(:disabled) {
     background-color: var(--color-bg-lighter);
-    border-color: #adb5bd;
+    border-color: var(--color-disabled);
 }
 
 .results-arrow-btn:disabled {
@@ -1950,11 +1787,11 @@ button:disabled {
 
 .reset-order-btn:hover {
     background-color: var(--color-bg-lighter);
-    border-color: #adb5bd;
+    border-color: var(--color-disabled);
 }
 
 .reset-order-btn:active {
-    background-color: #dee2e6;
+    background-color: var(--color-border);
 }
 
 .results-item-details {
@@ -1988,7 +1825,7 @@ button:disabled {
 }
 
 .confidence-weighted-cd3 {
-    color: #28a745;
+    color: var(--color-success);
     font-weight: 600;
 }
 
