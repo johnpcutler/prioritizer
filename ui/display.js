@@ -661,7 +661,7 @@ function renderDurationItem(item, isLocked, duration1Title, duration2Title, dura
         <div class="duration-item ${!isActive ? 'item-inactive' : ''}" data-item-id="${item.id}">
             <span class="duration-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
             <div class="duration-item-controls">
-                <select class="duration-select ${isEmpty ? 'duration-select-empty' : ''}" 
+                <select class="select input-sm input-border-light duration-select ${isEmpty ? 'duration-select-empty' : ''}" 
                         data-item-id="${item.id}" 
                         data-property="duration"
                         ${!canSetDuration ? 'disabled' : ''}
@@ -840,11 +840,11 @@ function displayResultsContent() {
         let surveyButtonHtml = '';
         if (canShowSurvey) {
             if (!hasSurvey) {
-                surveyButtonHtml = `<button class="confidence-survey-btn" data-item-id="${item.id}" data-action="open">Run confidence survey</button>`;
+                surveyButtonHtml = `<button class="btn btn-primary btn-sm confidence-survey-btn" data-item-id="${item.id}" data-action="open">Run confidence survey</button>`;
             } else {
                 surveyButtonHtml = `
-                    <button class="confidence-survey-btn" data-item-id="${item.id}" data-action="edit">Edit confidence survey</button>
-                    <button class="confidence-survey-btn confidence-survey-delete-btn" data-item-id="${item.id}" data-action="delete">Delete survey</button>
+                    <button class="btn btn-primary btn-sm confidence-survey-btn" data-item-id="${item.id}" data-action="edit">Edit confidence survey</button>
+                    <button class="btn btn-danger btn-sm confidence-survey-btn confidence-survey-delete-btn" data-item-id="${item.id}" data-action="delete">Delete survey</button>
                 `;
             }
         }
@@ -919,19 +919,19 @@ function renderConfidenceSurveyForm(item, appState, confidenceLabels) {
                 <div class="confidence-vote-inputs">
                     <div class="confidence-vote-input-group">
                         <label class="confidence-vote-label">${escapeHtml(confidenceLabels[1])}:</label>
-                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="1" value="${votes[1] || 0}" />
+                        <input type="number" min="0" class="input input-sm confidence-vote-input" data-dimension="${dimension}" data-level="1" value="${votes[1] || 0}" />
                     </div>
                     <div class="confidence-vote-input-group">
                         <label class="confidence-vote-label">${escapeHtml(confidenceLabels[2])}:</label>
-                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="2" value="${votes[2] || 0}" />
+                        <input type="number" min="0" class="input input-sm confidence-vote-input" data-dimension="${dimension}" data-level="2" value="${votes[2] || 0}" />
                     </div>
                     <div class="confidence-vote-input-group">
                         <label class="confidence-vote-label">${escapeHtml(confidenceLabels[3])}:</label>
-                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="3" value="${votes[3] || 0}" />
+                        <input type="number" min="0" class="input input-sm confidence-vote-input" data-dimension="${dimension}" data-level="3" value="${votes[3] || 0}" />
                     </div>
                     <div class="confidence-vote-input-group">
                         <label class="confidence-vote-label">${escapeHtml(confidenceLabels[4])}:</label>
-                        <input type="number" min="0" class="confidence-vote-input" data-dimension="${dimension}" data-level="4" value="${votes[4] || 0}" />
+                        <input type="number" min="0" class="input input-sm confidence-vote-input" data-dimension="${dimension}" data-level="4" value="${votes[4] || 0}" />
                     </div>
                 </div>
             </div>
@@ -945,8 +945,8 @@ function renderConfidenceSurveyForm(item, appState, confidenceLabels) {
             ${renderConfidenceSection('valueConfidence', `How confident are you in the ${value} (${escapeHtml(valueTitle)}) value categorization of this item?`)}
             ${renderConfidenceSection('durationConfidence', `How confident are you in the ${duration} (${escapeHtml(durationTitle)}) duration categorization of this item?`)}
             <div class="confidence-survey-form-actions">
-                <button class="confidence-survey-submit-btn" data-item-id="${item.id}">Submit</button>
-                <button class="confidence-survey-cancel-btn" data-item-id="${item.id}">Cancel</button>
+                <button class="btn btn-success confidence-survey-submit-btn" data-item-id="${item.id}">Submit</button>
+                <button class="btn btn-secondary confidence-survey-cancel-btn" data-item-id="${item.id}">Cancel</button>
             </div>
         </div>
     `;

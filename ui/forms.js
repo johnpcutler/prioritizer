@@ -17,7 +17,7 @@ export function renderFormField(field) {
         return `
             <div class="form-field">
                 ${label}
-                <select id="${field.name}" name="${field.name}" ${requiredAttr}>
+                <select id="${field.name}" name="${field.name}" class="select input-lg" ${requiredAttr}>
                     <option value="">Select ${field.label.toLowerCase()}...</option>
                     ${options.map(opt => `<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`).join('')}
                 </select>
@@ -30,10 +30,10 @@ export function renderFormField(field) {
                 <textarea 
                     id="${field.name}" 
                     name="${field.name}"
+                    class="textarea input-lg input-border-muted"
                     placeholder="${field.placeholder || ''}"
                     ${requiredAttr}
                     rows="4"
-                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"
                 ></textarea>
             </div>
         `;
@@ -52,6 +52,7 @@ export function renderFormField(field) {
                     type="${field.type}" 
                     id="${field.name}" 
                     name="${field.name}"
+                    class="input input-lg input-border-muted"
                     placeholder="${field.placeholder || ''}"
                     ${attrs}
                 />

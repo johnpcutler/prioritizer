@@ -12,6 +12,149 @@ body {
     overflow-x: hidden;
 }
 
+/* ============================================================================
+   Base Button Component
+   ============================================================================ */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* Button Variants */
+.btn-primary {
+    background-color: #007bff;
+}
+
+.btn-primary:hover:not(.active) {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-secondary:hover:not(.active) {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+.btn-danger:hover:not(.active) {
+    background-color: #c82333;
+}
+
+.btn-success {
+    background-color: #28a745;
+}
+
+.btn-success:hover:not(.active) {
+    background-color: #218838;
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-md {
+    padding: 6px 14px;
+    font-size: 12px;
+}
+
+/* Button States */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn.active {
+    background-color: #28a745 !important;
+}
+
+.btn.active:hover {
+    background-color: #218838 !important;
+}
+
+/* ============================================================================
+   Base Form Input Component
+   ============================================================================ */
+.input,
+.textarea,
+.select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+    color: #333;
+    background-color: white;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.textarea {
+    resize: vertical;
+}
+
+.select {
+    cursor: pointer;
+}
+
+/* Input Sizes */
+.input-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.input-md {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.input-lg {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.input-xl {
+    padding: 15px;
+    font-size: 14px;
+    border-width: 2px;
+    border-radius: 6px;
+}
+
+/* Input Border Variants */
+.input-border-light {
+    border-color: #dee2e6;
+}
+
+.input-border-default {
+    border-color: #ced4da;
+}
+
+.input-border-muted {
+    border-color: #ddd;
+}
+
 .app-layout {
     min-height: 100vh;
 }
@@ -70,39 +213,7 @@ body {
     gap: 10px;
 }
 
-.main-action-btn {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.main-action-btn:hover {
-    background-color: #0056b3;
-}
-
-.main-action-btn.active {
-    background-color: #28a745;
-}
-
-.main-action-btn.active:hover {
-    background-color: #218838;
-}
-
-.clear-data-action-btn {
-    background-color: #dc3545;
-}
-
-.clear-data-action-btn:hover {
-    background-color: #c82333;
-}
+/* Main action buttons now use .btn base component */
 
 .stage-nav-controls {
     display: flex;
@@ -368,21 +479,9 @@ body {
     margin-right: 15px;
 }
 
+/* Notes modal textarea now uses .textarea base component */
 .notes-modal-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 14px;
-    resize: vertical;
-    box-sizing: border-box;
-}
-
-.notes-modal-textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #dee2e6;
 }
 
 .notes-modal-buttons {
@@ -390,33 +489,7 @@ body {
     gap: 10px;
 }
 
-.notes-modal-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.notes-modal-btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.notes-modal-btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.notes-modal-btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.notes-modal-btn-secondary:hover {
-    background-color: #5a6268;
-}
-
+/* Notes modal buttons now use .btn base component */
 .notes-modal-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -433,22 +506,7 @@ body {
     color: #495057;
 }
 
-.modal-select,
-.modal-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.modal-select:focus,
-.modal-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
+/* Modal inputs now use .input base component */
 
 .modal-footer {
     display: flex;
@@ -458,34 +516,7 @@ body {
     border-top: 1px solid #dee2e6;
 }
 
-.modal-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.modal-cancel-btn {
-    background-color: #6c757d;
-    color: white;
-}
-
-.modal-cancel-btn:hover {
-    background-color: #5a6268;
-}
-
-.modal-submit-btn {
-    background-color: #dc3545;
-    color: white;
-}
-
-.modal-submit-btn:hover:not(:disabled) {
-    background-color: #c82333;
-}
-
+/* Modal buttons now use .btn base component */
 .modal-submit-btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -628,75 +659,26 @@ h2 {
     font-weight: 500;
 }
 
+/* Settings inputs now use .input base component */
 .settings-input {
     flex: 1;
-    padding: 6px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 13px;
     min-width: 0;
 }
 
-.settings-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
-
 .settings-textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 13px;
-    font-family: inherit;
-    resize: vertical;
     min-height: 60px;
 }
 
-.settings-textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
-
+/* Settings save buttons now use .btn base component */
 .settings-save-btn {
-    padding: 6px 14px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
     white-space: nowrap;
-    transition: background-color 0.2s;
-}
-
-.settings-save-btn:hover {
-    background-color: #0056b3;
 }
 
 .settings-save-btn:active {
     transform: scale(0.98);
 }
 
-.clear-data-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.clear-data-btn:hover {
-    background-color: #c82333;
-}
+/* Clear data button removed - not used */
 
 #commandForm {
     display: flex;
@@ -716,24 +698,10 @@ h2 {
     font-size: 14px;
 }
 
+/* Form field inputs now use .input base component */
 .form-field input,
 .form-field select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: white;
-}
-
-.form-field input:focus,
-.form-field select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.form-field select {
-    cursor: pointer;
+    border-color: #ddd;
 }
 
 .submit-btn {
@@ -1044,24 +1012,10 @@ button:disabled {
     gap: 15px;
 }
 
+/* Item listing textarea now uses .textarea base component */
 .item-listing-textarea {
-    width: 100%;
     min-height: 200px;
-    padding: 15px;
-    border: 2px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: vertical;
-    background-color: white;
-    color: #333;
     line-height: 1.6;
-}
-
-.item-listing-textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .item-listing-submit-btn {
@@ -1642,14 +1596,9 @@ button:disabled {
     align-items: center;
 }
 
+/* Duration select now uses .select base component */
 .duration-select {
-    padding: 4px 8px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
     background-color: #e3f2fd; /* Light blue to indicate duration stage */
-    font-size: 12px;
-    color: #333;
-    cursor: pointer;
     min-width: 80px;
 }
 
@@ -1665,11 +1614,7 @@ button:disabled {
     opacity: 0.6;
 }
 
-.duration-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
+/* Focus styles now handled by base .select component */
 
 /* Urgency column labels are now direct grid children - no container needed */
 
@@ -1935,30 +1880,10 @@ button:disabled {
     flex-wrap: wrap;
 }
 
-.confidence-survey-btn {
-    padding: 6px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
+/* Confidence survey buttons now use .btn base component */
 .confidence-survey-btn:hover {
-    background-color: #0056b3;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.confidence-survey-delete-btn {
-    background-color: #dc3545;
-}
-
-.confidence-survey-delete-btn:hover {
-    background-color: #c82333;
 }
 
 .confidence-survey-form {
@@ -2012,20 +1937,10 @@ button:disabled {
     line-height: 1.3;
 }
 
+/* Confidence vote inputs now use .input base component */
 .confidence-vote-input {
-    width: 100%;
     max-width: 100px;
-    padding: 6px 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
     text-align: center;
-}
-
-.confidence-vote-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
 }
 
 .confidence-survey-form-actions {
@@ -2035,34 +1950,9 @@ button:disabled {
     justify-content: flex-end;
 }
 
-.confidence-survey-submit-btn,
-.confidence-survey-cancel-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.confidence-survey-submit-btn {
-    background-color: #28a745;
-    color: white;
-}
-
+/* Confidence survey buttons now use .btn base component */
 .confidence-survey-submit-btn:hover {
-    background-color: #218838;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.confidence-survey-cancel-btn {
-    background-color: #6c757d;
-    color: white;
-}
-
-.confidence-survey-cancel-btn:hover {
-    background-color: #5a6268;
 }
 
