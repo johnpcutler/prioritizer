@@ -89,8 +89,11 @@
     <script type="module" src="app.js"></script>
     <script type="module" src="test-adapter.js"></script>
     
-    <!-- Load tests script (non-module so it executes immediately and exposes to window) -->
-    <script src="tests.js?v=2"></script>
+    <!-- Load test core as module first -->
+    <script type="module" src="tests/test-core.js"></script>
+    <!-- Load test runner (module that imports all test suites) -->
+    <script type="module" src="tests/test-runner.js"></script>
+    <!-- Note: All tests have been migrated to tests/suites/ and are executed by test-runner.js -->
     
     <script type="module">
         // Update status message
@@ -180,7 +183,7 @@
         
         // Start initialization when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            // Wait longer for all scripts (especially tests.js) to load and execute
+            // Wait longer for all scripts to load and execute
             setTimeout(() => {
                 initializeAndRunTests();
             }, 1000);
