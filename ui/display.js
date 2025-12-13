@@ -1005,12 +1005,35 @@ function renderConfidenceSurveyForm(item, appState, confidenceLabels) {
             ${renderConfidenceSection('urgencyConfidence', `How confident are you in the ${urgency} (${escapeHtml(urgencyTitle)}) urgency categorization of this item?`)}
             ${renderConfidenceSection('valueConfidence', `How confident are you in the ${value} (${escapeHtml(valueTitle)}) value categorization of this item?`)}
             ${renderConfidenceSection('durationConfidence', `How confident are you in the ${duration} (${escapeHtml(durationTitle)}) duration categorization of this item?`)}
+            <div class="confidence-survey-error" data-item-id="${item.id}" style="display: none;">
+                <div class="confidence-survey-error-message"></div>
+            </div>
             <div class="confidence-survey-form-actions">
                 <button class="btn btn-success confidence-survey-submit-btn" data-item-id="${item.id}">Submit</button>
                 <button class="btn btn-secondary confidence-survey-cancel-btn" data-item-id="${item.id}">Cancel</button>
             </div>
         </div>
     `;
+}
+
+// Show confidence survey error message
+export function showConfidenceSurveyError(itemId, errorMessage) {
+    const errorEl = document.querySelector(`.confidence-survey-error[data-item-id="${itemId}"]`);
+    if (errorEl) {
+        const messageEl = errorEl.querySelector('.confidence-survey-error-message');
+        if (messageEl) {
+            messageEl.textContent = errorMessage;
+        }
+        errorEl.style.display = 'block';
+    }
+}
+
+// Hide confidence survey error message
+export function hideConfidenceSurveyError(itemId) {
+    const errorEl = document.querySelector(`.confidence-survey-error[data-item-id="${itemId}"]`);
+    if (errorEl) {
+        errorEl.style.display = 'none';
+    }
 }
 
 // Populate settings form with current values from app state

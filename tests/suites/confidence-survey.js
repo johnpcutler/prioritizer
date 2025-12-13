@@ -102,11 +102,12 @@ async function testConfidenceSurveyCalculation() {
     
     // Submit survey with known confidence values
     // Using confidence weights: 1=0.30, 2=0.50, 3=0.70, 4=0.90
+    // Scope: 1 vote at level 1 (not used in calculation, but required for validation)
     // Urgency: 1 vote at level 2 (0.50) = weighted avg 0.50
     // Value: 1 vote at level 3 (0.70) = weighted avg 0.70
     // Duration: 1 vote at level 4 (0.90) = weighted avg 0.90
     const surveyData = {
-        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        scopeConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // 1 vote at level 1 (required for validation)
         urgencyConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // 1 vote at level 2
         valueConfidence: {1: 0, 2: 0, 3: 1, 4: 0}, // 1 vote at level 3
         durationConfidence: {1: 0, 2: 0, 3: 0, 4: 1} // 1 vote at level 4
@@ -367,13 +368,14 @@ async function testConfidenceSurveyEdgeCases() {
     TestAdapter.startApp();
     TestAdapter.setLocked(false);
     
-    // Test 1: Survey with all zeros should not calculate weighted CD3
+    // Test 1: Survey with lowest confidence (all level 1 votes) should calculate weighted CD3
     TestAdapter.addItem('Edge Case Item 1');
     let items = TestAdapter.getItems();
     let testItem = items.find(i => i.name === 'Edge Case Item 1');
     assert(testItem !== undefined, 'Edge Case Item 1 should exist');
     
     // Set properties and advance to Results
+    // urgency=2 (weight 2), value=2 (weight 2), duration=1 (weight 1)
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
     TestAdapter.advanceStage();
@@ -382,23 +384,29 @@ async function testConfidenceSurveyEdgeCases() {
     TestAdapter.setItemProperty(testItem.id, 'duration', 1);
     TestAdapter.advanceStage();
     
-    const zeroSurvey = {
-        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+    // All votes at level 1 (30% confidence) - lowest possible confidence
+    const lowConfidenceSurvey = {
+        scopeConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // 1 vote at level 1 = 0.30
+        urgencyConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // 1 vote at level 1 = 0.30
+        valueConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // 1 vote at level 1 = 0.30
+        durationConfidence: {1: 1, 2: 0, 3: 0, 4: 0} // 1 vote at level 1 = 0.30
     };
     
-    const submitResult1 = TestAdapter.submitConfidenceSurvey(testItem.id, zeroSurvey);
-    assert(submitResult1.success, `Submitting zero survey should succeed: ${submitResult1.error || ''}`);
+    const submitResult1 = TestAdapter.submitConfidenceSurvey(testItem.id, lowConfidenceSurvey);
+    assert(submitResult1.success, `Submitting low confidence survey should succeed: ${submitResult1.error || ''}`);
     
     items = TestAdapter.getItems();
     testItem = items.find(i => i.name === 'Edge Case Item 1');
     assert(testItem.hasConfidenceSurvey === true, 'Item should have confidence survey flag set');
-    // With all zeros, confidence averages will be null, so weighted CD3 should be null
-    assert(testItem.confidenceWeightedCD3 === null, 'Confidence-weighted CD3 should be null with all zero votes');
+    // With all level 1 votes (0.30 confidence):
+    // Weighted urgency: 2 * 0.30 = 0.6
+    // Weighted value: 2 * 0.30 = 0.6
+    // Weighted duration: 1 * 0.30 = 0.3
+    // CD3: (0.6 * 0.6) / 0.3 = 0.36 / 0.3 = 1.2
+    assert(testItem.confidenceWeightedCD3 !== null, 'Confidence-weighted CD3 should be calculated');
+    assert(Math.abs(testItem.confidenceWeightedCD3 - 1.2) < 0.01, `Confidence-weighted CD3 should be approximately 1.2, got ${testItem.confidenceWeightedCD3}`);
     
-    // Test 2: Survey with missing dimension should not calculate weighted CD3
+    // Test 2: Survey with mixed confidence levels (edge case with varying confidence)
     // Navigate back to Item Listing stage to add new item
     while (TestAdapter.getCurrentStage() !== 'Item Listing') {
         TestAdapter.backStage();
@@ -410,6 +418,7 @@ async function testConfidenceSurveyEdgeCases() {
     assert(testItem2 !== undefined, 'Edge Case Item 2 should exist');
     
     // Advance to Urgency stage and set properties
+    // urgency=2 (weight 2), value=2 (weight 2), duration=1 (weight 1)
     TestAdapter.advanceStage(); // Item Listing -> Urgency
     TestAdapter.setItemProperty(testItem2.id, 'urgency', 2);
     TestAdapter.advanceStage();
@@ -418,22 +427,28 @@ async function testConfidenceSurveyEdgeCases() {
     TestAdapter.setItemProperty(testItem2.id, 'duration', 1);
     TestAdapter.advanceStage();
     
-    // Survey with urgency votes but no value votes
-    const partialSurvey = {
-        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        urgencyConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Has votes
-        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0}, // No votes
-        durationConfidence: {1: 0, 2: 1, 3: 0, 4: 0} // Has votes
+    // Mixed confidence: scope and value at level 1 (low), urgency and duration at level 2 (medium)
+    const mixedConfidenceSurvey = {
+        scopeConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // Level 1 = 0.30
+        urgencyConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Level 2 = 0.50
+        valueConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // Level 1 = 0.30
+        durationConfidence: {1: 0, 2: 1, 3: 0, 4: 0} // Level 2 = 0.50
     };
     
-    const submitResult2 = TestAdapter.submitConfidenceSurvey(testItem2.id, partialSurvey);
-    assert(submitResult2.success, `Submitting partial survey should succeed: ${submitResult2.error || ''}`);
+    const submitResult2 = TestAdapter.submitConfidenceSurvey(testItem2.id, mixedConfidenceSurvey);
+    assert(submitResult2.success, `Submitting mixed confidence survey should succeed: ${submitResult2.error || ''}`);
     
     items = TestAdapter.getItems();
     testItem2 = items.find(i => i.name === 'Edge Case Item 2');
     assert(testItem2.hasConfidenceSurvey === true, 'Item should have confidence survey flag');
-    // Value confidence has no votes, so weighted CD3 should be null
-    assert(testItem2.confidenceWeightedCD3 === null, 'Confidence-weighted CD3 should be null when value has no votes');
+    // With mixed confidence:
+    // Weighted urgency: 2 * 0.50 = 1.0
+    // Weighted value: 2 * 0.30 = 0.6
+    // Weighted duration: 1 * 0.50 = 0.5
+    // CD3: (1.0 * 0.6) / 0.5 = 0.6 / 0.5 = 1.2
+    assert(testItem2.confidenceWeightedCD3 !== null, 'Confidence-weighted CD3 should be calculated');
+    assert(testItem2.confidenceWeightedValues !== null, 'Confidence-weighted values should be stored');
+    assert(Math.abs(testItem2.confidenceWeightedCD3 - 1.2) < 0.01, `Confidence-weighted CD3 should be approximately 1.2, got ${testItem2.confidenceWeightedCD3}`);
     
     // Test 3: Verify confidence weights and labels are accessible
     const weights = TestAdapter.getConfidenceWeights();
@@ -449,6 +464,201 @@ async function testConfidenceSurveyEdgeCases() {
     assert(labels[1].includes('Not Confident'), 'Confidence label level 1 should contain "Not Confident"');
 }
 
+// Test confidence survey validation - missing votes in one dimension
+async function testConfidenceSurveyValidationOneMissing() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    TestAdapter.setLocked(false);
+    
+    // Add an item and set properties
+    const addResult = TestAdapter.addItem('Validation Test Item');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    let items = TestAdapter.getItems();
+    let testItem = items.find(i => i.name === 'Validation Test Item');
+    
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(testItem.id, 'value', 3);
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setItemProperty(testItem.id, 'duration', 1);
+    TestAdapter.advanceStage(); // Duration -> Results
+    
+    // Submit survey with scopeConfidence all zeros
+    const surveyData = {
+        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0}, // All zeros - should fail
+        urgencyConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // Has votes
+        valueConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Has votes
+        durationConfidence: {1: 0, 2: 0, 3: 1, 4: 0} // Has votes
+    };
+    
+    const submitResult = TestAdapter.submitConfidenceSurvey(testItem.id, surveyData);
+    assert(submitResult.success === false, 'Submitting survey with missing scope votes should fail');
+    assert(submitResult.error !== undefined, 'Error message should be provided');
+    assert(submitResult.error.includes('Scope Confidence'), 'Error message should mention Scope Confidence');
+    
+    // Verify survey was not saved
+    items = TestAdapter.getItems();
+    testItem = items.find(i => i.name === 'Validation Test Item');
+    assert(testItem.hasConfidenceSurvey === false, 'Item should not have confidence survey after failed validation');
+}
+
+// Test confidence survey validation - missing votes in multiple dimensions
+async function testConfidenceSurveyValidationMultipleMissing() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    TestAdapter.setLocked(false);
+    
+    // Add an item and set properties
+    const addResult = TestAdapter.addItem('Validation Test Item 2');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    let items = TestAdapter.getItems();
+    let testItem = items.find(i => i.name === 'Validation Test Item 2');
+    
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(testItem.id, 'value', 3);
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setItemProperty(testItem.id, 'duration', 1);
+    TestAdapter.advanceStage(); // Duration -> Results
+    
+    // Submit survey with scopeConfidence and urgencyConfidence all zeros
+    const surveyData = {
+        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0}, // All zeros
+        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0}, // All zeros
+        valueConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Has votes
+        durationConfidence: {1: 0, 2: 0, 3: 1, 4: 0} // Has votes
+    };
+    
+    const submitResult = TestAdapter.submitConfidenceSurvey(testItem.id, surveyData);
+    assert(submitResult.success === false, 'Submitting survey with missing votes should fail');
+    assert(submitResult.error !== undefined, 'Error message should be provided');
+    assert(submitResult.error.includes('Scope Confidence'), 'Error message should mention Scope Confidence');
+    assert(submitResult.error.includes('Urgency Confidence'), 'Error message should mention Urgency Confidence');
+    
+    // Verify survey was not saved
+    items = TestAdapter.getItems();
+    testItem = items.find(i => i.name === 'Validation Test Item 2');
+    assert(testItem.hasConfidenceSurvey === false, 'Item should not have confidence survey after failed validation');
+}
+
+// Test confidence survey validation - all dimensions have votes (valid)
+async function testConfidenceSurveyValidationAllHaveVotes() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    TestAdapter.setLocked(false);
+    
+    // Add an item and set properties
+    const addResult = TestAdapter.addItem('Validation Test Item 3');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    let items = TestAdapter.getItems();
+    let testItem = items.find(i => i.name === 'Validation Test Item 3');
+    
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(testItem.id, 'value', 3);
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setItemProperty(testItem.id, 'duration', 1);
+    TestAdapter.advanceStage(); // Duration -> Results
+    
+    // Submit survey with at least one vote in each dimension
+    const surveyData = {
+        scopeConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // Has vote
+        urgencyConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Has vote
+        valueConfidence: {1: 0, 2: 0, 3: 1, 4: 0}, // Has vote
+        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 1} // Has vote
+    };
+    
+    const submitResult = TestAdapter.submitConfidenceSurvey(testItem.id, surveyData);
+    assert(submitResult.success === true, `Submitting valid survey should succeed: ${submitResult.error || ''}`);
+    
+    // Verify survey was saved
+    items = TestAdapter.getItems();
+    testItem = items.find(i => i.name === 'Validation Test Item 3');
+    assert(testItem.hasConfidenceSurvey === true, 'Item should have confidence survey after successful submission');
+}
+
+// Test confidence survey validation - all dimensions empty
+async function testConfidenceSurveyValidationAllEmpty() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    TestAdapter.setLocked(false);
+    
+    // Add an item and set properties
+    const addResult = TestAdapter.addItem('Validation Test Item 4');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    let items = TestAdapter.getItems();
+    let testItem = items.find(i => i.name === 'Validation Test Item 4');
+    
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(testItem.id, 'value', 3);
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setItemProperty(testItem.id, 'duration', 1);
+    TestAdapter.advanceStage(); // Duration -> Results
+    
+    // Submit survey with all zeros
+    const surveyData = {
+        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
+        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
+    };
+    
+    const submitResult = TestAdapter.submitConfidenceSurvey(testItem.id, surveyData);
+    assert(submitResult.success === false, 'Submitting survey with all zeros should fail');
+    assert(submitResult.error !== undefined, 'Error message should be provided');
+    assert(submitResult.error.includes('Scope Confidence'), 'Error message should mention Scope Confidence');
+    assert(submitResult.error.includes('Urgency Confidence'), 'Error message should mention Urgency Confidence');
+    assert(submitResult.error.includes('Value Confidence'), 'Error message should mention Value Confidence');
+    assert(submitResult.error.includes('Duration Confidence'), 'Error message should mention Duration Confidence');
+}
+
+// Test confidence survey validation - single vote per dimension (edge case)
+async function testConfidenceSurveyValidationSingleVotePerDimension() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    TestAdapter.setLocked(false);
+    
+    // Add an item and set properties
+    const addResult = TestAdapter.addItem('Validation Test Item 5');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    let items = TestAdapter.getItems();
+    let testItem = items.find(i => i.name === 'Validation Test Item 5');
+    
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(testItem.id, 'urgency', 2);
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(testItem.id, 'value', 3);
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setItemProperty(testItem.id, 'duration', 1);
+    TestAdapter.advanceStage(); // Duration -> Results
+    
+    // Submit survey with exactly one vote in each dimension
+    const surveyData = {
+        scopeConfidence: {1: 1, 2: 0, 3: 0, 4: 0}, // Exactly one vote
+        urgencyConfidence: {1: 0, 2: 1, 3: 0, 4: 0}, // Exactly one vote
+        valueConfidence: {1: 0, 2: 0, 3: 1, 4: 0}, // Exactly one vote
+        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 1} // Exactly one vote
+    };
+    
+    const submitResult = TestAdapter.submitConfidenceSurvey(testItem.id, surveyData);
+    assert(submitResult.success === true, `Submitting survey with one vote per dimension should succeed: ${submitResult.error || ''}`);
+    
+    // Verify survey was saved
+    items = TestAdapter.getItems();
+    testItem = items.find(i => i.name === 'Validation Test Item 5');
+    assert(testItem.hasConfidenceSurvey === true, 'Item should have confidence survey after successful submission');
+}
+
 // Export test suite
 export const confidenceSurveyTests = [
     { number: 82, name: 'Confidence Survey Basic Functionality', fn: testConfidenceSurveyBasic },
@@ -457,6 +667,11 @@ export const confidenceSurveyTests = [
     { number: 85, name: 'Confidence Survey Deletion', fn: testConfidenceSurveyDeletion },
     { number: 86, name: 'Confidence Survey Persistence Across Stages', fn: testConfidenceSurveyPersistence },
     { number: 87, name: 'Confidence Survey Weighted Values Breakdown', fn: testConfidenceSurveyWeightedValues },
-    { number: 88, name: 'Confidence Survey Edge Cases', fn: testConfidenceSurveyEdgeCases }
+    { number: 88, name: 'Confidence Survey Edge Cases', fn: testConfidenceSurveyEdgeCases },
+    { number: 89, name: 'Confidence Survey Validation - One Missing Dimension', fn: testConfidenceSurveyValidationOneMissing },
+    { number: 90, name: 'Confidence Survey Validation - Multiple Missing Dimensions', fn: testConfidenceSurveyValidationMultipleMissing },
+    { number: 91, name: 'Confidence Survey Validation - All Have Votes', fn: testConfidenceSurveyValidationAllHaveVotes },
+    { number: 92, name: 'Confidence Survey Validation - All Empty', fn: testConfidenceSurveyValidationAllEmpty },
+    { number: 93, name: 'Confidence Survey Validation - Single Vote Per Dimension', fn: testConfidenceSurveyValidationSingleVotePerDimension }
 ];
 

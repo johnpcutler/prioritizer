@@ -1937,3 +1937,18 @@ button:disabled {
     text-decoration: underline;
 }
 
+/* Confidence survey error styling */
+.confidence-survey-error {
+    margin: var(--space-2xl) 0;
+    padding: var(--space-xl);
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius-md);
+    color: #721c24;
+}
+
+.confidence-survey-error-message {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+

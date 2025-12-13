@@ -3,6 +3,7 @@
 import { Store } from '../state/appState.js';
 import { escapeHtml } from '../ui/forms.js';
 import { analytics } from '../analytics/analytics.js';
+import { showConfidenceSurveyError, hideConfidenceSurveyError } from '../ui/display.js';
 
 // Setup modal event listeners
 // Accepts handler functions as dependencies
@@ -463,7 +464,11 @@ export function setupModalsListeners(handlers) {
             
             const result = submitConfidenceSurvey(itemId, surveyData);
             if (!result.success) {
-                alert(result.error || 'Failed to submit confidence survey');
+                // Show inline error callout instead of alert
+                showConfidenceSurveyError(itemId, result.error || 'Failed to submit confidence survey');
+            } else {
+                // Hide any existing error on success
+                hideConfidenceSurveyError(itemId);
             }
         } else if (cancelBtn) {
             e.preventDefault();

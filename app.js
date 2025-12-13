@@ -458,23 +458,29 @@ function submitConfidenceSurvey(itemId, surveyData) {
         return { success: false, error: 'Invalid survey data' };
     }
     
-    const requiredDimensions = ['scopeConfidence', 'urgencyConfidence', 'valueConfidence', 'durationConfidence'];
+    const requiredDimensions = [
+        { key: 'scopeConfidence', name: 'Scope Confidence' },
+        { key: 'urgencyConfidence', name: 'Urgency Confidence' },
+        { key: 'valueConfidence', name: 'Value Confidence' },
+        { key: 'durationConfidence', name: 'Duration Confidence' }
+    ];
     let selectionsCount = 0;
     
-    for (const dim of requiredDimensions) {
-        if (!surveyData[dim] || typeof surveyData[dim] !== 'object') {
-            return { success: false, error: `Missing or invalid ${dim} data` };
+    // First pass: validate structure and normalize data
+    for (const { key } of requiredDimensions) {
+        if (!surveyData[key] || typeof surveyData[key] !== 'object') {
+            return { success: false, error: `Missing or invalid ${key} data` };
         }
         for (let level = 1; level <= 4; level++) {
-            const count = surveyData[dim][level];
+            const count = surveyData[key][level];
             if (count === undefined || count === null) {
-                surveyData[dim][level] = 0;
+                surveyData[key][level] = 0;
             } else {
                 const numCount = parseInt(count);
                 if (isNaN(numCount) || numCount < 0) {
-                    return { success: false, error: `Invalid vote count for ${dim} level ${level}` };
+                    return { success: false, error: `Invalid vote count for ${key} level ${level}` };
                 }
-                surveyData[dim][level] = numCount;
+                surveyData[key][level] = numCount;
                 
                 // Count selections with value > 0
                 if (numCount > 0) {
@@ -484,7 +490,24 @@ function submitConfidenceSurvey(itemId, surveyData) {
         }
     }
     
-    // Track analytics event
+    // Validate that each dimension has at least one vote
+    const missingDimensions = [];
+    for (const { key, name } of requiredDimensions) {
+        const votes = surveyData[key];
+        const totalVotes = Object.values(votes).reduce((sum, count) => sum + (parseInt(count) || 0), 0);
+        if (totalVotes === 0) {
+            missingDimensions.push(name);
+        }
+    }
+    
+    if (missingDimensions.length > 0) {
+        return {
+            success: false,
+            error: `Please enter at least one vote in each section. Missing votes in: ${missingDimensions.join(', ')}`
+        };
+    }
+    
+    // Track analytics event (only if validation passes)
     analytics.trackEvent('Submit Confidence Survey', {
         itemId: itemId,
         selectionsCount: selectionsCount
