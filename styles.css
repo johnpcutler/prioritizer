@@ -1925,3 +1925,15 @@ button:disabled {
     box-shadow: var(--shadow-md);
 }
 
+/* CD3 link styling */
+.cd3-link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cd3-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+

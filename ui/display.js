@@ -806,9 +806,9 @@ function displayResultsContent() {
     const resultsCallout = document.getElementById('resultsCallout');
     if (resultsCallout) {
         if (appState.resultsManuallyReordered) {
-            resultsCallout.textContent = 'Here are your items. They were originally sorted by CD3, but you adjusted sort sequence. Click Reset Order to resort';
+            resultsCallout.innerHTML = 'Here are your items. They were originally sorted by <a href="help.html#cd3" class="cd3-link">CD3</a>, but you adjusted sort sequence. Click Reset Order to resort';
         } else {
-            resultsCallout.textContent = 'Here are your items sorted descending by weighted cost of delay (CD3)';
+            resultsCallout.innerHTML = 'Here are your items sorted descending by weighted cost of delay (<a href="help.html#cd3" class="cd3-link">CD3</a>)';
         }
     }
     
@@ -891,7 +891,7 @@ function displayResultsContent() {
                 const urgencyWeighted = weightedValues.urgency !== undefined ? weightedValues.urgency.toFixed(2) : '—';
                 const valueWeighted = weightedValues.value !== undefined ? weightedValues.value.toFixed(2) : '—';
                 const durationWeighted = weightedValues.duration !== undefined ? weightedValues.duration.toFixed(2) : '—';
-                confidenceWeightedCD3Html = `<span class="results-cd3 confidence-weighted-cd3">Confidence Weighted CD3: ${weightedCD3Formatted} (Urgency: ${urgencyWeighted}, Value: ${valueWeighted}, Duration: ${durationWeighted})</span>`;
+                confidenceWeightedCD3Html = `<span class="results-cd3 confidence-weighted-cd3"><a href="help.html#confidence-weighted-cd3" class="cd3-link">Confidence Weighted CD3</a>: ${weightedCD3Formatted} (Urgency: ${urgencyWeighted}, Value: ${valueWeighted}, Duration: ${durationWeighted})</span>`;
             }
         }
         
@@ -937,7 +937,7 @@ function displayResultsContent() {
                         <span class="results-metric">Urgency: ${urgencyDisplay}</span>
                         <span class="results-metric">Value: ${valueDisplay}</span>
                         <span class="results-metric">Duration: ${durationDisplay}</span>
-                        <span class="results-cd3">CD3: ${cd3Formatted}</span>
+                        <span class="results-cd3"><a href="help.html#cd3" class="cd3-link">CD3</a>: ${cd3Formatted}</span>
                         ${confidenceWeightedCD3Html}
                     </div>
                     ${surveyButtonHtml ? `<div class="confidence-survey-buttons">${surveyButtonHtml}</div>` : ''}
