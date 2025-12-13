@@ -956,12 +956,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateItemListingView();
     displayJson();
     
-    // Initialize analytics (Amplitude auto-identifies users on first visit)
-    // Wait a bit to ensure Amplitude script has loaded
-    setTimeout(() => {
-        analytics.init();
-        // Amplitude automatically identifies users, but we can call identify() explicitly if needed
-    }, 100);
+    // Initialize analytics (dynamically loads Amplitude based on environment)
+    // Analytics module handles environment detection and script loading
+    analytics.init().catch(error => {
+        console.warn('Analytics initialization failed:', error);
+    });
 });
 
 // ============================================================================

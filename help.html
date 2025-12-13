@@ -5,9 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help - Prioritizer</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Amplitude Analytics -->
-    <script src="https://cdn.amplitude.com/script/543dd5b441b293e629185cefc122efe7.js"></script>
-    <script>window.amplitude.init('543dd5b441b293e629185cefc122efe7', {"fetchRemoteConfig":true,"autocapture":false});</script>
+    <!-- Amplitude Analytics - loaded dynamically based on environment -->
+    <script type="module">
+        // Determine API key based on environment
+        const hostname = window.location.hostname;
+        const apiKey = (hostname === 'localhost' || hostname === '127.0.0.1') 
+            ? '931668dc2c1f6795fb6af06aa64d83cd' 
+            : '543dd5b441b293e629185cefc122efe7';
+        
+        // Load Amplitude script
+        const script = document.createElement('script');
+        script.src = `https://cdn.amplitude.com/script/${apiKey}.js`;
+        script.async = true;
+        script.onload = () => {
+            if (window.amplitude) {
+                window.amplitude.init(apiKey, {"fetchRemoteConfig":true,"autocapture":false});
+            }
+        };
+        document.head.appendChild(script);
+    </script>
     <style>
         .help-container {
             max-width: 900px;
@@ -544,7 +560,7 @@
                 link.addEventListener('click', function(e) {
                     const resourceUrl = link.href;
                     if (window.amplitude) {
-                        window.amplitude.track('Click On Resource', {
+                        window.amplitude.logEvent('Click On Resource', {
                             resourceUrl: resourceUrl
                         });
                     }

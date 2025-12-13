@@ -2,18 +2,116 @@
 // Provides a clean interface for analytics that can be swapped out easily
 // Currently wraps Amplitude, but designed to be provider-agnostic
 
+// API Keys - determined once at module load
+const PRODUCTION_API_KEY = '543dd5b441b293e629185cefc122efe7';
+const DEVELOPMENT_API_KEY = '931668dc2c1f6795fb6af06aa64d83cd';
+
+// Determine environment and API key once
+function getAmplitudeApiKey() {
+    if (typeof window === 'undefined') {
+        return PRODUCTION_API_KEY; // Default to production if window not available
+    }
+    
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return DEVELOPMENT_API_KEY;
+    }
+    return PRODUCTION_API_KEY;
+}
+
+// Store the API key (determined once)
+const AMPLITUDE_API_KEY = getAmplitudeApiKey();
+
+// Track initialization state
+let isInitialized = false;
+let isInitializing = false;
+
+/**
+ * Load Amplitude script dynamically
+ * @returns {Promise} Promise that resolves when script is loaded
+ */
+function loadAmplitudeScript() {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (window.amplitude) {
+            resolve();
+            return;
+        }
+        
+        // Check if script is already being loaded
+        const existingScript = document.querySelector(`script[src*="amplitude.com/script/${AMPLITUDE_API_KEY}"]`);
+        if (existingScript) {
+            // Wait for it to load
+            existingScript.addEventListener('load', resolve);
+            existingScript.addEventListener('error', reject);
+            return;
+        }
+        
+        // Create and load script
+        const script = document.createElement('script');
+        script.src = `https://cdn.amplitude.com/script/${AMPLITUDE_API_KEY}.js`;
+        script.async = true;
+        script.onload = () => {
+            // Initialize Amplitude after script loads
+            if (window.amplitude) {
+                window.amplitude.init(AMPLITUDE_API_KEY, {
+                    "fetchRemoteConfig": true,
+                    "autocapture": false
+                });
+            }
+            resolve();
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 /**
  * Initialize analytics
- * Should be called after the analytics script has loaded
+ * Dynamically loads Amplitude script based on environment and initializes it
  */
-export function init() {
-    // Amplitude auto-initializes via script tag, but we can verify it's loaded
-    if (typeof window !== 'undefined' && window.amplitude) {
-        // Amplitude is already initialized by the script tag in index.html
-        // We can add any additional initialization here if needed
+export async function init() {
+    if (isInitialized) {
         return true;
     }
-    return false;
+    
+    if (isInitializing) {
+        // Wait for ongoing initialization
+        return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+                if (isInitialized) {
+                    clearInterval(checkInterval);
+                    resolve(true);
+                }
+            }, 100);
+        });
+    }
+    
+    isInitializing = true;
+    
+    try {
+        if (typeof window === 'undefined') {
+            console.warn('Analytics: window object not available');
+            return false;
+        }
+        
+        await loadAmplitudeScript();
+        
+        if (window.amplitude) {
+            isInitialized = true;
+            isInitializing = false;
+            console.log(`Analytics initialized with ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'development' : 'production'} key`);
+            return true;
+        } else {
+            console.warn('Analytics: Amplitude failed to load');
+            isInitializing = false;
+            return false;
+        }
+    } catch (error) {
+        console.error('Analytics initialization error:', error);
+        isInitializing = false;
+        return false;
+    }
 }
 
 /**
