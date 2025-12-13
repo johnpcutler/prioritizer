@@ -134,6 +134,10 @@ async function runAsyncTest(testFunction, testName) {
     currentTestFunctionNum = getNextTestFunctionNumber();
     try {
         await testFunction();
+    } catch (error) {
+        console.error(`Error in test function: ${error.message}`);
+        console.error(error.stack);
+        throw error; // Re-throw to be caught by outer try-catch
     } finally {
         currentTestFunctionNum = null;
     }
@@ -776,6 +780,27 @@ async function runAllTests() {
         // Test 88: Confidence survey edge cases
         console.log('\n--- Test 88: Confidence Survey Edge Cases ---');
         await runAsyncTest(testConfidenceSurveyEdgeCases);
+        console.log('✓ Test 88 completed');
+        
+        // Test 89: Reordered flag defaults to false
+        console.log('\n--- Test 89: Reordered Flag Defaults to False ---');
+        await runAsyncTest(testReorderedFlagDefaultsToFalse);
+        
+        // Test 90: Reordered flag set when item is manually moved
+        console.log('\n--- Test 90: Reordered Flag Set When Item Manually Moved ---');
+        await runAsyncTest(testReorderedFlagSetWhenManuallyMoved);
+        
+        // Test 91: Only moved item gets reordered flag, not displaced item
+        console.log('\n--- Test 91: Only Moved Item Gets Reordered Flag ---');
+        await runAsyncTest(testOnlyMovedItemGetsReorderedFlag);
+        
+        // Test 92: Reordered flag cleared on reset
+        console.log('\n--- Test 92: Reordered Flag Cleared On Reset ---');
+        await runAsyncTest(testReorderedFlagClearedOnReset);
+        
+        // Test 93: Reordered flag persists (normalization)
+        console.log('\n--- Test 93: Reordered Flag Persists (Normalization) ---');
+        await runAsyncTest(testReorderedFlagPersists);
         
         // Display results
         displayTestResults();
@@ -4383,6 +4408,7 @@ async function testConfidenceSurveyEdgeCases() {
     TestAdapter.addItem('Edge Case Item 1');
     let items = TestAdapter.getItems();
     let testItem = items.find(i => i.name === 'Edge Case Item 1');
+    assert(testItem !== undefined, 'Edge Case Item 1 should exist');
     
     // Set properties and advance to Results
     TestAdapter.advanceStage();
@@ -4410,10 +4436,18 @@ async function testConfidenceSurveyEdgeCases() {
     assert(testItem.confidenceWeightedCD3 === null, 'Confidence-weighted CD3 should be null with all zero votes');
     
     // Test 2: Survey with missing dimension should not calculate weighted CD3
+    // Navigate back to Item Listing stage to add new item
+    while (TestAdapter.getCurrentStage() !== 'Item Listing') {
+        TestAdapter.backStage();
+    }
+    
     TestAdapter.addItem('Edge Case Item 2');
     items = TestAdapter.getItems();
     let testItem2 = items.find(i => i.name === 'Edge Case Item 2');
+    assert(testItem2 !== undefined, 'Edge Case Item 2 should exist');
     
+    // Advance to Urgency stage and set properties
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
     TestAdapter.setItemProperty(testItem2.id, 'urgency', 2);
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(testItem2.id, 'value', 2);
@@ -4450,4 +4484,288 @@ async function testConfidenceSurveyEdgeCases() {
     assert(labels !== null, 'Confidence level labels should be accessible');
     assert(typeof labels[1] === 'string', 'Confidence label level 1 should be a string');
     assert(labels[1].includes('Not Confident'), 'Confidence label level 1 should contain "Not Confident"');
+}
+
+// Test that reordered flag defaults to false for new items
+async function testReorderedFlagDefaultsToFalse() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add an item
+    const addResult = TestAdapter.addItem('Test Item');
+    assert(addResult.success, `Adding item should succeed: ${addResult.error || ''}`);
+    
+    // Get the item
+    let items = TestAdapter.getItems();
+    const item = items.find(i => i.name === 'Test Item');
+    assert(item !== undefined, 'Item should exist');
+    
+    // Verify reordered flag defaults to false
+    assertEqual(item.reordered, false, 'New item should have reordered flag set to false');
+}
+
+// Test that reordered flag is set when item is manually moved
+async function testReorderedFlagSetWhenManuallyMoved() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add two items and set up with CD3
+    TestAdapter.addItem('Item 1');
+    TestAdapter.addItem('Item 2');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    TestAdapter.setItemProperty(items[1].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    TestAdapter.setItemProperty(items[1].id, 'duration', 1);
+    
+    // Reload items to get updated sequences
+    items = TestAdapter.getItems();
+    const item1 = items.find(i => i.name === 'Item 1');
+    const item2 = items.find(i => i.name === 'Item 2');
+    
+    // Verify items exist
+    assert(item1 !== undefined, 'Item 1 should exist');
+    assert(item2 !== undefined, 'Item 2 should exist');
+    
+    // Verify items have sequences
+    assert(item1.sequence !== null && item1.sequence !== undefined, 'Item 1 should have a sequence');
+    assert(item2.sequence !== null && item2.sequence !== undefined, 'Item 2 should have a sequence');
+    
+    // Verify reordered flags are false initially
+    assertEqual(item1.reordered, false, 'Item 1 should not have reordered flag initially');
+    assertEqual(item2.reordered, false, 'Item 2 should not have reordered flag initially');
+    
+    // Manually reorder item1 down (move it down in sequence)
+    const { Store } = await import('./state/appState.js');
+    const { reorderItemSequence } = await import('./models/items.js');
+    const currentItems = Store.getItems();
+    const item1ToMove = currentItems.find(i => i.id === item1.id);
+    assert(item1ToMove !== undefined, 'Item 1 to move should exist in Store');
+    
+    const reorderResult = reorderItemSequence(item1ToMove.id, 'down', currentItems);
+    assert(reorderResult.success, `Reordering item should succeed: ${reorderResult.error || ''}`);
+    Store.saveItems(currentItems);
+    
+    // Reload items
+    const itemsAfterReorder = Store.getItems();
+    const item1AfterReorder = itemsAfterReorder.find(i => i.id === item1.id);
+    assert(item1AfterReorder !== undefined, 'Item 1 should exist after reorder');
+    
+    // Verify reordered flag is set for the moved item
+    assertEqual(item1AfterReorder.reordered, true, 'Item 1 should have reordered flag set to true after being moved');
+}
+
+// Test that only the moved item gets reordered flag, not the displaced item
+async function testOnlyMovedItemGetsReorderedFlag() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add three items and set up with CD3
+    TestAdapter.addItem('Item A');
+    TestAdapter.addItem('Item B');
+    TestAdapter.addItem('Item C');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[2].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    TestAdapter.setItemProperty(items[1].id, 'value', 3);
+    TestAdapter.setItemProperty(items[2].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    TestAdapter.setItemProperty(items[1].id, 'duration', 1);
+    TestAdapter.setItemProperty(items[2].id, 'duration', 1);
+    
+    // Reload items to get updated sequences
+    items = TestAdapter.getItems();
+    const itemA = items.find(i => i.name === 'Item A');
+    const itemB = items.find(i => i.name === 'Item B');
+    const itemC = items.find(i => i.name === 'Item C');
+    
+    // Verify all items exist
+    assert(itemA !== undefined, 'Item A should exist');
+    assert(itemB !== undefined, 'Item B should exist');
+    assert(itemC !== undefined, 'Item C should exist');
+    
+    // Verify all items have sequences
+    assert(itemA.sequence !== null && itemA.sequence !== undefined, 'Item A should have a sequence');
+    assert(itemB.sequence !== null && itemB.sequence !== undefined, 'Item B should have a sequence');
+    assert(itemC.sequence !== null && itemC.sequence !== undefined, 'Item C should have a sequence');
+    
+    // Verify initial sequences (should be sorted by CD3)
+    const initialSeqA = itemA.sequence;
+    const initialSeqB = itemB.sequence;
+    const initialSeqC = itemC.sequence;
+    
+    // Manually reorder itemB down (this will swap with itemC)
+    const { Store } = await import('./state/appState.js');
+    const { reorderItemSequence } = await import('./models/items.js');
+    const currentItems = Store.getItems();
+    const itemBToMove = currentItems.find(i => i.id === itemB.id);
+    const itemCToDisplace = currentItems.find(i => i.id === itemC.id);
+    assert(itemBToMove !== undefined, 'Item B to move should exist in Store');
+    assert(itemCToDisplace !== undefined, 'Item C to displace should exist in Store');
+    
+    // Verify initial reordered flags
+    assertEqual(itemBToMove.reordered, false, 'Item B should not have reordered flag initially');
+    assertEqual(itemCToDisplace.reordered, false, 'Item C should not have reordered flag initially');
+    
+    // Move itemB down
+    const reorderResult = reorderItemSequence(itemBToMove.id, 'down', currentItems);
+    assert(reorderResult.success, `Reordering item should succeed: ${reorderResult.error || ''}`);
+    Store.saveItems(currentItems);
+    
+    // Reload items
+    const itemsAfterReorder = Store.getItems();
+    const itemBAfterReorder = itemsAfterReorder.find(i => i.id === itemB.id);
+    const itemCAfterReorder = itemsAfterReorder.find(i => i.id === itemC.id);
+    assert(itemBAfterReorder !== undefined, 'Item B should exist after reorder');
+    assert(itemCAfterReorder !== undefined, 'Item C should exist after reorder');
+    
+    // Verify only itemB (the moved item) has reordered flag set
+    assertEqual(itemBAfterReorder.reordered, true, 'Item B (moved item) should have reordered flag set to true');
+    assertEqual(itemCAfterReorder.reordered, false, 'Item C (displaced item) should NOT have reordered flag set');
+    
+    // Verify sequences were swapped
+    assertEqual(itemBAfterReorder.sequence, initialSeqC, 'Item B should now have Item C\'s sequence');
+    assertEqual(itemCAfterReorder.sequence, initialSeqB, 'Item C should now have Item B\'s sequence');
+}
+
+// Test that reordered flag is cleared on reset
+async function testReorderedFlagClearedOnReset() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add two items and set up with CD3
+    TestAdapter.addItem('Item 1');
+    TestAdapter.addItem('Item 2');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    TestAdapter.setItemProperty(items[1].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    TestAdapter.setItemProperty(items[1].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    TestAdapter.setItemProperty(items[1].id, 'duration', 1);
+    
+    // Reload items
+    items = TestAdapter.getItems();
+    const item1 = items.find(i => i.name === 'Item 1');
+    const item2 = items.find(i => i.name === 'Item 2');
+    
+    // Verify items exist
+    assert(item1 !== undefined, 'Item 1 should exist');
+    assert(item2 !== undefined, 'Item 2 should exist');
+    
+    // Manually reorder item1
+    const { Store } = await import('./state/appState.js');
+    const { reorderItemSequence } = await import('./models/items.js');
+    const currentItems = Store.getItems();
+    const item1ToMove = currentItems.find(i => i.id === item1.id);
+    assert(item1ToMove !== undefined, 'Item 1 to move should exist in Store');
+    
+    const reorderResult = reorderItemSequence(item1ToMove.id, 'down', currentItems);
+    assert(reorderResult.success, `Reordering item should succeed: ${reorderResult.error || ''}`);
+    Store.saveItems(currentItems);
+    
+    // Verify reordered flag is set
+    const itemsBeforeReset = Store.getItems();
+    const item1BeforeReset = itemsBeforeReset.find(i => i.id === item1.id);
+    assert(item1BeforeReset !== undefined, 'Item 1 should exist before reset');
+    assertEqual(item1BeforeReset.reordered, true, 'Item 1 should have reordered flag before reset');
+    
+    // Reset order
+    const { resetResultsOrder } = await import('./ui/display.js');
+    resetResultsOrder();
+    
+    // Verify reordered flag is cleared
+    const itemsAfterReset = Store.getItems();
+    const item1AfterReset = itemsAfterReset.find(i => i.id === item1.id);
+    const item2AfterReset = itemsAfterReset.find(i => i.id === item2.id);
+    assert(item1AfterReset !== undefined, 'Item 1 should exist after reset');
+    assert(item2AfterReset !== undefined, 'Item 2 should exist after reset');
+    assertEqual(item1AfterReset.reordered, false, 'Item 1 should not have reordered flag after reset');
+    assertEqual(item2AfterReset.reordered, false, 'Item 2 should not have reordered flag after reset');
+}
+
+// Test that reordered flag persists (normalization)
+async function testReorderedFlagPersists() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+    
+    // Add an item and set up with CD3
+    TestAdapter.addItem('Test Item');
+    let items = TestAdapter.getItems();
+    
+    // Advance to Urgency stage and set urgency
+    TestAdapter.advanceStage(); // Item Listing -> Urgency
+    TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
+    
+    // Advance to Value stage and set value
+    TestAdapter.advanceStage(); // Urgency -> Value
+    TestAdapter.setItemProperty(items[0].id, 'value', 3);
+    
+    // Advance to Duration stage, unlock, and set duration
+    TestAdapter.advanceStage(); // Value -> Duration
+    TestAdapter.setLocked(false);
+    TestAdapter.setItemProperty(items[0].id, 'duration', 1);
+    
+    // Reload items
+    items = TestAdapter.getItems();
+    const testItem = items.find(i => i.name === 'Test Item');
+    
+    // Verify item exists
+    assert(testItem !== undefined, 'Test Item should exist');
+    
+    // Manually set reordered flag to true (simulating persisted state)
+    const { Store } = await import('./state/appState.js');
+    const { normalizeItem } = await import('./models/items.js');
+    const currentItems = Store.getItems();
+    const itemToNormalize = currentItems.find(i => i.id === testItem.id);
+    assert(itemToNormalize !== undefined, 'Item to normalize should exist in Store');
+    
+    // Set reordered flag directly
+    itemToNormalize.reordered = true;
+    Store.saveItems(currentItems);
+    
+    // Normalize the item (this simulates loading from storage)
+    const normalizedItem = normalizeItem({...itemToNormalize});
+    
+    // Verify reordered flag persists after normalization
+    assertEqual(normalizedItem.reordered, true, 'Reordered flag should persist after normalization');
+    
+    // Test with undefined reordered (should default to false)
+    const itemWithoutFlag = { id: 'test-2', name: 'Test Item 2', urgency: 0, value: 0, duration: 0 };
+    const normalizedItemWithoutFlag = normalizeItem(itemWithoutFlag);
+    assertEqual(normalizedItemWithoutFlag.reordered, false, 'Item without reordered flag should default to false');
 }

@@ -30,6 +30,9 @@ export function normalizeItem(item) {
     if (item.addedToManuallySequencedList === undefined || item.addedToManuallySequencedList === null) {
         item.addedToManuallySequencedList = false;
     }
+    if (item.reordered === undefined || item.reordered === null) {
+        item.reordered = false;
+    }
     
     // Normalize confidence survey fields
     if (item.hasConfidenceSurvey === undefined || item.hasConfidenceSurvey === null) {
@@ -327,6 +330,8 @@ export function createItem(name, link = null) {
         CD3: 0,
         active: true,
         sequence: null,
+        addedToManuallySequencedList: false,
+        reordered: false,
         notes: [],
         hasConfidenceSurvey: false,
         confidenceSurvey: {
@@ -510,6 +515,8 @@ export function reorderItemSequence(itemId, direction, items) {
     
     // Clear the "new" flag when user manually moves the item
     item.addedToManuallySequencedList = false;
+    // Mark only the item that received the arrow command as reordered
+    item.reordered = true;
     
     return { success: true };
 }

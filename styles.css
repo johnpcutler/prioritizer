@@ -1713,6 +1713,18 @@ button:disabled {
     text-transform: uppercase;
 }
 
+.reordered-badge {
+    display: inline-block;
+    margin-left: var(--space-sm);
+    padding: 2px var(--space-sm);
+    background-color: var(--color-primary-lighter);
+    color: var(--color-primary-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .results-slot {
     display: flex;
     align-items: center;

@@ -709,6 +709,7 @@ export function resetResultsOrder() {
     items.forEach(item => {
         item.sequence = null;
         item.addedToManuallySequencedList = false;
+        item.reordered = false;
     });
     
     // Reassign based on CD3 order
@@ -871,7 +872,7 @@ function displayResultsContent() {
                             title="Move down">↓</button>
                 </div>
                 <div class="results-item-details">
-                    <div class="results-item-name">${escapeHtml(item.name)}${item.addedToManuallySequencedList ? ' <span class="new-item-badge">[New]</span>' : ''}${linkHtml} ${notesBadgeHtml}</div>
+                    <div class="results-item-name">${escapeHtml(item.name)}${item.addedToManuallySequencedList ? ' <span class="new-item-badge">[New]</span>' : ''}${item.reordered ? ' <span class="reordered-badge">Reordered</span>' : ''}${linkHtml} ${notesBadgeHtml}</div>
                     <div class="results-item-metrics">
                         <span class="results-metric">Urgency: ${urgencyDisplay}</span>
                         <span class="results-metric">Value: ${valueDisplay}</span>
