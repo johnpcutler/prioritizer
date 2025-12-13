@@ -1,11 +1,13 @@
 // Unified event handlers using event delegation
+// This module orchestrates all event listeners
+
 import { Store } from '../state/appState.js';
 import { reorderItemSequence } from '../models/items.js';
-
-// Constants for event handling
-const ARROW_BUTTON_CLASS = 'results-arrow-btn';
-const DATA_ITEM_ID_ATTR = 'data-item-id';
-const DATA_DIRECTION_ATTR = 'data-direction';
+import { setupNavigationListeners } from './navigation.js';
+import { setupSettingsListeners } from './settings.js';
+import { setupItemsListeners } from './items.js';
+import { setupModalsListeners } from './modals.js';
+import { setupAppControlListeners } from './app-controls.js';
 
 // Refresh the results view and JSON display
 function refreshViews() {
@@ -49,23 +51,102 @@ export function attachResultsViewListeners() {
     
     // Create new handler
     resultsList._resultsViewHandler = function handleResultsViewClick(e) {
-        // Handle arrow buttons
-        if (e.target.classList.contains(ARROW_BUTTON_CLASS)) {
-            const itemId = e.target.getAttribute(DATA_ITEM_ID_ATTR);
-            const direction = e.target.getAttribute(DATA_DIRECTION_ATTR);
-            
-            if (!itemId || !direction) return;
-            
-            e.stopPropagation();
+        // Check for arrow button clicks
+        const arrowBtn = e.target.closest('.results-arrow-btn');
+        if (arrowBtn) {
             e.preventDefault();
+            e.stopPropagation();
             
-            handleArrowButtonClick(itemId, direction);
+            const itemId = arrowBtn.getAttribute(DATA_ITEM_ID_ATTR);
+            const direction = arrowBtn.getAttribute(DATA_DIRECTION_ATTR);
+            
+            if (itemId && direction) {
+                handleArrowButtonClick(itemId, direction);
+            }
             return;
         }
-        
     };
     
     // Add new listener
     resultsList.addEventListener('click', resultsList._resultsViewHandler);
 }
 
+// Constants for event handling
+const ARROW_BUTTON_CLASS = 'results-arrow-btn';
+const DATA_ITEM_ID_ATTR = 'data-item-id';
+const DATA_DIRECTION_ATTR = 'data-direction';
+
+// Setup all event listeners
+// Accepts all handler functions as dependencies
+export function setupAllEventListeners(handlers) {
+    const {
+        // Navigation
+        navigateToStage,
+        // Settings
+        setUrgencyLimit,
+        setValueLimit,
+        setUrgencyWeight,
+        setValueWeight,
+        setDurationWeight,
+        setUrgencyTitle,
+        setUrgencyDescription,
+        setValueTitle,
+        setValueDescription,
+        // Items
+        addItem,
+        bulkAddItems,
+        removeItem,
+        setItemProperty,
+        setItemActive,
+        setItemInactive,
+        // Modals
+        addItemNoteToItem,
+        updateItemNoteInItem,
+        openConfidenceSurvey,
+        submitConfidenceSurvey,
+        deleteConfidenceSurvey,
+        cancelConfidenceSurvey,
+        // App Controls
+        clearItemDataOnly,
+        clearAllData
+    } = handlers;
+
+    // Setup all event listener modules
+    setupNavigationListeners(navigateToStage);
+    
+    setupSettingsListeners({
+        setUrgencyLimit,
+        setValueLimit,
+        setUrgencyWeight,
+        setValueWeight,
+        setDurationWeight,
+        setUrgencyTitle,
+        setUrgencyDescription,
+        setValueTitle,
+        setValueDescription
+    });
+    
+    setupItemsListeners({
+        addItem,
+        bulkAddItems,
+        removeItem,
+        setItemProperty,
+        setItemActive,
+        setItemInactive
+    });
+    
+    setupModalsListeners({
+        addItemNoteToItem,
+        updateItemNoteInItem,
+        openConfidenceSurvey,
+        submitConfidenceSurvey,
+        deleteConfidenceSurvey,
+        cancelConfidenceSurvey
+    });
+    
+    setupAppControlListeners({
+        addItem,
+        clearItemDataOnly,
+        clearAllData
+    });
+}
