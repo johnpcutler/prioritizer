@@ -32,6 +32,7 @@ import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
 import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStageNavigation, updateUrgencyView, updateValueView, updateDurationView, updateResultsView, updateItemListingView, resetResultsOrder, populateSettings } from './ui/display.js';
 import { setupAllEventListeners } from './events/listeners.js';
 import { createCommands } from './config/commands.js';
+import { analytics } from './analytics/analytics.js';
 
 // Make functions available globally for event listeners
 window.setItemProperty = null;
@@ -155,6 +156,7 @@ function bulkAddItems(itemNamesText) {
     
     const items = Store.getItems();
     let added = 0;
+    let itemsWithLinksCount = 0;
     const errors = [];
     
     lines.forEach((line, index) => {
@@ -186,6 +188,11 @@ function bulkAddItems(itemNamesText) {
         recomputeItemMetrics(newItem, appState.buckets);
         items.push(newItem);
         added++;
+        
+        // Count items with hyperlinks
+        if (itemLink) {
+            itemsWithLinksCount++;
+        }
     });
     
     Store.saveItems(items);
@@ -198,6 +205,11 @@ function bulkAddItems(itemNamesText) {
     updateDurationView();
     updateResultsView();
     updateItemListingView();
+    
+    // Track analytics event for items added
+    if (added > 0) {
+        analytics.trackEvent('Items Added', { count: added, itemsWithLinksCount: itemsWithLinksCount });
+    }
     
     return {
         success: true,
@@ -275,6 +287,24 @@ function setItemProperty(itemId, property, value) {
     updateDurationView();
     updateResultsView();
     updateItemListingView();
+    
+    // Track analytics events for property changes
+    if (property === 'urgency' || property === 'value' || property === 'duration') {
+        const bucket = value;
+        const bucketName = appState.buckets[property] && appState.buckets[property][bucket] 
+            ? appState.buckets[property][bucket].title 
+            : `Bucket ${bucket}`;
+        
+        const eventName = property === 'urgency' ? 'Set Urgency' 
+            : property === 'value' ? 'Set Value' 
+            : 'Set Duration';
+        
+        analytics.trackEvent(eventName, {
+            bucket: bucket,
+            bucketName: bucketName,
+            itemId: itemId
+        });
+    }
     
     return { success: true };
 }
@@ -877,6 +907,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateResultsView();
     updateItemListingView();
     displayJson();
+    
+    // Initialize analytics (Amplitude auto-identifies users on first visit)
+    // Wait a bit to ensure Amplitude script has loaded
+    setTimeout(() => {
+        analytics.init();
+        // Amplitude automatically identifies users, but we can call identify() explicitly if needed
+    }, 100);
 });
 
 // ============================================================================

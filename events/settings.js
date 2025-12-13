@@ -11,6 +11,7 @@ import {
     populateSettings,
     displayJson
 } from '../ui/display.js';
+import { analytics } from '../analytics/analytics.js';
 
 // Helper function to hide all stage views
 function hideAllStageViews() {
@@ -90,6 +91,11 @@ export function setupSettingsListeners(handlers) {
         settingsBtn.addEventListener('click', () => {
             const isVisible = settingsViewSection.style.display !== 'none';
             toggleSettingsView(!isVisible);
+            
+            // Track analytics event when opening settings
+            if (!isVisible) {
+                analytics.trackEvent('Access Settings');
+            }
         });
     }
     
@@ -169,6 +175,13 @@ export function setupSettingsListeners(handlers) {
             }
             
             if (result && result.success) {
+                // Track analytics event
+                analytics.trackEvent('Save Settings', {
+                    settingType: type,
+                    category: category,
+                    level: level
+                });
+                
                 // Update settings display with new values
                 populateSettings();
                 displayJson();

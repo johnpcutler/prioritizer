@@ -11,6 +11,7 @@ import {
 import { attachResultsViewListeners } from './listeners.js';
 import { persistAndRefresh } from '../state/appState.js';
 import { resetResultsOrder } from '../ui/display.js';
+import { analytics } from '../analytics/analytics.js';
 
 // Setup item operation event listeners
 // Accepts handler functions as dependencies
@@ -297,6 +298,9 @@ export function setupItemsListeners(handlers) {
             persistAndRefresh(appState, items);
             updateResultsView();
             displayJson();
+            
+            // Track analytics event
+            analytics.trackEvent('Reset Order');
         });
     }
     

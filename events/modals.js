@@ -2,6 +2,7 @@
 
 import { Store } from '../state/appState.js';
 import { escapeHtml } from '../ui/forms.js';
+import { analytics } from '../analytics/analytics.js';
 
 // Setup modal event listeners
 // Accepts handler functions as dependencies
@@ -54,7 +55,11 @@ export function setupModalsListeners(handlers) {
     };
     
     if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', showClearDataModal);
+        clearDataBtn.addEventListener('click', () => {
+            showClearDataModal();
+            // Track analytics event
+            analytics.trackEvent('Access Clear Data');
+        });
     }
     
     if (modalCloseBtn) {

@@ -8,6 +8,7 @@ import { setupSettingsListeners } from './settings.js';
 import { setupItemsListeners } from './items.js';
 import { setupModalsListeners } from './modals.js';
 import { setupAppControlListeners } from './app-controls.js';
+import { analytics } from '../analytics/analytics.js';
 
 // Refresh the results view and JSON display
 function refreshViews() {
@@ -31,6 +32,10 @@ function handleArrowButtonClick(itemId, direction) {
         // Set flag to indicate manual reordering has occurred
         appState.resultsManuallyReordered = true;
         Store.save(appState);
+        
+        // Track analytics event
+        const eventName = direction === 'up' ? 'Reorder Results Up' : 'Reorder Results Down';
+        analytics.trackEvent(eventName, { itemId });
         
         // Refresh the results view and JSON display
         refreshViews();

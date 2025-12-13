@@ -2,6 +2,7 @@ import { STAGE_CONTROLLER, STAGE_ORDER } from '../models/stages.js';
 import { Store } from '../state/appState.js';
 import { escapeHtml } from './forms.js';
 import { getItemsSortedByCD3, assignSequenceNumbers, reorderItemSequence, calculateConfidenceWeightedCD3 } from '../models/items.js';
+import { analytics } from '../analytics/analytics.js';
 
 // Re-export for global access
 window.Store = Store;
@@ -125,10 +126,20 @@ export function updateItemListingView() {
     const appState = Store.getAppState();
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     
+    // Check if view was previously hidden
+    const wasHidden = itemListingViewSection.style.display === 'none' || !itemListingViewSection.style.display;
+    
     // Only show in Item Listing stage
     if (currentStage === 'Item Listing') {
         itemListingViewSection.style.display = 'block';
         displayItemListingContent();
+        
+        // Track analytics event only when view transitions from hidden to visible
+        if (wasHidden) {
+            const items = Store.getItems();
+            const itemsCount = items.length;
+            analytics.trackEvent('View Items', { itemsCount });
+        }
     } else {
         itemListingViewSection.style.display = 'none';
     }
@@ -184,10 +195,20 @@ export function updateValueView() {
     const appState = Store.getAppState();
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     
+    // Check if view was previously hidden
+    const wasHidden = valueViewSection.style.display === 'none' || !valueViewSection.style.display;
+    
     // Only show in value stage
     if (currentStage === 'value') {
         valueViewSection.style.display = 'block';
         displayValueViewContent();
+        
+        // Track analytics event only when view transitions from hidden to visible
+        if (wasHidden) {
+            const items = Store.getItems();
+            const parkingLotCount = items.filter(item => (!item.value || item.value === 0) && item.urgency && item.urgency > 0).length;
+            analytics.trackEvent('View Value', { parkingLotCount });
+        }
     } else {
         valueViewSection.style.display = 'none';
     }
@@ -201,10 +222,20 @@ export function updateDurationView() {
     const appState = Store.getAppState();
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     
+    // Check if view was previously hidden
+    const wasHidden = durationViewSection.style.display === 'none' || !durationViewSection.style.display;
+    
     // Only show in duration stage
     if (currentStage === 'duration') {
         durationViewSection.style.display = 'block';
         displayDurationViewContent();
+        
+        // Track analytics event only when view transitions from hidden to visible
+        if (wasHidden) {
+            const items = Store.getItems();
+            const totalItems = items.length;
+            analytics.trackEvent('View Duration', { totalItems });
+        }
     } else {
         durationViewSection.style.display = 'none';
     }
@@ -218,10 +249,20 @@ export function updateUrgencyView() {
     const appState = Store.getAppState();
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     
+    // Check if view was previously hidden
+    const wasHidden = urgencyViewSection.style.display === 'none' || !urgencyViewSection.style.display;
+    
     // Only show in urgency stage
     if (currentStage === 'urgency') {
         urgencyViewSection.style.display = 'block';
         displayUrgencyViewContent();
+        
+        // Track analytics event only when view transitions from hidden to visible
+        if (wasHidden) {
+            const items = Store.getItems();
+            const parkingLotCount = items.filter(item => !item.urgency || item.urgency === 0).length;
+            analytics.trackEvent('View Urgency', { parkingLotCount });
+        }
     } else {
         urgencyViewSection.style.display = 'none';
     }
@@ -684,6 +725,9 @@ export function updateResultsView() {
     const appState = Store.getAppState();
     const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
     
+    // Check if view was previously hidden
+    const wasHidden = resultsViewSection.style.display === 'none' || !resultsViewSection.style.display;
+    
     if (currentStage === 'Results') {
         resultsViewSection.style.display = 'block';
         
@@ -696,6 +740,22 @@ export function updateResultsView() {
         }
         
         displayResultsContent();
+        
+        // Track analytics event only when view transitions from hidden to visible
+        if (wasHidden) {
+            // Get results count from displayResultsContent
+            // We need to calculate it here since displayResultsContent doesn't return it
+            const itemsWithSequenceForCount = items.filter(i => i.sequence !== null && i.sequence !== undefined);
+            const sortedItems = itemsWithSequenceForCount.length > 0 
+                ? [...items].sort((a, b) => {
+                    const seqA = a.sequence !== null && a.sequence !== undefined ? a.sequence : 9999;
+                    const seqB = b.sequence !== null && b.sequence !== undefined ? b.sequence : 9999;
+                    return seqA - seqB;
+                })
+                : getItemsSortedByCD3(items);
+            const resultsCount = sortedItems.length;
+            analytics.trackEvent('View Results', { resultsCount });
+        }
     } else {
         resultsViewSection.style.display = 'none';
     }
