@@ -25,7 +25,8 @@ import {
     addItemNote,
     updateItemNote,
     deleteItemNote,
-    calculateConfidenceWeightedCD3
+    calculateConfidenceWeightedCD3,
+    getItemsSortedByCD3
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
@@ -405,6 +406,35 @@ function openConfidenceSurvey(itemId) {
         return { success: false, error: 'Item must have urgency, value, and duration set before running confidence survey' };
     }
     
+    // Calculate sequence for analytics
+    let sequence = null;
+    if (item.sequence !== null && item.sequence !== undefined) {
+        sequence = item.sequence;
+    } else {
+        // Calculate from sorted results list
+        const itemsWithSequence = items.filter(i => i.sequence !== null && i.sequence !== undefined);
+        if (itemsWithSequence.length > 0) {
+            const sortedItems = [...items].sort((a, b) => {
+                const seqA = a.sequence !== null && a.sequence !== undefined ? a.sequence : 9999;
+                const seqB = b.sequence !== null && b.sequence !== undefined ? b.sequence : 9999;
+                return seqA - seqB;
+            });
+            const itemIndex = sortedItems.findIndex(i => i.id === itemId);
+            sequence = itemIndex >= 0 ? itemIndex + 1 : null;
+        } else {
+            // No items with sequence, use CD3 sorted position
+            const sortedItems = getItemsSortedByCD3(items);
+            const itemIndex = sortedItems.findIndex(i => i.id === itemId);
+            sequence = itemIndex >= 0 ? itemIndex + 1 : null;
+        }
+    }
+    
+    // Track analytics event
+    analytics.trackEvent('Run Confidence Survey', {
+        itemId: itemId,
+        sequence: sequence
+    });
+    
     // Find and show the survey form
     const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
     if (surveyForm) {
@@ -429,6 +459,8 @@ function submitConfidenceSurvey(itemId, surveyData) {
     }
     
     const requiredDimensions = ['scopeConfidence', 'urgencyConfidence', 'valueConfidence', 'durationConfidence'];
+    let selectionsCount = 0;
+    
     for (const dim of requiredDimensions) {
         if (!surveyData[dim] || typeof surveyData[dim] !== 'object') {
             return { success: false, error: `Missing or invalid ${dim} data` };
@@ -443,9 +475,20 @@ function submitConfidenceSurvey(itemId, surveyData) {
                     return { success: false, error: `Invalid vote count for ${dim} level ${level}` };
                 }
                 surveyData[dim][level] = numCount;
+                
+                // Count selections with value > 0
+                if (numCount > 0) {
+                    selectionsCount++;
+                }
             }
         }
     }
+    
+    // Track analytics event
+    analytics.trackEvent('Submit Confidence Survey', {
+        itemId: itemId,
+        selectionsCount: selectionsCount
+    });
     
     // Save survey data
     item.confidenceSurvey = surveyData;
@@ -476,6 +519,11 @@ function deleteConfidenceSurvey(itemId) {
     if (!item) {
         return { success: false, error: 'Item not found' };
     }
+    
+    // Track analytics event
+    analytics.trackEvent('Delete Survey', {
+        itemId: itemId
+    });
     
     // Remove survey data
     item.hasConfidenceSurvey = false;
