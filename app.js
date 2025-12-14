@@ -981,7 +981,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize analytics (dynamically loads Amplitude based on environment)
     // Analytics module handles environment detection and script loading
-    analytics.init().catch(error => {
+    analytics.init().then(() => {
+        // Check if this is first load with empty items list
+        const items = Store.getItems();
+        const appState = Store.getAppState();
+        const hasTrackedEmptyLanding = sessionStorage.getItem('trackedEmptyItemsListLanding');
+        
+        if (!hasTrackedEmptyLanding && 
+            items.length === 0 && 
+            appState.currentStage === 'Item Listing') {
+            
+            analytics.trackEvent('Landed On Empty Items List', {});
+            
+            // Mark as tracked for this session
+            sessionStorage.setItem('trackedEmptyItemsListLanding', 'true');
+        }
+    }).catch(error => {
         console.warn('Analytics initialization failed:', error);
     });
 });
