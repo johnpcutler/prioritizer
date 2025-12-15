@@ -33,6 +33,9 @@ export function normalizeItem(item) {
     if (item.reordered === undefined || item.reordered === null) {
         item.reordered = false;
     }
+    if (item.isNewItem === undefined || item.isNewItem === null) {
+        item.isNewItem = false;
+    }
     
     // Normalize confidence survey fields
     if (item.hasConfidenceSurvey === undefined || item.hasConfidenceSurvey === null) {
@@ -332,6 +335,7 @@ export function createItem(name, link = null) {
         sequence: null,
         addedToManuallySequencedList: false,
         reordered: false,
+        isNewItem: false,
         notes: [],
         hasConfidenceSurvey: false,
         confidenceSurvey: {
@@ -405,6 +409,11 @@ export function updateItemProperty(item, property, value, buckets) {
         if (value > 0 && !item[setFlag]) {
             item[setFlag] = true;
         }
+    }
+    
+    // Clear "new" flag when urgency is set (item has been prioritized)
+    if (property === 'urgency' && value > 0) {
+        item.isNewItem = false;
     }
     
     // Recompute all metrics

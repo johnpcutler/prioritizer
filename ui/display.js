@@ -148,8 +148,35 @@ export function updateItemListingView() {
 // Display the content of the item listing view
 function displayItemListingContent() {
     const items = Store.getItems();
+    const appState = Store.getAppState();
+    const buckets = appState.buckets;
     const itemsDisplay = document.getElementById('itemListingItemsDisplay');
     if (!itemsDisplay) return;
+    
+    // Check if any items have been advanced (have urgency set)
+    const hasAdvancedItems = items.some(item => item.urgency && item.urgency > 0);
+    // Check if there are new items that need to be prioritized
+    const hasNewItems = items.some(item => item.isNewItem === true);
+    
+    // Show/hide button based on state:
+    // - Show "Start Prioritizing" when items exist but none have urgency set
+    // - Show "Prioritize New Items" when items have been advanced AND there are new items
+    // - Hide when items have been advanced but no new items
+    const startPrioritizingBtn = document.getElementById('startPrioritizingBtn');
+    if (startPrioritizingBtn) {
+        if (!hasAdvancedItems && items.length > 0) {
+            // Initial state: items exist but none prioritized - show "Start Prioritizing"
+            startPrioritizingBtn.textContent = 'Start Prioritizing';
+            startPrioritizingBtn.style.display = 'block';
+        } else if (hasAdvancedItems && hasNewItems) {
+            // Advanced state with new items - show "Prioritize New Items"
+            startPrioritizingBtn.textContent = 'Prioritize New Items';
+            startPrioritizingBtn.style.display = 'block';
+        } else {
+            // Advanced state but no new items - hide button
+            startPrioritizingBtn.style.display = 'none';
+        }
+    }
     
     // Update callout message based on whether items exist
     const itemListingCallout = document.getElementById('itemListingCallout');
@@ -172,15 +199,55 @@ function displayItemListingContent() {
         return;
     }
     
+    // Get bucket titles for display
+    const urgency1Title = buckets.urgency?.[1]?.title || 'Title';
+    const urgency2Title = buckets.urgency?.[2]?.title || 'Title';
+    const urgency3Title = buckets.urgency?.[3]?.title || 'Title';
+    const value1Title = buckets.value?.[1]?.title || 'Title';
+    const value2Title = buckets.value?.[2]?.title || 'Title';
+    const value3Title = buckets.value?.[3]?.title || 'Title';
+    const duration1Title = buckets.duration?.[1]?.title || '1-3d';
+    const duration2Title = buckets.duration?.[2]?.title || '1-3w';
+    const duration3Title = buckets.duration?.[3]?.title || '1-3mo';
+    
     itemsDisplay.innerHTML = items.map(item => {
         const isActive = item.active !== false;
         const notesCount = item.notes && Array.isArray(item.notes) ? item.notes.length : 0;
         const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
         const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
         
+        // Show [New] badge if item is new
+        const newBadgeHtml = item.isNewItem === true ? ' <span class="new-item-badge">[New]</span>' : '';
+        
+        // Build values display
+        const valuesParts = [];
+        const urgency = item.urgency || 0;
+        const value = item.value || 0;
+        const duration = item.duration || 0;
+        
+        if (urgency > 0) {
+            const urgencyTitle = urgency === 1 ? urgency1Title : urgency === 2 ? urgency2Title : urgency === 3 ? urgency3Title : '';
+            valuesParts.push(`Urgency: ${urgency} (${escapeHtml(urgencyTitle)})`);
+        }
+        if (value > 0) {
+            const valueTitle = value === 1 ? value1Title : value === 2 ? value2Title : value === 3 ? value3Title : '';
+            valuesParts.push(`Value: ${value} (${escapeHtml(valueTitle)})`);
+        }
+        if (duration > 0) {
+            const durationTitle = duration === 1 ? duration1Title : duration === 2 ? duration2Title : duration === 3 ? duration3Title : '';
+            valuesParts.push(`Duration: ${duration} (${escapeHtml(durationTitle)})`);
+        }
+        
+        const valuesHtml = valuesParts.length > 0 
+            ? `<div class="item-listing-values" style="font-size: 12px; color: #666; margin-top: 4px;">${valuesParts.join(' | ')}</div>`
+            : '';
+        
         return `
             <div class="list-item-card item-listing-item ${!isActive ? 'list-item-card-inactive item-inactive' : ''}" data-item-id="${item.id}">
-                <span class="list-item-card-name item-listing-item-name">${escapeHtml(item.name)}${linkHtml} ${notesBadgeHtml}</span>
+                <div style="flex: 1;">
+                    <span class="list-item-card-name item-listing-item-name">${escapeHtml(item.name)}${linkHtml}${newBadgeHtml} ${notesBadgeHtml}</span>
+                    ${valuesHtml}
+                </div>
                 <button class="item-remove-btn" data-item-id="${item.id}" title="Remove item">🗑️</button>
             </div>
         `;
@@ -340,8 +407,13 @@ function displayUrgencyViewContent() {
     const noValueContent = document.getElementById('urgencyNoValueContent');
     if (noValueContent) {
         if (itemsWithoutUrgency.length === 0) {
-            noValueContent.innerHTML = '<div class="empty">Items without urgency values go here</div>';
-            noValueContent.classList.add('empty');
+            // Show "Advance To Value" button when parking lot is empty
+            noValueContent.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 100px;">
+                    <button id="advanceToValueBtn" class="submit-btn">Advance To Value</button>
+                </div>
+            `;
+            noValueContent.classList.remove('empty');
         } else {
             noValueContent.classList.remove('empty');
             noValueContent.innerHTML = itemsWithoutUrgency.map(item => renderUrgencyItem(item, isLocked, urgency1Title, urgency2Title, urgency3Title)).join('');
@@ -520,17 +592,58 @@ function displayValueViewContent() {
         3: itemsWithoutValue.filter(item => item.urgency === 3)
     };
     
-    for (let urgency = 1; urgency <= 3; urgency++) {
-        const boxId = `valueNoValueBox${urgency}`;
-        const boxEl = document.getElementById(boxId);
-        if (boxEl) {
-            const itemsForUrgency = itemsByUrgency[urgency];
-            if (itemsForUrgency.length === 0) {
-                boxEl.innerHTML = '<div class="empty">No items</div>';
-                boxEl.classList.add('empty');
-            } else {
-                boxEl.classList.remove('empty');
-                boxEl.innerHTML = itemsForUrgency.map(item => renderValueItem(item, isLocked)).join('');
+    // Check if all items have value (parking lot is empty)
+    const allItemsHaveValue = itemsWithoutValue.length === 0;
+    
+    // Get merged box element
+    const mergedBox = document.getElementById('valueNoValueBoxMerged');
+    const mergedContent = document.getElementById('valueNoValueContentMerged');
+    
+    if (allItemsHaveValue) {
+        // Hide individual boxes and show merged box with "Advance To Duration" button
+        for (let urgency = 1; urgency <= 3; urgency++) {
+            const contentId = `valueNoValueBox${urgency}`;
+            const contentEl = document.getElementById(contentId);
+            if (contentEl) {
+                const parentBox = contentEl.closest('.parking-lot-box');
+                if (parentBox) {
+                    parentBox.style.display = 'none';
+                }
+            }
+        }
+        
+        if (mergedBox && mergedContent) {
+            mergedBox.style.display = 'flex';
+            mergedContent.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 100px;">
+                    <button id="advanceToDurationBtn" class="submit-btn">Advance To Duration</button>
+                </div>
+            `;
+            mergedContent.classList.remove('empty');
+        }
+    } else {
+        // Show individual boxes and hide merged box
+        if (mergedBox) {
+            mergedBox.style.display = 'none';
+        }
+        
+        for (let urgency = 1; urgency <= 3; urgency++) {
+            const contentId = `valueNoValueBox${urgency}`;
+            const contentEl = document.getElementById(contentId);
+            if (contentEl) {
+                // Show the parent box
+                const parentBox = contentEl.closest('.parking-lot-box');
+                if (parentBox) {
+                    parentBox.style.display = 'flex';
+                }
+                const itemsForUrgency = itemsByUrgency[urgency];
+                if (itemsForUrgency.length === 0) {
+                    contentEl.innerHTML = '<div class="empty">No items</div>';
+                    contentEl.classList.add('empty');
+                } else {
+                    contentEl.classList.remove('empty');
+                    contentEl.innerHTML = itemsForUrgency.map(item => renderValueItem(item, isLocked)).join('');
+                }
             }
         }
     }

@@ -137,7 +137,8 @@ export function setupAllEventListeners(handlers) {
         removeItem,
         setItemProperty,
         setItemActive,
-        setItemInactive
+        setItemInactive,
+        navigateToStage
     });
     
     setupModalsListeners({

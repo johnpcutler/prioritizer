@@ -15,6 +15,7 @@ import { sequenceTests } from './suites/sequence.js';
 import { notesTests } from './suites/notes.js';
 import { confidenceSurveyTests } from './suites/confidence-survey.js';
 import { csvExportTests } from './suites/csv-export.js';
+import { enhancedItemListingTests } from './suites/enhanced-item-listing.js';
 
 // Import test infrastructure
 import {
@@ -46,7 +47,8 @@ const allTestSuites = [
     sequenceTests,
     notesTests,
     confidenceSurveyTests,
-    csvExportTests
+    csvExportTests,
+    enhancedItemListingTests
 ];
 
 // Flatten all tests into a single array

@@ -21,7 +21,8 @@ export function setupItemsListeners(handlers) {
         addItem,
         bulkAddItems,
         removeItem,
-        setItemProperty
+        setItemProperty,
+        navigateToStage
     } = handlers;
 
     // Make functions globally available for event listeners
@@ -48,6 +49,22 @@ export function setupItemsListeners(handlers) {
                 } else {
                     alert(result.error);
                 }
+            }
+        });
+    }
+    
+    // Start Prioritizing button
+    const startPrioritizingBtn = document.getElementById('startPrioritizingBtn');
+    if (startPrioritizingBtn && navigateToStage) {
+        startPrioritizingBtn.addEventListener('click', () => {
+            const items = Store.getItems();
+            const itemsCount = items.length;
+            
+            // Navigate to urgency stage
+            const result = navigateToStage('urgency');
+            if (result.success) {
+                // Track analytics event
+                analytics.trackEvent('Clicked Start Prioritizing', { itemsCount });
             }
         });
     }
@@ -85,6 +102,24 @@ export function setupItemsListeners(handlers) {
         
         // Create new handler
         urgencyViewSection._urgencyViewHandler = function handleUrgencyViewClick(e) {
+            // Check for "Advance To Value" button click
+            const advanceToValueBtn = e.target.closest('#advanceToValueBtn');
+            if (advanceToValueBtn && navigateToStage) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const items = Store.getItems();
+                const itemsCount = items.length;
+                
+                // Navigate to value stage
+                const result = navigateToStage('value');
+                if (result.success) {
+                    // Track analytics event
+                    analytics.trackEvent('Clicked Advance To Value', { itemsCount });
+                }
+                return;
+            }
+            
             // Find the button - e.target might be the button, a child element, or a text node
             let button = e.target;
             
@@ -169,6 +204,24 @@ export function setupItemsListeners(handlers) {
         
         // Create new handler
         valueViewSection._valueViewHandler = function handleValueViewClick(e) {
+            // Check for "Advance To Duration" button click
+            const advanceToDurationBtn = e.target.closest('#advanceToDurationBtn');
+            if (advanceToDurationBtn && navigateToStage) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const items = Store.getItems();
+                const itemsCount = items.length;
+                
+                // Navigate to duration stage
+                const result = navigateToStage('duration');
+                if (result.success) {
+                    // Track analytics event
+                    analytics.trackEvent('Clicked Advance To Duration', { itemsCount });
+                }
+                return;
+            }
+            
             // Find the button - e.target might be the button, a child element, or a text node
             let button = e.target;
             

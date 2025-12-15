@@ -83,7 +83,14 @@ function addItem(name) {
     }
     
     const items = Store.getItems();
+    // Check if any existing items have urgency set (prioritization has started)
+    const hasPrioritizedItems = items.some(item => item.urgency && item.urgency > 0);
+    
     const newItem = createItem(name);
+    // Mark as new if other items have been prioritized
+    if (hasPrioritizedItems) {
+        newItem.isNewItem = true;
+    }
     recomputeItemMetrics(newItem, appState.buckets);
     
     items.push(newItem);
@@ -156,6 +163,9 @@ function bulkAddItems(itemNamesText) {
     }
     
     const items = Store.getItems();
+    // Check if any existing items have urgency set (prioritization has started)
+    const hasPrioritizedItems = items.some(item => item.urgency && item.urgency > 0);
+    
     let added = 0;
     let itemsWithLinksCount = 0;
     const errors = [];
@@ -186,6 +196,10 @@ function bulkAddItems(itemNamesText) {
         }
         
         const newItem = createItem(itemName, itemLink);
+        // Mark as new if other items have been prioritized
+        if (hasPrioritizedItems) {
+            newItem.isNewItem = true;
+        }
         recomputeItemMetrics(newItem, appState.buckets);
         items.push(newItem);
         added++;
