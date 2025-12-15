@@ -160,3 +160,6 @@ export const analytics = {
     trackEvent
 };
 
+// Also export as default for better Firefox/GitHub Pages compatibility
+export default analytics;
+
