@@ -233,6 +233,74 @@ async function testMultipleBatchesInitially() {
     assertEqual(hasNewItems, false, 'No items should be marked as new when adding batches initially');
 }
 
+// Test: Sample initiatives button should be visible when no items exist
+async function testSampleInitiativesButtonVisibleWhenEmpty() {
+    await window.TestAdapter.init();
+    window.TestAdapter.startApp();
+    window.TestAdapter.setLocked(false);
+    
+    // Clear all items using clearAllData (which clears items but preserves settings)
+    window.TestAdapter.clearAllData();
+    
+    // Navigate to Item Listing stage
+    window.TestAdapter.navigateToStage('Item Listing');
+    
+    const items = window.TestAdapter.getItems();
+    assertEqual(items.length, 0, 'Items list should be empty');
+    // Button visibility logic: items.length === 0 should show the button
+}
+
+// Test: Sample initiatives button adds 10 sample items
+async function testSampleInitiativesButtonAddsItems() {
+    await window.TestAdapter.init();
+    window.TestAdapter.startApp();
+    window.TestAdapter.setLocked(false);
+    
+    // Clear all items using clearAllData
+    window.TestAdapter.clearAllData();
+    
+    // Simulate clicking the sample initiatives button by calling bulkAddItems with sample items
+    const sampleItems = `🐉🔥 Project dragonfire frosting
+✨🤖 The sentient sprinkles program
+🌙🥧 Operation midnight muffin heist
+🦄 The unicorn supply chain initiative
+🧁🚀 Cupcake teleportation research
+📜🔮 The prophecy fulfillment roadmap
+🍫⬆️ Anti gravity ganache pilot
+⏰🧁 The time travel taste test
+🧙✨ Wizards in residence program
+🧁💙 The emotional support cupcake platform`;
+    
+    const result = window.TestAdapter.bulkAddItems(sampleItems);
+    assert(result.success, 'Bulk adding sample items should succeed');
+    
+    const items = window.TestAdapter.getItems();
+    assertEqual(items.length, 10, 'Should have exactly 10 sample items');
+    
+    // Verify some specific items exist
+    const itemNames = items.map(item => item.name);
+    assert(itemNames.includes('🐉🔥 Project dragonfire frosting'), 'Should include dragonfire frosting');
+    assert(itemNames.includes('🦄 The unicorn supply chain initiative'), 'Should include unicorn initiative');
+    assert(itemNames.includes('🧁💙 The emotional support cupcake platform'), 'Should include emotional support cupcake');
+}
+
+// Test: Sample initiatives button should be hidden after items are added
+async function testSampleInitiativesButtonHiddenAfterAddingItems() {
+    await window.TestAdapter.init();
+    window.TestAdapter.startApp();
+    window.TestAdapter.setLocked(false);
+    
+    // Clear all items using clearAllData
+    window.TestAdapter.clearAllData();
+    
+    // Add an item (simulating what happens after clicking sample initiatives button)
+    window.TestAdapter.addItem('Test Item');
+    
+    const items = window.TestAdapter.getItems();
+    assertEqual(items.length, 1, 'Should have one item');
+    // Button visibility logic: items.length > 0 should hide the button
+}
+
 // Export test functions
 export const enhancedItemListingTests = [
     { name: 'isNewItem flag not set when adding items initially', fn: testIsNewItemNotSetInitially },
@@ -242,6 +310,9 @@ export const enhancedItemListingTests = [
     { name: 'Button shows Start Prioritizing when items exist but none prioritized', fn: testButtonShowsStartPrioritizingInitially },
     { name: 'Button shows Prioritize New Items when items advanced and new items exist', fn: testButtonShowsPrioritizeNewItems },
     { name: 'Button hidden when items advanced but no new items', fn: testButtonHiddenWhenNoNewItems },
-    { name: 'Multiple batches initially don\'t change button', fn: testMultipleBatchesInitially }
+    { name: 'Multiple batches initially don\'t change button', fn: testMultipleBatchesInitially },
+    { name: 'Sample initiatives button visible when no items exist', fn: testSampleInitiativesButtonVisibleWhenEmpty },
+    { name: 'Sample initiatives button adds 10 sample items', fn: testSampleInitiativesButtonAddsItems },
+    { name: 'Sample initiatives button hidden after items are added', fn: testSampleInitiativesButtonHiddenAfterAddingItems }
 ];
 

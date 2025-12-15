@@ -53,6 +53,35 @@ export function setupItemsListeners(handlers) {
         });
     }
     
+    // Sample Initiatives button
+    const sampleInitiativesBtn = document.getElementById('sampleInitiativesBtn');
+    if (sampleInitiativesBtn && bulkAddItems) {
+        sampleInitiativesBtn.addEventListener('click', () => {
+            const sampleItems = `🐉🔥 Project dragonfire frosting
+✨🤖 The sentient sprinkles program
+🌙🥧 Operation midnight muffin heist
+🦄 The unicorn supply chain initiative
+🧁🚀 Cupcake teleportation research
+📜🔮 The prophecy fulfillment roadmap
+🍫⬆️ Anti gravity ganache pilot
+⏰🧁 The time travel taste test
+🧙✨ Wizards in residence program
+🧁💙 The emotional support cupcake platform`;
+            
+            const result = bulkAddItems(sampleItems);
+            if (result.success) {
+                // Track analytics event
+                analytics.trackEvent('Clicked Have Fun With Sample Initiatives', { itemsCount: 10 });
+            } else {
+                // Still track the click even if there's an error
+                analytics.trackEvent('Clicked Have Fun With Sample Initiatives', { itemsCount: 10 });
+                if (result.error) {
+                    alert(result.error);
+                }
+            }
+        });
+    }
+    
     // Start Prioritizing button
     const startPrioritizingBtn = document.getElementById('startPrioritizingBtn');
     if (startPrioritizingBtn && navigateToStage) {

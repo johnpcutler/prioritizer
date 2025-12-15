@@ -158,6 +158,16 @@ function displayItemListingContent() {
     // Check if there are new items that need to be prioritized
     const hasNewItems = items.some(item => item.isNewItem === true);
     
+    // Show/hide sample initiatives button (only when no items exist)
+    const sampleInitiativesBtn = document.getElementById('sampleInitiativesBtn');
+    if (sampleInitiativesBtn) {
+        if (items.length === 0) {
+            sampleInitiativesBtn.style.display = 'block';
+        } else {
+            sampleInitiativesBtn.style.display = 'none';
+        }
+    }
+    
     // Show/hide button based on state:
     // - Show "Start Prioritizing" when items exist but none have urgency set
     // - Show "Prioritize New Items" when items have been advanced AND there are new items

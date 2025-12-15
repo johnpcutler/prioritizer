@@ -1095,6 +1095,15 @@ button:disabled {
     font-weight: 500;
 }
 
+.sample-initiatives-btn {
+    background-color: #9c27b0; /* Purple/violet color */
+    color: white;
+}
+
+.sample-initiatives-btn:hover:not(:disabled) {
+    background-color: #7b1fa2; /* Darker purple on hover */
+}
+
 .item-listing-items {
     margin-top: 25px;
     padding-top: 20px;
