@@ -6,11 +6,11 @@ import {
     updateValueView, 
     updateDurationView,
     updateResultsView,
-    displayJson
-} from '../ui/display.js';
+    displayJson,
+    resetResultsOrder
+} from '../ui/display/index.js';
 import { attachResultsViewListeners } from './listeners.js';
 import { persistAndRefresh } from '../state/appState.js';
-import { resetResultsOrder } from '../ui/display.js';
 import { analytics } from '../analytics/analytics.js';
 import { exportToCSV, downloadCSV, generateExportFilename } from '../utils/csvExport.js';
 

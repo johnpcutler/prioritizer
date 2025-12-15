@@ -10,7 +10,7 @@ import {
     updateResultsView,
     populateSettings,
     displayJson
-} from '../ui/display.js';
+} from '../ui/display/index.js';
 import { analytics } from '../analytics/analytics.js';
 
 // Helper function to hide all stage views

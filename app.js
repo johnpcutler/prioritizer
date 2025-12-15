@@ -30,7 +30,7 @@ import {
 } from './models/items.js';
 import { BucketActions, setRecalcFunctions } from './models/bucketActions.js';
 import { showForm, hideForm, renderFormField, escapeHtml } from './ui/forms.js';
-import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStageNavigation, updateUrgencyView, updateValueView, updateDurationView, updateResultsView, updateItemListingView, resetResultsOrder, populateSettings } from './ui/display.js';
+import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStageNavigation, updateUrgencyView, updateValueView, updateDurationView, updateResultsView, updateItemListingView, resetResultsOrder, populateSettings } from './ui/display/index.js';
 import { setupAllEventListeners } from './events/listeners.js';
 import { createCommands } from './config/commands.js';
 import { analytics } from './analytics/analytics.js';

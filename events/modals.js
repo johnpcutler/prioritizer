@@ -3,7 +3,7 @@
 import { Store } from '../state/appState.js';
 import { escapeHtml } from '../ui/forms.js';
 import { analytics } from '../analytics/analytics.js';
-import { showConfidenceSurveyError, hideConfidenceSurveyError } from '../ui/display.js';
+import { showConfidenceSurveyError, hideConfidenceSurveyError } from '../ui/display/index.js';
 
 // Setup modal event listeners
 // Accepts handler functions as dependencies

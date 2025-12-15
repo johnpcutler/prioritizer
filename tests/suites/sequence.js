@@ -272,7 +272,7 @@ async function testNewFlagClearedOnReset() {
     assertEqual(item2BeforeReset.addedToManuallySequencedList, true, 'Item 2 should have flag before reset');
     
     // Reset order
-    const { resetResultsOrder } = await import('../../ui/display.js');
+    const { resetResultsOrder } = await import('../../ui/display/index.js');
     resetResultsOrder();
     
     // Verify flag is cleared
@@ -548,7 +548,7 @@ async function testReorderedFlagClearedOnReset() {
     assertEqual(item1BeforeReset.reordered, true, 'Item 1 should have reordered flag before reset');
     
     // Reset order
-    const { resetResultsOrder } = await import('../../ui/display.js');
+    const { resetResultsOrder } = await import('../../ui/display/index.js');
     resetResultsOrder();
     
     // Verify reordered flag is cleared

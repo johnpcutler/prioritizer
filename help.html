@@ -5,25 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help - Prioritizer</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Amplitude Analytics - loaded dynamically based on environment -->
-    <script type="module">
-        // Determine API key based on environment
-        const hostname = window.location.hostname;
-        const apiKey = (hostname === 'localhost' || hostname === '127.0.0.1') 
-            ? '931668dc2c1f6795fb6af06aa64d83cd' 
-            : '543dd5b441b293e629185cefc122efe7';
-        
-        // Load Amplitude script
-        const script = document.createElement('script');
-        script.src = `https://cdn.amplitude.com/script/${apiKey}.js`;
-        script.async = true;
-        script.onload = () => {
-            if (window.amplitude) {
-                window.amplitude.init(apiKey, {"fetchRemoteConfig":true,"autocapture":false});
-            }
-        };
-        document.head.appendChild(script);
-    </script>
+    <!-- Analytics will be loaded via the analytics module -->
     <style>
         .help-container {
             max-width: 900px;
@@ -560,18 +542,21 @@
     </div>
     
     <!-- Analytics tracking for resource links -->
-    <script>
-        // Track clicks on help resource links
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module">
+        import { analytics } from './analytics/analytics.js';
+        
+        // Initialize analytics and track clicks on help resource links
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize analytics first
+            await analytics.init();
+            
             const helpLinks = document.querySelectorAll('.help-link');
             helpLinks.forEach(function(link) {
                 link.addEventListener('click', function(e) {
                     const resourceUrl = link.href;
-                    if (window.amplitude) {
-                        window.amplitude.logEvent('Click On Resource', {
-                            resourceUrl: resourceUrl
-                        });
-                    }
+                    analytics.trackEvent('Click On Resource', {
+                        resourceUrl: resourceUrl
+                    });
                 });
             });
         });

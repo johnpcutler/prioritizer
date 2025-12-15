@@ -1,7 +1,7 @@
 // App control event listeners - toggle locked, clear data, add item button
 
 import { Store } from '../state/appState.js';
-import { updateLockedDisplay, displayJson } from '../ui/display.js';
+import { updateLockedDisplay, displayJson } from '../ui/display/index.js';
 import { analytics } from '../analytics/analytics.js';
 
 // Setup app control event listeners
