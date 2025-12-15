@@ -14,6 +14,7 @@ import { propertyValidationTests } from './suites/property-validation.js';
 import { sequenceTests } from './suites/sequence.js';
 import { notesTests } from './suites/notes.js';
 import { confidenceSurveyTests } from './suites/confidence-survey.js';
+import { csvExportTests } from './suites/csv-export.js';
 
 // Import test infrastructure
 import {
@@ -44,7 +45,8 @@ const allTestSuites = [
     propertyValidationTests,
     sequenceTests,
     notesTests,
-    confidenceSurveyTests
+    confidenceSurveyTests,
+    csvExportTests
 ];
 
 // Flatten all tests into a single array
@@ -125,6 +127,6 @@ export async function runAllTests() {
 if (typeof window !== 'undefined') {
     window.runAllTests = runAllTests;
     window.copyFailingTests = copyFailingTests;
-    console.log('Test runner loaded. All 93 tests ready from suites.');
+    console.log('Test runner loaded. All tests ready from suites.');
 }
 

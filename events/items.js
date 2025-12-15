@@ -12,6 +12,7 @@ import { attachResultsViewListeners } from './listeners.js';
 import { persistAndRefresh } from '../state/appState.js';
 import { resetResultsOrder } from '../ui/display.js';
 import { analytics } from '../analytics/analytics.js';
+import { exportToCSV, downloadCSV, generateExportFilename } from '../utils/csvExport.js';
 
 // Setup item operation event listeners
 // Accepts handler functions as dependencies
@@ -301,6 +302,23 @@ export function setupItemsListeners(handlers) {
             
             // Track analytics event
             analytics.trackEvent('Reset Order');
+        });
+    }
+    
+    // Attach export CSV button listener
+    const exportCSVBtn = document.getElementById('exportCSVBtn');
+    if (exportCSVBtn) {
+        exportCSVBtn.addEventListener('click', () => {
+            const appState = Store.getAppState();
+            const items = Store.getItems();
+            const csvContent = exportToCSV(items, appState);
+            const filename = generateExportFilename();
+            downloadCSV(csvContent, filename);
+            
+            // Track analytics event
+            // Count rows: header row (1) + data rows (items.length)
+            const rows = items.length > 0 ? items.length + 1 : 1; // At least header row
+            analytics.trackEvent('Export CSV', { rows: rows });
         });
     }
     
