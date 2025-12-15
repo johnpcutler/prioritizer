@@ -60,11 +60,17 @@ export function setupItemsListeners(handlers) {
             const items = Store.getItems();
             const itemsCount = items.length;
             
+            // Check button text to determine which event to fire
+            const buttonText = startPrioritizingBtn.textContent.trim();
+            const eventName = buttonText === 'Prioritize New Items' 
+                ? 'Clicked Prioritize New Items' 
+                : 'Clicked Start Prioritizing';
+            
             // Navigate to urgency stage
             const result = navigateToStage('urgency');
             if (result.success) {
-                // Track analytics event
-                analytics.trackEvent('Clicked Start Prioritizing', { itemsCount });
+                // Track analytics event based on button text
+                analytics.trackEvent(eventName, { itemsCount });
             }
         });
     }
