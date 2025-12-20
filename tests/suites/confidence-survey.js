@@ -6,6 +6,7 @@ import {
     assert,
     assertEqual
 } from '../test-core.js';
+import { BUCKET_DEFAULTS } from '../../models/buckets.js';
 
 // Test confidence survey basic functionality
 async function testConfidenceSurveyBasic() {
@@ -325,7 +326,7 @@ async function testConfidenceSurveyWeightedValues() {
     let items = TestAdapter.getItems();
     let testItem = items.find(i => i.name === 'Weighted Values Test Item');
     
-    // Set properties: urgency=3 (weight 3), value=3 (weight 3), duration=2 (weight 2)
+    // Set properties: urgency=3 (weight 4), value=3 (weight 4), duration=2 (weight 2)
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(testItem.id, 'urgency', 3);
     TestAdapter.advanceStage();
@@ -350,16 +351,20 @@ async function testConfidenceSurveyWeightedValues() {
     testItem = items.find(i => i.name === 'Weighted Values Test Item');
     
     // Verify weighted values
-    // Weighted urgency: 3 * 0.50 = 1.5
-    // Weighted value: 3 * 0.50 = 1.5
+    // Weighted urgency: 4 * 0.50 = 2.0
+    // Weighted value: 4 * 0.50 = 2.0
     // Weighted duration: 2 * 0.50 = 1.0
+    const expectedWeightedUrgency = BUCKET_DEFAULTS.urgency[3].weight * 0.50;
+    const expectedWeightedValue = BUCKET_DEFAULTS.value[3].weight * 0.50;
+    const expectedWeightedDuration = BUCKET_DEFAULTS.duration[2].weight * 0.50;
+    const expectedWeightedCD3 = (expectedWeightedUrgency * expectedWeightedValue) / expectedWeightedDuration;
     assert(testItem.confidenceWeightedValues !== null, 'Confidence-weighted values should be stored');
-    assert(Math.abs(testItem.confidenceWeightedValues.urgency - 1.5) < 0.01, `Weighted urgency should be 1.5, got ${testItem.confidenceWeightedValues.urgency}`);
-    assert(Math.abs(testItem.confidenceWeightedValues.value - 1.5) < 0.01, `Weighted value should be 1.5, got ${testItem.confidenceWeightedValues.value}`);
-    assert(Math.abs(testItem.confidenceWeightedValues.duration - 1.0) < 0.01, `Weighted duration should be 1.0, got ${testItem.confidenceWeightedValues.duration}`);
+    assert(Math.abs(testItem.confidenceWeightedValues.urgency - expectedWeightedUrgency) < 0.01, `Weighted urgency should be ${expectedWeightedUrgency}, got ${testItem.confidenceWeightedValues.urgency}`);
+    assert(Math.abs(testItem.confidenceWeightedValues.value - expectedWeightedValue) < 0.01, `Weighted value should be ${expectedWeightedValue}, got ${testItem.confidenceWeightedValues.value}`);
+    assert(Math.abs(testItem.confidenceWeightedValues.duration - expectedWeightedDuration) < 0.01, `Weighted duration should be ${expectedWeightedDuration}, got ${testItem.confidenceWeightedValues.duration}`);
     
-    // Verify confidence-weighted CD3: (1.5 * 1.5) / 1.0 = 2.25
-    assert(Math.abs(testItem.confidenceWeightedCD3 - 2.25) < 0.01, `Confidence-weighted CD3 should be 2.25, got ${testItem.confidenceWeightedCD3}`);
+    // Verify confidence-weighted CD3: (2.0 * 2.0) / 1.0 = 4.0
+    assert(Math.abs(testItem.confidenceWeightedCD3 - expectedWeightedCD3) < 0.01, `Confidence-weighted CD3 should be ${expectedWeightedCD3}, got ${testItem.confidenceWeightedCD3}`);
 }
 
 // Test confidence survey edge cases

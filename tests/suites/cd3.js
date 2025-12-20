@@ -6,6 +6,7 @@ import {
     assert,
     assertEqual
 } from '../test-core.js';
+import { BUCKET_DEFAULTS } from '../../models/buckets.js';
 
 // Test CD3 calculation
 async function testCD3DefaultsToZero() {
@@ -71,7 +72,7 @@ async function testCD3WithDuration3() {
     TestAdapter.addItem('Test Item');
     const items = TestAdapter.getItems();
     
-    // Set urgency 3, value 3 (costOfDelay = 9), duration 3 (weight 3)
+    // Set urgency 3, value 3 (costOfDelay = 16), duration 3 (weight 3)
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
     TestAdapter.advanceStage();
@@ -79,9 +80,11 @@ async function testCD3WithDuration3() {
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(items[0].id, 'duration', 3);
     
-    // CD3 should be: costOfDelay (9) / duration weight (3) = 3
+    // CD3 should be: costOfDelay (16) / duration weight (3) = 5.333...
+    const expectedCostOfDelay = BUCKET_DEFAULTS.urgency[3].weight * BUCKET_DEFAULTS.value[3].weight;
+    const expectedCD3 = expectedCostOfDelay / BUCKET_DEFAULTS.duration[3].weight;
     const updatedItems = TestAdapter.getItems();
-    assertEqual(updatedItems[0].CD3, 3, 'CD3 should be 3 (9 / 3)');
+    assertEqual(updatedItems[0].CD3, expectedCD3, `CD3 should be ${expectedCD3} (${expectedCostOfDelay} / ${BUCKET_DEFAULTS.duration[3].weight})`);
 }
 
 async function testCD3UpdatesWhenDurationChanges() {
@@ -136,10 +139,12 @@ async function testCD3UpdatesWhenCostOfDelayChanges() {
     TestAdapter.setLocked(false);
     TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
     
-    // Cost of delay should now be: 3 × 1 = 3
-    // CD3 should now be: 3 / 1 = 3
+    // Cost of delay should now be: urgency 3 (weight 4) × value 1 (weight 1) = 4
+    // CD3 should now be: 4 / 1 = 4
+    const expectedCostOfDelay2 = BUCKET_DEFAULTS.urgency[3].weight * BUCKET_DEFAULTS.value[1].weight;
+    const expectedCD3 = expectedCostOfDelay2 / BUCKET_DEFAULTS.duration[1].weight;
     updatedItems = TestAdapter.getItems();
-    assertEqual(updatedItems[0].CD3, 3, 'CD3 should be 3 (3 / 1)');
+    assertEqual(updatedItems[0].CD3, expectedCD3, `CD3 should be ${expectedCD3} (${expectedCostOfDelay2} / ${BUCKET_DEFAULTS.duration[1].weight})`);
 }
 
 async function testCD3ResetsToZeroWhenDurationCleared() {
@@ -297,14 +302,16 @@ async function testWeightChangesAffectMultipleItems() {
     // Initial values:
     // Item 1: urgency 1 (weight 1), value 1 (weight 1) = costOfDelay 1, CD3 = 1/1 = 1
     // Item 2: urgency 2 (weight 2), value 1 (weight 1) = costOfDelay 2, CD3 = 2/1 = 2
-    // Item 3: urgency 3 (weight 3), value 1 (weight 1) = costOfDelay 3, CD3 = 3/1 = 3
+    // Item 3: urgency 3 (weight 4), value 1 (weight 1) = costOfDelay 4, CD3 = 4/1 = 4
+    const item3ExpectedCostOfDelay = BUCKET_DEFAULTS.urgency[3].weight * BUCKET_DEFAULTS.value[1].weight;
+    const item3ExpectedCD3 = item3ExpectedCostOfDelay / BUCKET_DEFAULTS.duration[1].weight;
     let updatedItems = TestAdapter.getItems();
     assertEqual(updatedItems[0].costOfDelay, 1, 'Item 1 costOfDelay should be 1');
     assertEqual(updatedItems[0].CD3, 1, 'Item 1 CD3 should be 1');
     assertEqual(updatedItems[1].costOfDelay, 2, 'Item 2 costOfDelay should be 2');
     assertEqual(updatedItems[1].CD3, 2, 'Item 2 CD3 should be 2');
-    assertEqual(updatedItems[2].costOfDelay, 3, 'Item 3 costOfDelay should be 3');
-    assertEqual(updatedItems[2].CD3, 3, 'Item 3 CD3 should be 3');
+    assertEqual(updatedItems[2].costOfDelay, item3ExpectedCostOfDelay, `Item 3 costOfDelay should be ${item3ExpectedCostOfDelay}`);
+    assertEqual(updatedItems[2].CD3, item3ExpectedCD3, `Item 3 CD3 should be ${item3ExpectedCD3}`);
     
     // Change urgency 1 weight to 5 (affects Item 1)
     TestAdapter.setUrgencyWeight(1, 5);
@@ -312,14 +319,14 @@ async function testWeightChangesAffectMultipleItems() {
     // After change:
     // Item 1: urgency 1 (weight 5), value 1 (weight 1) = costOfDelay 5, CD3 = 5/1 = 5
     // Item 2: urgency 2 (weight 2), value 1 (weight 1) = costOfDelay 2, CD3 = 2/1 = 2 (unchanged)
-    // Item 3: urgency 3 (weight 3), value 1 (weight 1) = costOfDelay 3, CD3 = 3/1 = 3 (unchanged)
+    // Item 3: urgency 3 (weight 4), value 1 (weight 1) = costOfDelay 4, CD3 = 4/1 = 4 (unchanged)
     updatedItems = TestAdapter.getItems();
     assertEqual(updatedItems[0].costOfDelay, 5, 'Item 1 costOfDelay should be 5 after urgency weight change');
     assertEqual(updatedItems[0].CD3, 5, 'Item 1 CD3 should be 5 after urgency weight change');
     assertEqual(updatedItems[1].costOfDelay, 2, 'Item 2 costOfDelay should still be 2');
     assertEqual(updatedItems[1].CD3, 2, 'Item 2 CD3 should still be 2');
-    assertEqual(updatedItems[2].costOfDelay, 3, 'Item 3 costOfDelay should still be 3');
-    assertEqual(updatedItems[2].CD3, 3, 'Item 3 CD3 should still be 3');
+    assertEqual(updatedItems[2].costOfDelay, item3ExpectedCostOfDelay, `Item 3 costOfDelay should still be ${item3ExpectedCostOfDelay}`);
+    assertEqual(updatedItems[2].CD3, item3ExpectedCD3, `Item 3 CD3 should still be ${item3ExpectedCD3}`);
 }
 
 // Export test suite

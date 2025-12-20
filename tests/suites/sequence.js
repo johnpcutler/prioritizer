@@ -6,6 +6,7 @@ import {
     assert,
     assertEqual
 } from '../test-core.js';
+import { BUCKET_DEFAULTS } from '../../models/buckets.js';
 
 // Test sequence assignment when item gets CD3 (not manually reordered)
 async function testSequenceAssignedWhenCD3Assigned() {
@@ -31,14 +32,16 @@ async function testSequenceAssignedWhenCD3Assigned() {
     TestAdapter.advanceStage(); // Value -> Duration
     TestAdapter.setLocked(false);
     
-    // Now set duration for Item 1 (CD3 = 9/1 = 9)
+    // Now set duration for Item 1 (CD3 = 16/1 = 16)
+    const item1ExpectedCostOfDelay = BUCKET_DEFAULTS.urgency[3].weight * BUCKET_DEFAULTS.value[3].weight;
+    const item1ExpectedCD3 = item1ExpectedCostOfDelay / BUCKET_DEFAULTS.duration[1].weight;
     let result = TestAdapter.setItemProperty(items[0].id, 'duration', 1);
     assert(result.success, `Setting duration should succeed: ${result.error || ''}`);
     
     // Get fresh items after Item 1 updates
     items = TestAdapter.getItems();
     const item1AfterSetup = items.find(i => i.name === 'Item 1');
-    assertEqual(item1AfterSetup.CD3, 9, 'Item 1 should have CD3 9 after setting all properties');
+    assertEqual(item1AfterSetup.CD3, item1ExpectedCD3, `Item 1 should have CD3 ${item1ExpectedCD3} after setting all properties`);
     
     // Set duration for Item 2 (CD3 = 1/1 = 1)
     const item2Ref = items.find(i => i.name === 'Item 2');
@@ -59,11 +62,11 @@ async function testSequenceAssignedWhenCD3Assigned() {
     }
     
     // Verify CD3 values first
-    assertEqual(item1.CD3, 9, 'Item 1 should have CD3 9');
+    assertEqual(item1.CD3, item1ExpectedCD3, `Item 1 should have CD3 ${item1ExpectedCD3}`);
     assertEqual(item2.CD3, 1, 'Item 2 should have CD3 1');
     
     // Item 1 should have sequence 1 (higher CD3)
-    assertEqual(item1.sequence, 1, 'Item 1 should have sequence 1 (CD3 9)');
+    assertEqual(item1.sequence, 1, `Item 1 should have sequence 1 (CD3 ${item1ExpectedCD3})`);
     // Item 2 should have sequence 2 (lower CD3)
     assertEqual(item2.sequence, 2, 'Item 2 should have sequence 2 (CD3 1)');
 }

@@ -23,7 +23,7 @@ export const BUCKET_DEFAULTS = {
             limit: 30, 
             count: 0, 
             overLimit: false, 
-            weight: 3,
+            weight: 4,
             title: 'ASAP',
             description: '"ASAP" represents the highest band of urgency. If we don\'t deliver this ASAP, then the value (whatever total value that might be) will quickly evaporate - someone will get there before us or the opportunity (however big or small) will be massively impaired.'
         }
@@ -49,7 +49,7 @@ export const BUCKET_DEFAULTS = {
             limit: 30, 
             count: 0, 
             overLimit: false, 
-            weight: 3,
+            weight: 4,
             title: 'KILLER',
             description: '"Killer" represents the highest band of total value. These are the few things where if we do them, we stand to make an absolute killing, or; if we don\'t do something, it will probably kill us. (The challenge, as with all relative/qualitative approaches, is to try and avoid inflation)'
         }

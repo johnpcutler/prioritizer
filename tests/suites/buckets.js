@@ -11,6 +11,7 @@ import {
     saveAppState,
     initializeBuckets
 } from '../test-core.js';
+import { BUCKET_DEFAULTS } from '../../models/buckets.js';
 
 // Test: Bucket weights default to 1
 function testBucketWeightsDefault() {
@@ -19,20 +20,20 @@ function testBucketWeightsDefault() {
     
     const appState = getAppState();
     
-    // Check urgency buckets have default weights of 1, 2, 3
-    assertEqual(appState.buckets.urgency[1].weight, 1, 'Urgency 1 should have default weight of 1');
-    assertEqual(appState.buckets.urgency[2].weight, 2, 'Urgency 2 should have default weight of 2');
-    assertEqual(appState.buckets.urgency[3].weight, 3, 'Urgency 3 should have default weight of 3');
+    // Check urgency buckets have default weights
+    assertEqual(appState.buckets.urgency[1].weight, BUCKET_DEFAULTS.urgency[1].weight, 'Urgency 1 should have default weight');
+    assertEqual(appState.buckets.urgency[2].weight, BUCKET_DEFAULTS.urgency[2].weight, 'Urgency 2 should have default weight');
+    assertEqual(appState.buckets.urgency[3].weight, BUCKET_DEFAULTS.urgency[3].weight, 'Urgency 3 should have default weight');
     
-    // Check value buckets have default weights of 1, 2, 3
-    assertEqual(appState.buckets.value[1].weight, 1, 'Value 1 should have default weight of 1');
-    assertEqual(appState.buckets.value[2].weight, 2, 'Value 2 should have default weight of 2');
-    assertEqual(appState.buckets.value[3].weight, 3, 'Value 3 should have default weight of 3');
+    // Check value buckets have default weights
+    assertEqual(appState.buckets.value[1].weight, BUCKET_DEFAULTS.value[1].weight, 'Value 1 should have default weight');
+    assertEqual(appState.buckets.value[2].weight, BUCKET_DEFAULTS.value[2].weight, 'Value 2 should have default weight');
+    assertEqual(appState.buckets.value[3].weight, BUCKET_DEFAULTS.value[3].weight, 'Value 3 should have default weight');
     
-    // Check duration buckets have default weights of 1, 2, 3
-    assertEqual(appState.buckets.duration[1].weight, 1, 'Duration 1 should have default weight of 1');
-    assertEqual(appState.buckets.duration[2].weight, 2, 'Duration 2 should have default weight of 2');
-    assertEqual(appState.buckets.duration[3].weight, 3, 'Duration 3 should have default weight of 3');
+    // Check duration buckets have default weights
+    assertEqual(appState.buckets.duration[1].weight, BUCKET_DEFAULTS.duration[1].weight, 'Duration 1 should have default weight');
+    assertEqual(appState.buckets.duration[2].weight, BUCKET_DEFAULTS.duration[2].weight, 'Duration 2 should have default weight');
+    assertEqual(appState.buckets.duration[3].weight, BUCKET_DEFAULTS.duration[3].weight, 'Duration 3 should have default weight');
 }
 
 // Test: Set urgency weight
@@ -55,9 +56,9 @@ function testSetUrgencyWeight() {
     
     // Verify initial default weights
     const appStateCheck = getAppState();
-    assertEqual(appStateCheck.buckets.urgency[1].weight, 1, 'Urgency 1 should have default weight of 1');
-    assertEqual(appStateCheck.buckets.urgency[2].weight, 2, 'Urgency 2 should have default weight of 2');
-    assertEqual(appStateCheck.buckets.urgency[3].weight, 3, 'Urgency 3 should have default weight of 3');
+    assertEqual(appStateCheck.buckets.urgency[1].weight, BUCKET_DEFAULTS.urgency[1].weight, 'Urgency 1 should have default weight');
+    assertEqual(appStateCheck.buckets.urgency[2].weight, BUCKET_DEFAULTS.urgency[2].weight, 'Urgency 2 should have default weight');
+    assertEqual(appStateCheck.buckets.urgency[3].weight, BUCKET_DEFAULTS.urgency[3].weight, 'Urgency 3 should have default weight');
     
     // Set urgency 1 weight to 2.5
     appStateCheck.buckets.urgency[1].weight = 2.5;
@@ -81,8 +82,8 @@ function testSetUrgencyWeight() {
     assertEqual(appStateAfter3.buckets.urgency[3].weight, 3, 'Urgency 3 weight should be 3');
     
     // Verify other buckets still have default weight
-    assertEqual(appStateAfter3.buckets.value[1].weight, 1, 'Value 1 should still have default weight of 1');
-    assertEqual(appStateAfter3.buckets.duration[1].weight, 1, 'Duration 1 should still have default weight of 1');
+    assertEqual(appStateAfter3.buckets.value[1].weight, BUCKET_DEFAULTS.value[1].weight, 'Value 1 should still have default weight');
+    assertEqual(appStateAfter3.buckets.duration[1].weight, BUCKET_DEFAULTS.duration[1].weight, 'Duration 1 should still have default weight');
 }
 
 // Test: Set value weight
@@ -105,9 +106,9 @@ function testSetValueWeight() {
     
     // Verify initial default weights
     const appStateCheck = getAppState();
-    assertEqual(appStateCheck.buckets.value[1].weight, 1, 'Value 1 should have default weight of 1');
-    assertEqual(appStateCheck.buckets.value[2].weight, 2, 'Value 2 should have default weight of 2');
-    assertEqual(appStateCheck.buckets.value[3].weight, 3, 'Value 3 should have default weight of 3');
+    assertEqual(appStateCheck.buckets.value[1].weight, BUCKET_DEFAULTS.value[1].weight, 'Value 1 should have default weight');
+    assertEqual(appStateCheck.buckets.value[2].weight, BUCKET_DEFAULTS.value[2].weight, 'Value 2 should have default weight');
+    assertEqual(appStateCheck.buckets.value[3].weight, BUCKET_DEFAULTS.value[3].weight, 'Value 3 should have default weight');
     
     // Set value 1 weight to 1.5
     appStateCheck.buckets.value[1].weight = 1.5;
@@ -131,8 +132,8 @@ function testSetValueWeight() {
     assertEqual(appStateAfter3.buckets.value[3].weight, 0.25, 'Value 3 weight should be 0.25');
     
     // Verify other buckets still have default weight
-    assertEqual(appStateAfter3.buckets.urgency[1].weight, 1, 'Urgency 1 should still have default weight of 1');
-    assertEqual(appStateAfter3.buckets.duration[1].weight, 1, 'Duration 1 should still have default weight of 1');
+    assertEqual(appStateAfter3.buckets.urgency[1].weight, BUCKET_DEFAULTS.urgency[1].weight, 'Urgency 1 should still have default weight');
+    assertEqual(appStateAfter3.buckets.duration[1].weight, BUCKET_DEFAULTS.duration[1].weight, 'Duration 1 should still have default weight');
 }
 
 // Test: Set duration weight
@@ -178,8 +179,8 @@ function testSetDurationWeight() {
     assertEqual(appStateAfter3.buckets.duration[3].weight, 2.5, 'Duration 3 weight should be 2.5');
     
     // Verify other buckets still have default weight
-    assertEqual(appStateAfter3.buckets.urgency[1].weight, 1, 'Urgency 1 should still have default weight of 1');
-    assertEqual(appStateAfter3.buckets.value[1].weight, 1, 'Value 1 should still have default weight of 1');
+    assertEqual(appStateAfter3.buckets.urgency[1].weight, BUCKET_DEFAULTS.urgency[1].weight, 'Urgency 1 should still have default weight');
+    assertEqual(appStateAfter3.buckets.value[1].weight, BUCKET_DEFAULTS.value[1].weight, 'Value 1 should still have default weight');
 }
 
 // Test: Weight validation (non-negative)

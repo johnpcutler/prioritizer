@@ -6,6 +6,7 @@ import {
     assert,
     assertEqual
 } from '../test-core.js';
+import { BUCKET_DEFAULTS } from '../../models/buckets.js';
 
 // Test cost of delay calculation
 async function testCostOfDelayDefaultsToZero() {
@@ -59,13 +60,14 @@ async function testCostOfDelayWithDifferentWeights() {
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(items[0].id, 'urgency', 2);
     
-    // Advance to value stage and set value to 3 (weight 3)
+    // Advance to value stage and set value to 3 (weight 4)
     TestAdapter.advanceStage();
     TestAdapter.setItemProperty(items[0].id, 'value', 3);
     
-    // Cost of delay should be: urgency 2 (weight 2) × value 3 (weight 3) = 6
+    // Cost of delay should be: urgency 2 (weight 2) × value 3 (weight 4) = 8
+    const expectedCostOfDelay = BUCKET_DEFAULTS.urgency[2].weight * BUCKET_DEFAULTS.value[3].weight;
     const updatedItems = TestAdapter.getItems();
-    assertEqual(updatedItems[0].costOfDelay, 6, 'Cost of delay should be 6 (2 × 3)');
+    assertEqual(updatedItems[0].costOfDelay, expectedCostOfDelay, `Cost of delay should be ${expectedCostOfDelay} (${BUCKET_DEFAULTS.urgency[2].weight} × ${BUCKET_DEFAULTS.value[3].weight})`);
 }
 
 async function testCostOfDelayUpdatesWhenUrgencyChanges() {
@@ -90,9 +92,10 @@ async function testCostOfDelayUpdatesWhenUrgencyChanges() {
     TestAdapter.setLocked(false);
     TestAdapter.setItemProperty(items[0].id, 'urgency', 3);
     
-    // Cost of delay should now be: 3 × 2 = 6
+    // Cost of delay should now be: urgency 3 (weight 4) × value 2 (weight 2) = 8
+    const expectedCostOfDelay2 = BUCKET_DEFAULTS.urgency[3].weight * BUCKET_DEFAULTS.value[2].weight;
     updatedItems = TestAdapter.getItems();
-    assertEqual(updatedItems[0].costOfDelay, 6, 'Cost of delay should be 6 (3 × 2)');
+    assertEqual(updatedItems[0].costOfDelay, expectedCostOfDelay2, `Cost of delay should be ${expectedCostOfDelay2} (${BUCKET_DEFAULTS.urgency[3].weight} × ${BUCKET_DEFAULTS.value[2].weight})`);
 }
 
 async function testCostOfDelayUpdatesWhenValueChanges() {
@@ -116,9 +119,10 @@ async function testCostOfDelayUpdatesWhenValueChanges() {
     // Change value to 3
     TestAdapter.setItemProperty(items[0].id, 'value', 3);
     
-    // Cost of delay should now be: 2 × 3 = 6
+    // Cost of delay should now be: urgency 2 (weight 2) × value 3 (weight 4) = 8
+    const expectedCostOfDelay3 = BUCKET_DEFAULTS.urgency[2].weight * BUCKET_DEFAULTS.value[3].weight;
     updatedItems = TestAdapter.getItems();
-    assertEqual(updatedItems[0].costOfDelay, 6, 'Cost of delay should be 6 (2 × 3)');
+    assertEqual(updatedItems[0].costOfDelay, expectedCostOfDelay3, `Cost of delay should be ${expectedCostOfDelay3} (${BUCKET_DEFAULTS.urgency[2].weight} × ${BUCKET_DEFAULTS.value[3].weight})`);
 }
 
 async function testCostOfDelayResetsToZeroWhenUrgencyOrValueCleared() {
