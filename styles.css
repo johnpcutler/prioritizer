@@ -2199,5 +2199,25 @@ button:disabled {
         width: 100%;
         justify-content: flex-start;
     }
+    
+    /* Duration view - stack dropdown on second line on mobile */
+    .duration-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+    
+    .duration-item-name {
+        width: 100%;
+    }
+    
+    .duration-item-controls {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .duration-item-controls .duration-select {
+        width: 100%;
+    }
 }
 
