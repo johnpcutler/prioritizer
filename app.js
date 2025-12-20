@@ -34,6 +34,9 @@ import { displayJson, updateCurrentStageDisplay, updateLockedDisplay, updateStag
 import { setupAllEventListeners } from './events/listeners.js';
 import { createCommands } from './config/commands.js';
 import { analytics } from './analytics/analytics.js';
+import { executeCommand, setRefreshFunction } from './commands/index.js';
+import { COMMAND_TYPES } from './commands/commandTypes.js';
+import { COMMAND_HANDLERS } from './commands/commandHandlers.js';
 
 // Make functions available globally for event listeners
 window.setItemProperty = null;
@@ -42,6 +45,9 @@ window.setItemInactive = null;
 
 // Initialize Store
 Store.init();
+
+// Set up command system refresh function
+setRefreshFunction(refreshApp);
 
 // Set up recalculation functions for bucket actions
 setRecalcFunctions({
@@ -72,334 +78,98 @@ function updateItem(itemId, updater) {
 // ============================================================================
 
 function addItem(name) {
-    const appState = Store.getAppState();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    
-    if (currentStage !== 'Item Listing') {
-        return {
-            success: false,
-            error: `Error: Cannot add item. Current stage is "${currentStage}". You must be on the "Item Listing" stage to add new items. Use "Back Stage" command to return to Item Listing stage.`
-        };
-    }
-    
-    const items = Store.getItems();
-    // Check if any existing items have urgency set (prioritization has started)
-    const hasPrioritizedItems = items.some(item => item.urgency && item.urgency > 0);
-    
-    const newItem = createItem(name);
-    // Mark as new if other items have been prioritized
-    if (hasPrioritizedItems) {
-        newItem.isNewItem = true;
-    }
-    recomputeItemMetrics(newItem, appState.buckets);
-    
-    items.push(newItem);
-    Store.saveItems(items);
-    
-    const appStateAfter = Store.getAppState();
-    persistAndRefresh(appStateAfter, items);
-    displayJson();
-    updateStageNavigation();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.ADD_ITEM,
+        payload: { name }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function removeItem(itemId) {
-    const items = Store.getItems();
-    const result = removeItemModel(itemId, items);
-    
-    if (!result.success) {
-        return result;
-    }
-    
-    Store.saveItems(items);
-    
-    const appState = Store.getAppState();
-    persistAndRefresh(appState, items);
-    displayJson();
-    updateStageNavigation();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.REMOVE_ITEM,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function bulkAddItems(itemNamesText) {
-    const appState = Store.getAppState();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    
-    if (currentStage !== 'Item Listing') {
-        return {
-            success: false,
-            error: `Error: Cannot bulk add items. Current stage is "${currentStage}". You must be on the "Item Listing" stage to add new items. Use "Back Stage" command to return to Item Listing stage.`
-        };
-    }
-    
-    if (!itemNamesText || typeof itemNamesText !== 'string') {
-        return {
-            success: false,
-            error: 'Error: Invalid input. Please provide item names separated by newlines.'
-        };
-    }
-    
-    const lines = itemNamesText
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-    
-    if (lines.length === 0) {
-        return {
-            success: false,
-            error: 'Error: No valid item names found. Please enter at least one item name.'
-        };
-    }
-    
-    const items = Store.getItems();
-    // Check if any existing items have urgency set (prioritization has started)
-    const hasPrioritizedItems = items.some(item => item.urgency && item.urgency > 0);
-    
-    let added = 0;
-    let itemsWithLinksCount = 0;
-    const errors = [];
-    
-    lines.forEach((line, index) => {
-        // Parse line: "Item Name, https://example.com" or just "Item Name"
-        let itemName = line;
-        let itemLink = null;
-        
-        // Check if line contains a comma (potential separator for link)
-        const commaIndex = line.lastIndexOf(',');
-        if (commaIndex > 0) {
-            // Split on last comma to handle item names that might contain commas
-            const potentialName = line.substring(0, commaIndex).trim();
-            const potentialLink = line.substring(commaIndex + 1).trim();
-            
-            // If the part after comma looks like a URL, treat it as a link
-            if (potentialLink && isValidUrl(potentialLink)) {
-                itemName = potentialName;
-                itemLink = potentialLink;
-            }
-            // Otherwise, treat the whole line as the item name
-        }
-        
-        if (itemName.length === 0) {
-            errors.push(`Line ${index + 1}: Empty item name`);
-            return;
-        }
-        
-        const newItem = createItem(itemName, itemLink);
-        // Mark as new if other items have been prioritized
-        if (hasPrioritizedItems) {
-            newItem.isNewItem = true;
-        }
-        recomputeItemMetrics(newItem, appState.buckets);
-        items.push(newItem);
-        added++;
-        
-        // Count items with hyperlinks
-        if (itemLink) {
-            itemsWithLinksCount++;
-        }
+    const result = executeCommand({
+        type: COMMAND_TYPES.BULK_ADD_ITEMS,
+        payload: { itemNamesText }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
     
-    Store.saveItems(items);
-    const appStateAfter = Store.getAppState();
-    persistAndRefresh(appStateAfter, items);
-    displayJson();
-    updateStageNavigation();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    // Track analytics event for items added
-    if (added > 0) {
-        analytics.trackEvent('Items Added', { count: added, itemsWithLinksCount: itemsWithLinksCount });
+    // Track analytics after command completes (since we need the result)
+    if (result.success && result.added > 0) {
+        analytics.trackEvent('Items Added', { 
+            count: result.added, 
+            itemsWithLinksCount: result.itemsWithLinksCount || 0 
+        });
     }
     
-    return {
-        success: true,
-        added: added,
-        total: lines.length,
-        errors: errors
-    };
+    return result;
 }
 
 // Reducer-style item property setter
 function setItemProperty(itemId, property, value) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    const meta = PROPERTY_META[property];
-    if (!meta) {
-        return { success: false, error: `Invalid property: ${property}` };
-    }
-    
-    // Check current stage and locked setting
-    const appState = Store.getAppState();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    const isLocked = appState.locked !== false;
-    
-    if (isLocked) {
-        if (currentStage !== meta.stage) {
-            return {
-                success: false,
-                error: `Error: Cannot set ${property.charAt(0).toUpperCase() + property.slice(1)}. Current stage is "${currentStage}". You must be on the "${meta.stage}" stage to set ${property} values. Use "Advance Stage" or "Back Stage" commands to navigate.`
-            };
-        }
-    } else {
-        const currentStageIndex = STAGE_ORDER.indexOf(currentStage);
-        const propertyStageIndex = STAGE_ORDER.indexOf(meta.stage);
-        if (propertyStageIndex > currentStageIndex) {
-            return {
-                success: false,
-                error: `Error: Cannot set ${property.charAt(0).toUpperCase() + property.slice(1)}. Current stage is "${currentStage}". You must be on the "${meta.stage}" stage or later to set ${property} values. Use "Advance Stage" command to navigate.`
-            };
-        }
-    }
-    
-    // Store old CD3 before update to detect transition
-    const oldCD3 = item.CD3 || 0;
-    
-    // Use unified update function
-    const result = updateItemProperty(item, property, value, appState.buckets);
-    if (!result.valid) {
-        return { success: false, error: result.error };
-    }
-    
-    // Check if CD3 transitioned from 0 to >0
-    const newCD3 = item.CD3 || 0;
-    if (oldCD3 === 0 && newCD3 > 0) {
-        // Item just got CD3 - insert into sequence
-        insertItemIntoSequence(item, items, appState);
-    }
-    
-    // Recalculate confidence-weighted CD3 if survey exists
-    if (item.hasConfidenceSurvey && (property === 'urgency' || property === 'value' || property === 'duration')) {
-        calculateConfidenceWeightedCD3(item, appState);
-    }
-    
-    Store.saveItems(items);
-    persistAndRefresh(appState, items);
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    // Track analytics events for property changes
-    if (property === 'urgency' || property === 'value' || property === 'duration') {
-        const bucket = value;
-        const bucketName = appState.buckets[property] && appState.buckets[property][bucket] 
-            ? appState.buckets[property][bucket].title 
-            : `Bucket ${bucket}`;
-        
-        const eventName = property === 'urgency' ? 'Set Urgency' 
-            : property === 'value' ? 'Set Value' 
-            : 'Set Duration';
-        
-        analytics.trackEvent(eventName, {
-            bucket: bucket,
-            bucketName: bucketName,
-            itemId: itemId
-        });
-    }
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.SET_ITEM_PROPERTY,
+        payload: { itemId, property, value }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setItemActive(itemId) {
-    return updateItem(itemId, (item) => {
-        item.active = true;
+    return executeCommand({
+        type: COMMAND_TYPES.SET_ITEM_ACTIVE,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
 }
 
 function setItemInactive(itemId) {
-    return updateItem(itemId, (item) => {
-        item.active = false;
+    return executeCommand({
+        type: COMMAND_TYPES.SET_ITEM_INACTIVE,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
 }
 
 // Add a note to an item
 function addItemNoteToItem(itemId, noteText) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    const result = addItemNote(item, noteText);
-    if (!result.success) {
-        return result;
-    }
-    
-    Store.saveItems(items);
-    const appState = Store.getAppState();
-    persistAndRefresh(appState, items);
-    refreshApp();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.ADD_ITEM_NOTE,
+        payload: { itemId, noteText }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // Update an existing note
 function updateItemNoteInItem(itemId, noteIndex, noteText) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    const result = updateItemNote(item, noteIndex, noteText);
-    if (!result.success) {
-        return result;
-    }
-    
-    Store.saveItems(items);
-    const appState = Store.getAppState();
-    persistAndRefresh(appState, items);
-    refreshApp();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.UPDATE_ITEM_NOTE,
+        payload: { itemId, noteIndex, noteText }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // Delete a note from an item
 function deleteItemNoteFromItem(itemId, noteIndex) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    const result = deleteItemNote(item, noteIndex);
-    if (!result.success) {
-        return result;
-    }
-    
-    Store.saveItems(items);
-    const appState = Store.getAppState();
-    persistAndRefresh(appState, items);
-    refreshApp();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.DELETE_ITEM_NOTE,
+        payload: { itemId, noteIndex }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // ============================================================================
@@ -408,194 +178,52 @@ function deleteItemNoteFromItem(itemId, noteIndex) {
 
 // Open confidence survey form
 function openConfidenceSurvey(itemId) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    // Check if item has required properties
-    if (!item.urgency || item.urgency === 0 || !item.value || item.value === 0 || !item.duration || item.duration === 0) {
-        return { success: false, error: 'Item must have urgency, value, and duration set before running confidence survey' };
-    }
-    
-    // Calculate sequence for analytics
-    let sequence = null;
-    if (item.sequence !== null && item.sequence !== undefined) {
-        sequence = item.sequence;
-    } else {
-        // Calculate from sorted results list
-        const itemsWithSequence = items.filter(i => i.sequence !== null && i.sequence !== undefined);
-        if (itemsWithSequence.length > 0) {
-            const sortedItems = [...items].sort((a, b) => {
-                const seqA = a.sequence !== null && a.sequence !== undefined ? a.sequence : 9999;
-                const seqB = b.sequence !== null && b.sequence !== undefined ? b.sequence : 9999;
-                return seqA - seqB;
-            });
-            const itemIndex = sortedItems.findIndex(i => i.id === itemId);
-            sequence = itemIndex >= 0 ? itemIndex + 1 : null;
-        } else {
-            // No items with sequence, use CD3 sorted position
-            const sortedItems = getItemsSortedByCD3(items);
-            const itemIndex = sortedItems.findIndex(i => i.id === itemId);
-            sequence = itemIndex >= 0 ? itemIndex + 1 : null;
-        }
-    }
-    
-    // Track analytics event
-    analytics.trackEvent('Run Confidence Survey', {
-        itemId: itemId,
-        sequence: sequence
+    return executeCommand({
+        type: COMMAND_TYPES.OPEN_CONFIDENCE_SURVEY,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
-    
-    // Find and show the survey form
-    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
-    if (surveyForm) {
-        surveyForm.style.display = 'block';
-    }
-    
-    return { success: true };
 }
 
 // Submit confidence survey
 function submitConfidenceSurvey(itemId, surveyData) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    // Validate survey data
-    if (!surveyData || typeof surveyData !== 'object') {
-        return { success: false, error: 'Invalid survey data' };
-    }
-    
-    const requiredDimensions = [
-        { key: 'scopeConfidence', name: 'Scope Confidence' },
-        { key: 'urgencyConfidence', name: 'Urgency Confidence' },
-        { key: 'valueConfidence', name: 'Value Confidence' },
-        { key: 'durationConfidence', name: 'Duration Confidence' }
-    ];
-    let selectionsCount = 0;
-    
-    // First pass: validate structure and normalize data
-    for (const { key } of requiredDimensions) {
-        if (!surveyData[key] || typeof surveyData[key] !== 'object') {
-            return { success: false, error: `Missing or invalid ${key} data` };
-        }
-        for (let level = 1; level <= 4; level++) {
-            const count = surveyData[key][level];
-            if (count === undefined || count === null) {
-                surveyData[key][level] = 0;
-            } else {
-                const numCount = parseInt(count);
-                if (isNaN(numCount) || numCount < 0) {
-                    return { success: false, error: `Invalid vote count for ${key} level ${level}` };
-                }
-                surveyData[key][level] = numCount;
-                
-                // Count selections with value > 0
-                if (numCount > 0) {
-                    selectionsCount++;
-                }
-            }
-        }
-    }
-    
-    // Validate that each dimension has at least one vote
-    const missingDimensions = [];
-    for (const { key, name } of requiredDimensions) {
-        const votes = surveyData[key];
-        const totalVotes = Object.values(votes).reduce((sum, count) => sum + (parseInt(count) || 0), 0);
-        if (totalVotes === 0) {
-            missingDimensions.push(name);
-        }
-    }
-    
-    if (missingDimensions.length > 0) {
-        return {
-            success: false,
-            error: `Please enter at least one vote in each section. Missing votes in: ${missingDimensions.join(', ')}`
-        };
-    }
-    
-    // Track analytics event (only if validation passes)
-    analytics.trackEvent('Submit Confidence Survey', {
-        itemId: itemId,
-        selectionsCount: selectionsCount
+    const result = executeCommand({
+        type: COMMAND_TYPES.SUBMIT_CONFIDENCE_SURVEY,
+        payload: { itemId, surveyData }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
     
-    // Save survey data
-    item.confidenceSurvey = surveyData;
-    item.hasConfidenceSurvey = true;
-    
-    // Calculate confidence-weighted CD3
-    const appState = Store.getAppState();
-    calculateConfidenceWeightedCD3(item, appState);
-    
-    // Hide the survey form
-    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
-    if (surveyForm) {
-        surveyForm.style.display = 'none';
+    // Track analytics after command completes (since we need selectionsCount)
+    if (result.success && result.selectionsCount !== undefined) {
+        analytics.trackEvent('Submit Confidence Survey', {
+            itemId: itemId,
+            selectionsCount: result.selectionsCount
+        });
     }
     
-    Store.saveItems(items);
-    persistAndRefresh(appState, items);
-    refreshApp();
-    
-    return { success: true };
+    return result;
 }
 
 // Delete confidence survey
 function deleteConfidenceSurvey(itemId) {
-    const items = Store.getItems();
-    const item = items.find(i => i.id === itemId);
-    
-    if (!item) {
-        return { success: false, error: 'Item not found' };
-    }
-    
-    // Track analytics event
-    analytics.trackEvent('Delete Survey', {
-        itemId: itemId
+    return executeCommand({
+        type: COMMAND_TYPES.DELETE_CONFIDENCE_SURVEY,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
     });
-    
-    // Remove survey data
-    item.hasConfidenceSurvey = false;
-    item.confidenceSurvey = {
-        scopeConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        urgencyConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        valueConfidence: {1: 0, 2: 0, 3: 0, 4: 0},
-        durationConfidence: {1: 0, 2: 0, 3: 0, 4: 0}
-    };
-    item.confidenceWeightedCD3 = null;
-    item.confidenceWeightedValues = null;
-    
-    // Hide the survey form if open
-    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
-    if (surveyForm) {
-        surveyForm.style.display = 'none';
-    }
-    
-    const appState = Store.getAppState();
-    Store.saveItems(items);
-    persistAndRefresh(appState, items);
-    refreshApp();
-    
-    return { success: true };
 }
 
 // Cancel confidence survey editing
 function cancelConfidenceSurvey(itemId) {
-    // Hide the survey form
-    const surveyForm = document.querySelector(`.confidence-survey-form[data-item-id="${itemId}"]`);
-    if (surveyForm) {
-        surveyForm.style.display = 'none';
-    }
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.CANCEL_CONFIDENCE_SURVEY,
+        payload: { itemId }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // ============================================================================
@@ -604,133 +232,39 @@ function cancelConfidenceSurvey(itemId) {
 
 // Navigate to a specific stage
 function navigateToStage(targetStage) {
-    const appState = Store.getAppState();
-    const items = Store.getItems();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    const visitedStages = appState.visitedStages || ['Item Listing'];
-    
-    // Use navigation function to validate and update visitedStages
-    const navigationResult = STAGE_CONTROLLER.navigateToStage(targetStage, currentStage, visitedStages, items);
-    
-    if (!navigationResult.success) {
-        return {
-            success: false,
-            error: navigationResult.error || 'Cannot navigate to this stage'
-        };
-    }
-    
-    // Update stage and visitedStages
-    STAGE_CONTROLLER.setCurrentStage(appState, targetStage);
-    if (navigationResult.visitedStages) {
-        appState.visitedStages = navigationResult.visitedStages;
-    }
-    Store.save(appState);
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.NAVIGATE_TO_STAGE,
+        payload: { targetStage }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function advanceStage() {
-    const appState = Store.getAppState();
-    const items = Store.getItems();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    
-    const validation = STAGE_CONTROLLER.canAdvance(currentStage, items);
-    if (!validation.canAdvance) {
-        return {
-            success: false,
-            error: `Error: Cannot advance stage. ${validation.reason}`
-        };
-    }
-    
-    const nextStage = STAGE_CONTROLLER.getNextStage(currentStage);
-    if (!nextStage) {
-        return {
-            success: false,
-            error: 'Error: Already at the final stage (CD3). Cannot advance further.'
-        };
-    }
-    
-    STAGE_CONTROLLER.setCurrentStage(appState, nextStage);
-    Store.save(appState);
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.ADVANCE_STAGE,
+        payload: {}
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function backStage() {
-    const appState = Store.getAppState();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    
-    const canGoBackResult = STAGE_CONTROLLER.canGoBack(currentStage);
-    if (!canGoBackResult.canGoBack) {
-        return {
-            success: false,
-            error: `Error: Already at the first stage (Item Listing). Cannot go back further.`
-        };
-    }
-    
-    const previousStage = STAGE_CONTROLLER.getPreviousStage(currentStage);
-    STAGE_CONTROLLER.setCurrentStage(appState, previousStage);
-    Store.save(appState);
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.BACK_STAGE,
+        payload: {}
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setCurrentStage(stage) {
-    if (!STAGE_ORDER.includes(stage)) {
-        return {
-            success: false,
-            error: `Invalid stage: ${stage}. Must be one of: ${STAGE_ORDER.join(', ')}`
-        };
-    }
-    
-    const items = Store.getItems();
-    const appState = Store.getAppState();
-    const currentStage = STAGE_CONTROLLER.getCurrentStage(appState);
-    const visitedStages = appState.visitedStages || ['Item Listing'];
-    
-    // Use navigation function to validate and update visitedStages
-    const navigationResult = STAGE_CONTROLLER.navigateToStage(stage, currentStage, visitedStages, items);
-    
-    if (!navigationResult.success) {
-        return {
-            success: false,
-            error: navigationResult.error || 'Cannot navigate to this stage'
-        };
-    }
-    
-    // Update stage and visitedStages
-    STAGE_CONTROLLER.setCurrentStage(appState, stage);
-    if (navigationResult.visitedStages) {
-        appState.visitedStages = navigationResult.visitedStages;
-    }
-    Store.save(appState);
-    displayJson();
-    
-    return { success: true };
+    return executeCommand({
+        type: COMMAND_TYPES.SET_CURRENT_STAGE,
+        payload: { stage }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // ============================================================================
@@ -738,47 +272,102 @@ function setCurrentStage(stage) {
 // ============================================================================
 
 function setUrgencyLimit(level, limit) {
-    return BucketActions.setLimit('urgency', level, limit);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_URGENCY_LIMIT,
+        payload: { level, limit }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setValueLimit(level, limit) {
-    return BucketActions.setLimit('value', level, limit);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_VALUE_LIMIT,
+        payload: { level, limit }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setUrgencyWeight(level, weight) {
-    return BucketActions.setWeight('urgency', level, weight);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_URGENCY_WEIGHT,
+        payload: { level, weight }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setValueWeight(level, weight) {
-    return BucketActions.setWeight('value', level, weight);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_VALUE_WEIGHT,
+        payload: { level, weight }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setDurationWeight(level, weight) {
-    return BucketActions.setWeight('duration', level, weight);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_DURATION_WEIGHT,
+        payload: { level, weight }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setUrgencyTitle(level, title) {
-    return BucketActions.setTitle('urgency', level, title);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_URGENCY_TITLE,
+        payload: { level, title }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setUrgencyDescription(level, description) {
-    return BucketActions.setDescription('urgency', level, description);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_URGENCY_DESCRIPTION,
+        payload: { level, description }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setValueTitle(level, title) {
-    return BucketActions.setTitle('value', level, title);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_VALUE_TITLE,
+        payload: { level, title }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setValueDescription(level, description) {
-    return BucketActions.setDescription('value', level, description);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_VALUE_DESCRIPTION,
+        payload: { level, description }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setDurationTitle(level, title) {
-    return BucketActions.setTitle('duration', level, title);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_DURATION_TITLE,
+        payload: { level, title }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function setDurationDescription(level, description) {
-    return BucketActions.setDescription('duration', level, description);
+    return executeCommand({
+        type: COMMAND_TYPES.SET_DURATION_DESCRIPTION,
+        payload: { level, description }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // ============================================================================
@@ -786,82 +375,30 @@ function setDurationDescription(level, description) {
 // ============================================================================
 
 function startApp() {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(APP_STATE_KEY);
-    
-    const appState = {
-        currentStage: 'Item Listing',
-        buckets: initializeBuckets(),
-        locked: true
-    };
-    Store.save(appState);
-    
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    
-    console.log('App started - all data cleared');
+    return executeCommand({
+        type: COMMAND_TYPES.START_APP,
+        payload: {}
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function clearItemDataOnly() {
-    // Clear items but preserve settings
-    localStorage.removeItem(STORAGE_KEY);
-    
-    // Get current app state
-    const appState = Store.getAppState();
-    if (appState) {
-        // Reset stage and visited stages, but keep buckets
-        appState.currentStage = 'Item Listing';
-        appState.visitedStages = ['Item Listing'];
-        Store.save(appState);
-    } else {
-        // If no state exists, create minimal state with current buckets
-        const newState = {
-            currentStage: 'Item Listing',
-            buckets: initializeBuckets(),
-            locked: true,
-            visitedStages: ['Item Listing']
-        };
-        Store.save(newState);
-    }
-    
-    // Refresh UI
-    populateSettings();
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    console.log('Item data cleared, settings preserved');
+    return executeCommand({
+        type: COMMAND_TYPES.CLEAR_ITEM_DATA_ONLY,
+        payload: {}
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 function clearAllData(clearSettings = false) {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(APP_STATE_KEY);
-    
-    // Reinitialize app state
-    const appState = {
-        currentStage: 'Item Listing',
-        buckets: clearSettings ? initializeBuckets() : (Store.getAppState()?.buckets || initializeBuckets()),
-        locked: true,
-        visitedStages: ['Item Listing']
-    };
-    Store.save(appState);
-    
-    // Refresh UI
-    populateSettings();
-    displayJson();
-    updateStageNavigation();
-    updateLockedDisplay();
-    updateUrgencyView();
-    updateValueView();
-    updateDurationView();
-    updateResultsView();
-    updateItemListingView();
-    console.log('All data cleared');
+    return executeCommand({
+        type: COMMAND_TYPES.CLEAR_ALL_DATA,
+        payload: { clearSettings }
+    }, {
+        handlers: COMMAND_HANDLERS
+    });
 }
 
 // ============================================================================
@@ -895,7 +432,7 @@ const { COMMANDS, COMMAND_FORMS } = createCommands({
 // UI Refresh Helper
 // ============================================================================
 
-function refreshApp() {
+export function refreshApp() {
     displayJson();
     updateStageNavigation();
     updateLockedDisplay();
