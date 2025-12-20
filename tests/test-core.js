@@ -154,6 +154,10 @@ export function getItems() {
         return window.TestAdapter.getItems();
     }
     // Fallback for tests that need direct storage access
+    // If Store is available, use it (it will return cached items)
+    if (window.Store && typeof window.Store.getItems === 'function') {
+        return window.Store.getItems();
+    }
     const stored = localStorage.getItem(TEST_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
 }
@@ -165,6 +169,10 @@ export function saveItems(items) {
     if (window.TestAdapter && window.TestAdapter.api) {
         // Save to app's storage key for API to work
         localStorage.setItem('priorityItems', JSON.stringify(items));
+        // Reload Store to pick up changes (new Store structure caches state)
+        if (window.Store && typeof window.Store.reload === 'function') {
+            window.Store.reload();
+        }
     }
     // Also save to test storage key for fallback
     localStorage.setItem(TEST_STORAGE_KEY, JSON.stringify(items));
@@ -219,6 +227,21 @@ export function getAppState() {
         }
         return state;
     }
+    // If Store is available, use it (it will return cached state)
+    if (window.Store && typeof window.Store.getAppState === 'function') {
+        const state = window.Store.getAppState();
+        // Ensure currentStage defaults to 'Item Listing' if invalid
+        if (!state || !state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'].includes(state.currentStage)) {
+            if (!state || !state.currentStage) {
+                const newState = { currentStage: 'Item Listing', buckets: initializeBuckets(), locked: true };
+                saveAppState(newState);
+                return newState;
+            }
+            state.currentStage = 'Item Listing';
+            saveAppState(state);
+        }
+        return state;
+    }
     // Fallback for tests that need direct storage access
     const stored = localStorage.getItem(TEST_APP_STATE_KEY);
     if (stored) {
@@ -240,6 +263,12 @@ export function saveAppState(state) {
     // Always save to both test and app storage keys to keep them in sync
     localStorage.setItem('appState', JSON.stringify(state));
     localStorage.setItem(TEST_APP_STATE_KEY, JSON.stringify(state));
+    
+    // Reload Store to pick up changes (new Store structure caches state)
+    // This ensures Store sees the changes when tests write directly to localStorage
+    if (window.Store && typeof window.Store.reload === 'function') {
+        window.Store.reload();
+    }
 }
 
 // Set entry stage for tests (kept for backward compatibility, uses TestAdapter)
@@ -360,10 +389,7 @@ export function advanceStage() {
     const nextStage = STAGE_ORDER[currentIndex + 1];
     appState.currentStage = nextStage;
     saveAppState(appState);
-    // Also save to app's storage key
-    if (window.TestAdapter && window.TestAdapter.api) {
-        localStorage.setItem('appState', JSON.stringify(appState));
-    }
+    // saveAppState already handles Store.reload(), so we're good
     return { success: true };
 }
 
@@ -388,10 +414,7 @@ export function backStage() {
     const previousStage = STAGE_ORDER[currentIndex - 1];
     appState.currentStage = previousStage;
     saveAppState(appState);
-    // Also save to app's storage key
-    if (window.TestAdapter && window.TestAdapter.api) {
-        localStorage.setItem('appState', JSON.stringify(appState));
-    }
+    // saveAppState already handles Store.reload(), so we're good
     return { success: true };
 }
 

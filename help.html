@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help - Prioritizer</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <!-- Analytics will be loaded via the analytics module -->
     <style>
@@ -177,7 +178,7 @@
             <p>First, organize your items based purely on <strong>urgency</strong>—when does the value start to decline or risk increase if we delay?</p>
             
             <div style="margin: 20px 0;">
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/ha46hhcGOY0?si=eiLgKX0TL06X56wF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="max-width: 100%; height: auto; aspect-ratio: 560/315;"></iframe>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/ha46hhcGOY0?si=eiLgKX0TL06X56wF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy" style="max-width: 100%; height: auto; aspect-ratio: 560/315;"></iframe>
             </div>
             
             <ul>
@@ -552,14 +553,21 @@
             
             const helpLinks = document.querySelectorAll('.help-link');
             helpLinks.forEach(function(link) {
+                // Use passive: true since we're just tracking, not preventing default
                 link.addEventListener('click', function(e) {
                     const resourceUrl = link.href;
                     analytics.trackEvent('Click On Resource', {
                         resourceUrl: resourceUrl
                     });
-                });
+                }, { passive: true });
             });
         });
+        
+        // Note: Console warnings about non-passive event listeners and setTimeout handlers
+        // (e.g., "Added non-passive event listener to a scroll-blocking event")
+        // are expected and come from YouTube's embedded player (www-embed-player-es6.js).
+        // These are third-party warnings from YouTube's code that we cannot control.
+        // The iframe uses lazy loading to minimize performance impact.
     </script>
 </body>
 </html>

@@ -81,6 +81,11 @@ export async function runAllTests() {
         localStorage.removeItem('priorityItems'); // App's storage key
         localStorage.removeItem('appState'); // App's state key
         
+        // Reload Store to pick up cleared state (new Store structure caches state)
+        if (window.Store && typeof window.Store.reload === 'function') {
+            window.Store.reload();
+        }
+        
         // Run all tests in order
         for (const test of allTests) {
             console.log(`\n--- Test ${test.number}: ${test.name} ---`);
@@ -104,6 +109,11 @@ export async function runAllTests() {
         localStorage.removeItem(TEST_APP_STATE_KEY);
         localStorage.removeItem('priorityItems'); // Clear app's items storage
         localStorage.removeItem('appState'); // Clear app's state storage
+        
+        // Reload Store to pick up cleared state (new Store structure caches state)
+        if (window.Store && typeof window.Store.reload === 'function') {
+            window.Store.reload();
+        }
         
         // Reset limits to default values (30 for all) to clean up test data
         // But preserve the entry stage if it was set

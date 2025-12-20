@@ -375,6 +375,10 @@ function testEntryStageAlwaysUrgencyOnStart() {
     // Clear all state first
     localStorage.removeItem(TEST_APP_STATE_KEY);
     localStorage.removeItem('appState');
+    // Also clear and reload Store to ensure it picks up the cleared state
+    if (window.Store && typeof window.Store.reload === 'function') {
+        window.Store.reload();
+    }
     const appState1 = getAppState();
     assertEqual(appState1.currentStage, 'Item Listing', 'Current stage should be "Item Listing" when app state is first created');
     
@@ -397,6 +401,10 @@ function testEntryStageAlwaysUrgencyOnStart() {
     // Test 3: After clearing state, current stage should default to "Item Listing"
     localStorage.removeItem(TEST_APP_STATE_KEY);
     localStorage.removeItem('appState');
+    // Also clear and reload Store to ensure it picks up the cleared state
+    if (window.Store && typeof window.Store.reload === 'function') {
+        window.Store.reload();
+    }
     const appState3 = getAppState();
     assertEqual(appState3.currentStage, 'Item Listing', 'After clearing state, current stage should default to "Item Listing"');
     

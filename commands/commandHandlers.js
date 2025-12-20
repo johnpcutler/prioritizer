@@ -3,6 +3,8 @@
 
 // Import dependencies that handlers will need
 import { Store, persistAndRefresh } from '../state/appState.js';
+import { StateStore } from '../state/StateStore.js';
+import { Persistence } from '../state/persistence/index.js';
 import { COMMAND_TYPES } from './commandTypes.js';
 import { PROPERTY_META, CATEGORIES, LEVELS, STORAGE_KEY, APP_STATE_KEY } from '../models/constants.js';
 import { STAGE_CONTROLLER, STAGE_ORDER } from '../models/stages.js';
@@ -1083,15 +1085,39 @@ export const COMMAND_HANDLERS = {
     },
     
     apply(state, items, payload) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(APP_STATE_KEY);
+      // Clear persistence
+      Persistence.clear();
       
+      // Clear StateStore
+      StateStore.clear();
+      
+      // Create new default state (with all required fields)
       const appState = {
         currentStage: 'Item Listing',
+        visitedStages: ['Item Listing'],
         buckets: initializeBuckets(),
-        locked: true
+        locked: true,
+        resultsManuallyReordered: false,
+        confidenceWeights: {
+          1: 0.30,
+          2: 0.50,
+          3: 0.70,
+          4: 0.90
+        },
+        confidenceLevelLabels: {
+          1: "Not Confident (rarely, unlikely, low probability)",
+          2: "Somewhat Confident (maybe, possibly, moderate probability)",
+          3: "Confident (likely, probably, high probability)",
+          4: "Very Confident (almost certainly, almost always, certainly)"
+        }
       };
-      Store.save(appState);
+      
+      // Initialize StateStore with empty items and new state
+      StateStore.init(appState, []);
+      
+      // Save to persistence
+      Persistence.saveState(appState);
+      Persistence.saveItems([]);
       
       console.log('App started - all data cleared');
       
@@ -1113,26 +1139,27 @@ export const COMMAND_HANDLERS = {
     },
     
     apply(state, items, payload) {
-      // Clear items but preserve settings
-      localStorage.removeItem(STORAGE_KEY);
+      // Clear items from persistence
+      Persistence.clearItems();
       
-      // Get current app state
-      const appState = Store.getAppState();
-      if (appState) {
-        // Reset stage and visited stages, but keep buckets
-        appState.currentStage = 'Item Listing';
-        appState.visitedStages = ['Item Listing'];
-        Store.save(appState);
-      } else {
-        // If no state exists, create minimal state with current buckets
-        const newState = {
-          currentStage: 'Item Listing',
-          buckets: initializeBuckets(),
-          locked: true,
-          visitedStages: ['Item Listing']
-        };
-        Store.save(newState);
-      }
+      // Clear items from StateStore
+      StateStore.setItems([]);
+      
+      // Get current app state (or create new one)
+      const appState = Store.getAppState() || {
+        currentStage: 'Item Listing',
+        buckets: initializeBuckets(),
+        locked: true,
+        visitedStages: ['Item Listing']
+      };
+      
+      // Reset stage and visited stages, but keep buckets
+      appState.currentStage = 'Item Listing';
+      appState.visitedStages = ['Item Listing'];
+      
+      // Update StateStore and persistence
+      StateStore.setState(appState);
+      Persistence.saveState(appState);
       
       console.log('Item data cleared, settings preserved');
       
@@ -1162,17 +1189,26 @@ export const COMMAND_HANDLERS = {
     apply(state, items, payload) {
       const { clearSettings = false } = payload;
       
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(APP_STATE_KEY);
+      // Clear persistence
+      Persistence.clear();
+      
+      // Clear StateStore
+      StateStore.clear();
       
       // Reinitialize app state
       const appState = {
         currentStage: 'Item Listing',
-        buckets: clearSettings ? initializeBuckets() : (Store.getAppState()?.buckets || initializeBuckets()),
+        buckets: clearSettings ? initializeBuckets() : (state?.buckets || initializeBuckets()),
         locked: true,
         visitedStages: ['Item Listing']
       };
-      Store.save(appState);
+      
+      // Initialize StateStore with new state and empty items
+      StateStore.init(appState, []);
+      
+      // Save to persistence
+      Persistence.saveState(appState);
+      Persistence.saveItems([]);
       
       console.log('All data cleared');
       

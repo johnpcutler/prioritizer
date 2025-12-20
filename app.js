@@ -686,3 +686,6 @@ window.displayJson = displayJson;
 window.updateStageNavigation = updateStageNavigation;
 window.updateStageButtonStates = updateStageNavigation; // Legacy alias
 
+// Expose Store for tests (so they can call Store.reload() after direct localStorage writes)
+window.Store = Store;
+

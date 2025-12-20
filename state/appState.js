@@ -1,178 +1,171 @@
-import { APP_STATE_KEY, STORAGE_KEY } from '../models/constants.js';
-import { initializeBuckets, normalizeBuckets, updateBuckets } from '../models/buckets.js';
-import { STAGE_ORDER, STAGE_CONTROLLER } from '../models/stages.js';
-import { normalizeItem, recomputeItemMetrics } from '../models/items.js';
+import { updateBuckets, initializeBuckets, normalizeBuckets } from '../models/buckets.js';
+import { StateStore } from './StateStore.js';
+import { Persistence } from './persistence/index.js';
+import { Migrator } from './migration/Migrator.js';
 
-// State Store (Redux-like pattern)
+/**
+ * Store - Facade for state management, persistence, and migration
+ * Maintains backward-compatible API while using separated concerns internally
+ */
 export const Store = {
-    state: null,
-    subscribers: [],
+    /**
+     * Reload policy: 'always', 'on-demand', or 'never'
+     * 'always' - Reload on every getAppState() call (old behavior)
+     * 'on-demand' - Cache reads, use reload() for explicit reloads (new default)
+     * 'never' - Never reload, only on init
+     */
+    reloadPolicy: 'on-demand',
     
+    /**
+     * Initialize Store: Load from persistence, migrate, normalize, and set in StateStore
+     */
     init() {
-        Store.state = Store.load();
-        return Store.state;
+        const rawState = Persistence.loadState();
+        const rawItems = Persistence.loadItems();
+        
+        // Normalize state and items together (handles bucket updates)
+        const { state, items } = Migrator.normalize(rawState, rawItems);
+        
+        // Initialize StateStore with normalized data
+        StateStore.init(state, items);
+        
+        // Save normalized items back if they were fixed
+        Persistence.saveItems(items);
+        
+        return StateStore.getState();
     },
     
+    /**
+     * Load state and items (used internally, public for backward compatibility)
+     * @deprecated Use init() or reload() instead
+     */
     load() {
-        const stored = localStorage.getItem(APP_STATE_KEY);
-        let state;
-        
-        if (stored) {
-            state = JSON.parse(stored);
-            
-            // Migrate entryStage to currentStage if needed
-            if (state.entryStage && !state.currentStage) {
-                state.currentStage = state.entryStage;
-                delete state.entryStage;
-            }
-            
-            // Ensure currentStage is valid
-            if (!state.currentStage || !STAGE_ORDER.includes(state.currentStage)) {
-                state.currentStage = 'Item Listing';
-            }
-        } else {
-            state = {
-                currentStage: 'Item Listing',
-                visitedStages: ['Item Listing'],
-                buckets: initializeBuckets(),
-                locked: true,
-                resultsManuallyReordered: false,
-                confidenceWeights: {
-                    1: 0.30,
-                    2: 0.50,
-                    3: 0.70,
-                    4: 0.90
-                },
-                confidenceLevelLabels: {
-                    1: "Not Confident (rarely, unlikely, low probability)",
-                    2: "Somewhat Confident (maybe, possibly, moderate probability)",
-                    3: "Confident (likely, probably, high probability)",
-                    4: "Very Confident (almost certainly, almost always, certainly)"
-                }
-            };
-        }
-        
-        // Initialize visitedStages if it doesn't exist (migration for existing appState)
-        if (!state.visitedStages || !Array.isArray(state.visitedStages)) {
-            // If we have a currentStage, assume it and all previous stages have been visited
-            const currentIndex = STAGE_ORDER.indexOf(state.currentStage);
-            if (currentIndex >= 0) {
-                state.visitedStages = STAGE_ORDER.slice(0, currentIndex + 1);
-            } else {
-                state.visitedStages = ['Item Listing'];
-            }
-        }
-        
-        // Ensure locked property exists
-        if (state.locked === undefined || state.locked === null) {
-            state.locked = true;
-        }
-        
-        // Ensure resultsManuallyReordered property exists (migration for existing appState)
-        if (state.resultsManuallyReordered === undefined || state.resultsManuallyReordered === null) {
-            state.resultsManuallyReordered = false;
-        }
-        
-        // Initialize confidence weights if missing
-        if (!state.confidenceWeights) {
-            state.confidenceWeights = {
-                1: 0.30,
-                2: 0.50,
-                3: 0.70,
-                4: 0.90
-            };
-        }
-        
-        // Initialize confidence level labels if missing
-        if (!state.confidenceLevelLabels) {
-            state.confidenceLevelLabels = {
-                1: "Not Confident (rarely, unlikely, low probability)",
-                2: "Somewhat Confident (maybe, possibly, moderate probability)",
-                3: "Confident (likely, probably, high probability)",
-                4: "Very Confident (almost certainly, almost always, certainly)"
-            };
-        }
-        
-        // Normalize buckets
-        state.buckets = normalizeBuckets(state.buckets);
-        
-        // Migrate items and update buckets
-        const items = Store.loadItems();
-        state = updateBuckets(state, items);
-        
-        // Recompute item metrics for existing items
-        items.forEach(item => {
-            normalizeItem(item);
-            recomputeItemMetrics(item, state.buckets);
-        });
-        Store.saveItems(items);
-        
+        const rawState = Persistence.loadState();
+        const rawItems = Persistence.loadItems();
+        const { state, items } = Migrator.normalize(rawState, rawItems);
         return state;
     },
     
+    /**
+     * Save state to StateStore and persistence
+     * @param {Object} state - State object to save
+     */
     save(state) {
-        Store.state = state;
-        localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
-        Store.notifySubscribers();
+        StateStore.setState(state);
+        Persistence.saveState(state);
     },
     
+    /**
+     * Update state using a mutator function
+     * @param {Function} mutator - Function that mutates state: (state) => { state.prop = value; }
+     */
     update(mutator) {
-        if (!Store.state) {
-            Store.state = Store.load();
-        }
-        mutator(Store.state);
-        Store.save(Store.state);
+        StateStore.updateState(mutator);
+        Persistence.saveState(StateStore.getState());
     },
     
+    /**
+     * Subscribe to state changes
+     * @param {Function} callback - Function called when state changes
+     * @returns {Function} Unsubscribe function
+     */
     subscribe(callback) {
-        Store.subscribers.push(callback);
+        return StateStore.subscribe(callback);
     },
     
+    /**
+     * Notify subscribers (delegates to StateStore)
+     */
     notifySubscribers() {
-        Store.subscribers.forEach(callback => callback(Store.state));
+        StateStore.notifySubscribers();
     },
     
+    /**
+     * Load items from persistence and normalize
+     * @returns {Array} Normalized items array
+     */
     loadItems() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        const items = stored ? JSON.parse(stored) : [];
-        const normalizedItems = items.map(item => normalizeItem(item));
-        
-        // Fix duplicate IDs - ensure all items have unique IDs
-        const idMap = new Map();
-        const fixedItems = normalizedItems.map(item => {
-            if (idMap.has(item.id)) {
-                // Generate new unique ID for duplicate
-                const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                item.id = newId;
-            }
-            idMap.set(item.id, true);
-            return item;
-        });
-        
-        // Save fixed items if any duplicates were found
-        if (fixedItems.length !== normalizedItems.length || fixedItems.some((item, idx) => item.id !== normalizedItems[idx].id)) {
-            Store.saveItems(fixedItems);
-        }
-        
-        return fixedItems;
+        const rawItems = Persistence.loadItems();
+        const state = StateStore.getState();
+        return Migrator.normalizeItems(rawItems, state);
     },
     
+    /**
+     * Save items to StateStore and persistence
+     * @param {Array} items - Items array to save
+     */
     saveItems(items) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        StateStore.setItems(items);
+        Persistence.saveItems(items);
     },
     
+    /**
+     * Get application state (cached by default, or reload based on policy)
+     * @returns {Object} Current application state
+     */
     getAppState() {
-        // Always reload from storage to get fresh state (don't cache)
-        Store.state = Store.load();
-        return Store.state;
+        if (Store.reloadPolicy === 'always') {
+            Store.reload();
+        }
+        return StateStore.getState();
     },
     
+    /**
+     * Get items (cached by default, or reload based on policy)
+     * @returns {Array} Current items array
+     */
     getItems() {
-        return Store.loadItems();
+        if (Store.reloadPolicy === 'always') {
+            Store.reload();
+        }
+        return StateStore.getItems();
     },
     
+    /**
+     * Explicitly reload state and items from persistence
+     * Use this when you need fresh data (e.g., after external changes)
+     */
+    reload() {
+        const rawState = Persistence.loadState();
+        const rawItems = Persistence.loadItems();
+        const { state, items } = Migrator.normalize(rawState, rawItems);
+        
+        StateStore.setState(state);
+        StateStore.setItems(items);
+        
+        // Save normalized items back if they were fixed
+        Persistence.saveItems(items);
+    },
+    
+    /**
+     * Clear cache (invalidate StateStore)
+     */
     clearCache() {
-        Store.state = null;
+        StateStore.clear();
+    },
+    
+    /**
+     * Get current state reference (for backward compatibility)
+     * @deprecated Use getAppState() instead
+     */
+    get state() {
+        return StateStore.getState();
+    },
+    
+    /**
+     * Set state (for backward compatibility)
+     * @deprecated Use save() or setState() instead
+     */
+    set state(value) {
+        StateStore.setState(value);
+    },
+    
+    /**
+     * Get subscribers (for backward compatibility)
+     * @deprecated Use subscribe() instead
+     */
+    get subscribers() {
+        return StateStore.subscribers;
     }
 };
 
@@ -205,10 +198,15 @@ export function ensureBuckets(state) {
 // Persist and refresh (updates buckets and saves)
 export function persistAndRefresh(appState, items = null) {
     if (items === null) {
-        items = Store.getItems();
+        items = StateStore.getItems();
     }
-    updateBuckets(appState, items);
-    Store.save(appState);
-    return appState;
+    // Update buckets based on items
+    const updatedState = updateBuckets(appState, items);
+    // Save both state and items
+    StateStore.setState(updatedState);
+    StateStore.setItems(items);
+    Persistence.saveState(updatedState);
+    Persistence.saveItems(items);
+    return updatedState;
 }
 
