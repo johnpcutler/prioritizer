@@ -128,6 +128,25 @@ function displayDurationViewContent() {
             }
         }
     }
+    
+    // Render parking lot row - only shows "Advance To Results" button when all durations are set
+    const durationNoValueContent = document.getElementById('durationNoValueContent');
+    if (durationNoValueContent) {
+        const allItemsHaveDuration = allItemsWithValueAndUrgencyHaveDuration(items);
+        if (allItemsHaveDuration) {
+            // Show "Advance To Results" button when all items have duration
+            durationNoValueContent.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 100px;">
+                    <button id="advanceToResultsBtn" class="submit-btn">Advance To Results</button>
+                </div>
+            `;
+            durationNoValueContent.classList.remove('empty');
+        } else {
+            // Show empty state - no items go in parking lot for duration
+            durationNoValueContent.innerHTML = '<div class="empty">No items</div>';
+            durationNoValueContent.classList.add('empty');
+        }
+    }
 }
 
 // Render a single item in the duration view

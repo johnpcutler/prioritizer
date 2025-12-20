@@ -1618,6 +1618,11 @@ button:disabled {
     grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
 }
 
+/* Duration no-value box spans columns 2-4 */
+.duration-no-value-box {
+    grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */
+}
+
 /* Value no-value box merged (spans columns 2-4 when all items have value) */
 .value-no-value-box-merged {
     grid-column: 2 / 5; /* Spans from column 2 to column 5 (columns 2, 3, 4) */

@@ -324,13 +324,16 @@ export function setupItemsListeners(handlers) {
         const durationViewSection = document.getElementById('durationViewSection');
         if (!durationViewSection) return;
         
-        // Remove old listener if exists
-        if (durationViewSection._durationViewHandler) {
-            durationViewSection.removeEventListener('change', durationViewSection._durationViewHandler);
+        // Remove old listeners if they exist
+        if (durationViewSection._durationViewChangeHandler) {
+            durationViewSection.removeEventListener('change', durationViewSection._durationViewChangeHandler);
+        }
+        if (durationViewSection._durationViewClickHandler) {
+            durationViewSection.removeEventListener('click', durationViewSection._durationViewClickHandler);
         }
         
-        // Create new handler
-        durationViewSection._durationViewHandler = function handleDurationViewChange(e) {
+        // Create change handler for select dropdowns
+        durationViewSection._durationViewChangeHandler = function handleDurationViewChange(e) {
             // Find the select element
             let select = e.target;
             
@@ -360,8 +363,30 @@ export function setupItemsListeners(handlers) {
             }
         };
         
-        // Add new listener
-        durationViewSection.addEventListener('change', durationViewSection._durationViewHandler);
+        // Create click handler for "Advance To Results" button
+        durationViewSection._durationViewClickHandler = function handleDurationViewClick(e) {
+            // Check for "Advance To Results" button click
+            const advanceToResultsBtn = e.target.closest('#advanceToResultsBtn');
+            if (advanceToResultsBtn && navigateToStage) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const items = Store.getItems();
+                const itemsCount = items.length;
+                
+                // Navigate to Results stage
+                const result = navigateToStage('Results');
+                if (result.success) {
+                    // Track analytics event
+                    analytics.trackEvent('Clicked Advance To Results', { itemsCount });
+                }
+                return;
+            }
+        };
+        
+        // Add listeners
+        durationViewSection.addEventListener('change', durationViewSection._durationViewChangeHandler);
+        durationViewSection.addEventListener('click', durationViewSection._durationViewClickHandler);
     }
     
     // Attach duration view listeners initially
