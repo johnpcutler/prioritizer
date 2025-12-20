@@ -2219,5 +2219,28 @@ button:disabled {
     .duration-item-controls .duration-select {
         width: 100%;
     }
+    
+    /* Make column 1 (value labels and parking lot) narrower on mobile */
+    /* Update grid template to use narrower first column */
+    .grid {
+        grid-template-columns: 50px 1fr 1fr 1fr;
+    }
+    
+    .grid-label-row {
+        width: 50px;
+        min-width: 50px;
+    }
+    
+    /* Reduce item font sizes by one notch on mobile */
+    .item-card {
+        font-size: var(--text-sm); /* Reduced from var(--text-md) */
+    }
+    
+    .item-name,
+    .value-item-name,
+    .duration-item-name,
+    .urgency-item-name {
+        font-size: var(--text-sm); /* Reduced from var(--text-md) */
+    }
 }
 
