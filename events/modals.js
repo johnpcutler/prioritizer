@@ -4,6 +4,7 @@ import { Store } from '../state/appState.js';
 import { escapeHtml } from '../ui/forms.js';
 import { analytics } from '../analytics/analytics.js';
 import { showConfidenceSurveyError, hideConfidenceSurveyError } from '../ui/display/index.js';
+import { getElementById as getMobileElement } from '../ui/navigation/mobileNavConfig.js';
 
 // Setup modal event listeners
 // Accepts handler functions as dependencies
@@ -55,12 +56,22 @@ export function setupModalsListeners(handlers) {
         }
     };
     
+    // Clear Data button (desktop and mobile)
+    // Use config for mobile button selector to decouple from HTML structure
+    const clearDataBtnMobile = getMobileElement('clearDataBtnMobile');
+    
+    const handleClearDataClick = () => {
+        showClearDataModal();
+        // Track analytics event
+        analytics.trackEvent('Access Clear Data');
+    };
+    
     if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', () => {
-            showClearDataModal();
-            // Track analytics event
-            analytics.trackEvent('Access Clear Data');
-        });
+        clearDataBtn.addEventListener('click', handleClearDataClick);
+    }
+    
+    if (clearDataBtnMobile) {
+        clearDataBtnMobile.addEventListener('click', handleClearDataClick);
     }
     
     if (modalCloseBtn) {

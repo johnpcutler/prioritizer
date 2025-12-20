@@ -1,6 +1,7 @@
 import { STAGE_CONTROLLER, STAGE_ORDER } from '../models/stages.js';
 import { Store } from '../state/appState.js';
 import { updateUrgencyView } from './display/urgencyView.js';
+import { getNavigationCoordinator } from './navigation/navigationCoordinator.js';
 
 // Re-export for global access
 window.Store = Store;
@@ -34,7 +35,7 @@ export function updateStageNavigation() {
     // Get navigation state
     const navState = STAGE_CONTROLLER.getStageNavigationState(currentStage, visitedStages, items);
     
-    // Update stage steps
+    // Update desktop stage steps
     const stageSteps = document.querySelectorAll('.stage-step');
     stageSteps.forEach(step => {
         const stepStage = step.getAttribute('data-stage');
@@ -61,6 +62,13 @@ export function updateStageNavigation() {
             step.setAttribute('title', stageInfo.reason || stageInfo.displayName);
         }
     });
+    
+    // Update mobile workflow dropdown via navigation coordinator
+    // Desktop navigation is already updated above, so just update mobile
+    const coordinator = getNavigationCoordinator();
+    if (coordinator) {
+        coordinator.updateMobile();
+    }
 }
 
 // Update current stage display (legacy - now calls updateStageNavigation)

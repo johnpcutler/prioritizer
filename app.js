@@ -37,6 +37,7 @@ import { analytics } from './analytics/analytics.js';
 import { executeCommand, setRefreshFunction } from './commands/index.js';
 import { COMMAND_TYPES } from './commands/commandTypes.js';
 import { COMMAND_HANDLERS } from './commands/commandHandlers.js';
+import { getNavigationCoordinator } from './ui/navigation/navigationCoordinator.js';
 
 // Make functions available globally for event listeners
 window.setItemProperty = null;
@@ -448,6 +449,10 @@ export function refreshApp() {
 // ============================================================================
 
 function setupEventListeners() {
+    // Initialize navigation coordinator (replaces window.navigateToStage)
+    // Coordinator will be used by display.js for navigation updates
+    getNavigationCoordinator(navigateToStage);
+    
     // Setup all event listeners using the modular event system
     setupAllEventListeners({
         // Navigation

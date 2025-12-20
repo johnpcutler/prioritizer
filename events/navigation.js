@@ -1,9 +1,19 @@
 // Navigation event listeners - stage navigation and stage step clicks
 
+import { initMobileNav } from '../ui/navigation/mobileNav.js';
+import { getNavigationCoordinator } from '../ui/navigation/navigationCoordinator.js';
+
+// Store cleanup function for mobile nav
+let mobileNavCleanup = null;
+
 // Setup navigation event listeners
 // Accepts navigateToStage function as a dependency
+// Returns cleanup function for proper resource management
 export function setupNavigationListeners(navigateToStage) {
-    // Stage navigation - make stage steps clickable
+    // Initialize navigation coordinator with navigateToStage
+    const coordinator = getNavigationCoordinator(navigateToStage);
+    
+    // Stage navigation - make stage steps clickable (desktop)
     // Use event delegation on the parent container for dynamic updates
     const stageStepsContainer = document.querySelector('.stage-steps');
     if (stageStepsContainer) {
@@ -27,5 +37,16 @@ export function setupNavigationListeners(navigateToStage) {
             }
         });
     }
+    
+    // Initialize mobile navigation (hamburger menu and workflow dropdown)
+    mobileNavCleanup = initMobileNav(navigateToStage);
+    
+    // Return cleanup function
+    return () => {
+        if (mobileNavCleanup) {
+            mobileNavCleanup();
+            mobileNavCleanup = null;
+        }
+    };
 }
 

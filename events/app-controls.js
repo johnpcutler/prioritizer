@@ -39,13 +39,13 @@ export function setupAppControlListeners(handlers) {
         });
     }
     
-    // Help link
-    const helpLink = document.querySelector('a[href="help.html"]');
-    if (helpLink) {
+    // Help link (desktop and mobile)
+    const helpLinks = document.querySelectorAll('a[href="help.html"]');
+    helpLinks.forEach(helpLink => {
         helpLink.addEventListener('click', () => {
             analytics.trackEvent('Access Help');
         });
-    }
+    });
     
     // Clear Data modal submit handler
     // This is called from modals.js after modal validation

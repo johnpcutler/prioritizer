@@ -1971,3 +1971,233 @@ button:disabled {
     line-height: 1.5;
 }
 
+/* ============================================================================
+   Mobile Navigation - Hamburger Menu and Responsive Design
+   ============================================================================ */
+
+/* Hamburger menu button */
+.hamburger-btn {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-xl);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 100;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.hamburger-btn:hover {
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-primary);
+}
+
+.hamburger-btn.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* Hamburger menu */
+.hamburger-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 2px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    z-index: 99;
+    flex-direction: column;
+    padding: var(--space-lg);
+    gap: var(--space-md);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.hamburger-menu.open {
+    display: flex;
+    max-height: 300px;
+    padding: var(--space-lg);
+}
+
+.hamburger-menu-item {
+    padding: var(--space-lg) var(--space-xl);
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-main);
+    text-decoration: none;
+    font-size: var(--text-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.hamburger-menu-item:hover {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.hamburger-menu-item-danger {
+    background-color: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+}
+
+.hamburger-menu-item-danger:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+/* Mobile workflow dropdown */
+.mobile-workflow {
+    display: none; /* Hidden on desktop */
+}
+
+.workflow-dropdown-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: var(--space-md);
+    white-space: nowrap;
+}
+
+.workflow-dropdown {
+    padding: var(--space-md) var(--space-lg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    font-weight: 500;
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    cursor: pointer;
+    min-width: 150px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-md) center;
+    padding-right: var(--space-4xl);
+}
+
+.workflow-dropdown:hover {
+    border-color: var(--color-primary);
+}
+
+.workflow-dropdown:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.workflow-dropdown option:disabled {
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    /* Show hamburger button and mobile workflow, hide desktop elements */
+    .hamburger-btn {
+        display: block;
+    }
+    
+    .mobile-workflow {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .desktop-workflow {
+        display: none;
+    }
+    
+    .desktop-actions {
+        display: none;
+    }
+    
+    /* Adjust stage navigation bar for mobile */
+    .stage-navigation-bar {
+        padding: var(--space-md) var(--space-lg);
+    }
+    
+    .stage-nav-controls {
+        position: relative;
+        gap: var(--space-lg);
+    }
+    
+    .workflow-container {
+        gap: var(--space-lg);
+    }
+    
+    /* Make workflow dropdown full width on very small screens */
+    @media (max-width: 480px) {
+        .mobile-workflow {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .workflow-dropdown {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+    
+    /* Settings view - use full width on mobile */
+    .settings-view-section {
+        padding: var(--space-lg);
+    }
+    
+    .settings-view-content {
+        width: 100%;
+        max-width: none;
+        padding: var(--space-lg);
+    }
+    
+    .settings-group {
+        padding: var(--space-lg);
+    }
+    
+    /* Adjust settings rows for mobile - stack vertically if needed */
+    .settings-row {
+        flex-wrap: wrap;
+    }
+    
+    .settings-row label {
+        min-width: auto;
+        width: 100%;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .settings-save-btn {
+        width: 100%;
+        margin-top: var(--space-md);
+    }
+    
+    /* Value view - stack buttons on second line on mobile */
+    .value-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+    
+    .value-item-name {
+        width: 100%;
+    }
+    
+    .value-item-controls {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+

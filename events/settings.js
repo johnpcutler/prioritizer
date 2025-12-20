@@ -12,6 +12,7 @@ import {
     displayJson
 } from '../ui/display/index.js';
 import { analytics } from '../analytics/analytics.js';
+import { getElementById as getMobileElement } from '../ui/navigation/mobileNavConfig.js';
 
 // Helper function to hide all stage views
 function hideAllStageViews() {
@@ -83,20 +84,28 @@ export function setupSettingsListeners(handlers) {
         setValueDescription
     } = handlers;
 
-    // Settings button - toggle settings view
+    // Settings button - toggle settings view (desktop and mobile)
+    // Use config for mobile button selector to decouple from HTML structure
     const settingsBtn = document.getElementById('settingsBtn');
+    const settingsBtnMobile = getMobileElement('settingsBtnMobile');
     const settingsViewSection = document.getElementById('settingsViewSection');
     
+    const handleSettingsClick = () => {
+        const isVisible = settingsViewSection.style.display !== 'none';
+        toggleSettingsView(!isVisible);
+        
+        // Track analytics event when opening settings
+        if (!isVisible) {
+            analytics.trackEvent('Access Settings');
+        }
+    };
+    
     if (settingsBtn && settingsViewSection) {
-        settingsBtn.addEventListener('click', () => {
-            const isVisible = settingsViewSection.style.display !== 'none';
-            toggleSettingsView(!isVisible);
-            
-            // Track analytics event when opening settings
-            if (!isVisible) {
-                analytics.trackEvent('Access Settings');
-            }
-        });
+        settingsBtn.addEventListener('click', handleSettingsClick);
+    }
+    
+    if (settingsBtnMobile && settingsViewSection) {
+        settingsBtnMobile.addEventListener('click', handleSettingsClick);
     }
     
     // Close settings button
