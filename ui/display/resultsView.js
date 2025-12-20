@@ -137,18 +137,21 @@ function displayResultsContent() {
         const linkHtml = item.link ? ` <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="item-link" title="${escapeHtml(item.link)}">🔗</a>` : '';
         const notesBadgeHtml = `<button class="notes-badge" data-item-id="${item.id}" title="${notesCount > 0 ? 'View/Edit notes' : 'Add notes'}">Notes (${notesCount})</button>`;
         
-        // Get bucket names for urgency, value, and duration
+        // Get bucket names and weights for urgency, value, and duration
         const urgency = item.urgency || 0;
         const urgencyTitle = urgency === 1 ? urgency1Title : urgency === 2 ? urgency2Title : urgency === 3 ? urgency3Title : '—';
-        const urgencyDisplay = urgency > 0 ? `${urgency} (${escapeHtml(urgencyTitle)})` : '—';
+        const urgencyWeight = urgency > 0 ? (buckets.urgency[urgency]?.weight || 0) : 0;
+        const urgencyDisplay = urgency > 0 ? `${escapeHtml(urgencyTitle)} (${urgencyWeight})` : '—';
         
         const value = item.value || 0;
         const valueTitle = value === 1 ? value1Title : value === 2 ? value2Title : value === 3 ? value3Title : '—';
-        const valueDisplay = value > 0 ? `${value} (${escapeHtml(valueTitle)})` : '—';
+        const valueWeight = value > 0 ? (buckets.value[value]?.weight || 0) : 0;
+        const valueDisplay = value > 0 ? `${escapeHtml(valueTitle)} (${valueWeight})` : '—';
         
         const duration = item.duration || 0;
         const durationTitle = duration === 1 ? duration1Title : duration === 2 ? duration2Title : duration === 3 ? duration3Title : '—';
-        const durationDisplay = duration > 0 ? `${duration} (${escapeHtml(durationTitle)})` : '—';
+        const durationWeight = duration > 0 ? (buckets.duration[duration]?.weight || 0) : 0;
+        const durationDisplay = duration > 0 ? `${escapeHtml(durationTitle)} (${durationWeight})` : '—';
         
         // Calculate confidence-weighted CD3 if survey exists
         let confidenceWeightedCD3Html = '';

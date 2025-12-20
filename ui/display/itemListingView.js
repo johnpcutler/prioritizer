@@ -109,15 +109,18 @@ function displayItemListingContent() {
         
         if (urgency > 0) {
             const urgencyTitle = urgency === 1 ? urgency1Title : urgency === 2 ? urgency2Title : urgency === 3 ? urgency3Title : '';
-            valuesParts.push(`Urgency: ${urgency} (${escapeHtml(urgencyTitle)})`);
+            const urgencyWeight = buckets.urgency?.[urgency]?.weight || 0;
+            valuesParts.push(`Urgency: ${escapeHtml(urgencyTitle)} (${urgencyWeight})`);
         }
         if (value > 0) {
             const valueTitle = value === 1 ? value1Title : value === 2 ? value2Title : value === 3 ? value3Title : '';
-            valuesParts.push(`Value: ${value} (${escapeHtml(valueTitle)})`);
+            const valueWeight = buckets.value?.[value]?.weight || 0;
+            valuesParts.push(`Value: ${escapeHtml(valueTitle)} (${valueWeight})`);
         }
         if (duration > 0) {
             const durationTitle = duration === 1 ? duration1Title : duration === 2 ? duration2Title : duration === 3 ? duration3Title : '';
-            valuesParts.push(`Duration: ${duration} (${escapeHtml(durationTitle)})`);
+            const durationWeight = buckets.duration?.[duration]?.weight || 0;
+            valuesParts.push(`Duration: ${escapeHtml(durationTitle)} (${durationWeight})`);
         }
         
         const valuesHtml = valuesParts.length > 0 
