@@ -679,34 +679,22 @@ function testStageNavigation() {
         saveItems(items2);
     }
     
-    // Test advanceStage from duration to Results (new stage before CD3)
+    // Test advanceStage from duration to Results (final stage)
     const result3 = advanceStage();
     assert(result3.success !== false, 'Should be able to advance from duration to Results');
     const appState4 = getAppState();
     assertEqual(appState4.currentStage, 'Results', 'Should be at Results stage after advance');
     
-    // Advance from Results to CD3
-    const result3b = advanceStage();
-    assert(result3b.success !== false, 'Should be able to advance from Results to CD3');
-    const appState4b = getAppState();
-    assertEqual(appState4b.currentStage, 'CD3', 'Should be at CD3 stage after advance');
-    
-    // Test that we cannot advance beyond CD3
+    // Test that we cannot advance beyond Results (final stage)
     const result4 = advanceStage();
-    assert(result4.success === false, 'Should not be able to advance beyond CD3');
+    assert(result4.success === false, 'Should not be able to advance beyond Results');
     assert(result4.error && result4.error.includes('final stage'), 'Error should mention final stage');
     
-    // Test backStage from CD3 to Results
-    const result5 = backStage();
-    assert(result5.success !== false, 'Should be able to go back from CD3 to Results');
-    const appState5 = getAppState();
-    assertEqual(appState5.currentStage, 'Results', 'Should be at Results stage after going back');
-    
     // Test backStage from Results to duration
-    const result5b = backStage();
-    assert(result5b.success !== false, 'Should be able to go back from Results to duration');
-    const appState5b = getAppState();
-    assertEqual(appState5b.currentStage, 'duration', 'Should be at duration stage after going back');
+    const result5 = backStage();
+    assert(result5.success !== false, 'Should be able to go back from Results to duration');
+    const appState5 = getAppState();
+    assertEqual(appState5.currentStage, 'duration', 'Should be at duration stage after going back');
     
     // Test backStage from duration to value
     const result6 = backStage();

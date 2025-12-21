@@ -215,7 +215,7 @@ export function getAppState() {
     if (window.TestAdapter && window.TestAdapter.api) {
         const state = window.TestAdapter.getAppState();
         // Ensure currentStage defaults to 'Item Listing' if invalid or null
-        if (!state || !state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'].includes(state.currentStage)) {
+        if (!state || !state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results'].includes(state.currentStage)) {
             // If state is invalid, create a new one
             if (!state || !state.currentStage) {
                 const newState = { currentStage: 'Item Listing', buckets: initializeBuckets(), locked: true };
@@ -231,7 +231,7 @@ export function getAppState() {
     if (window.Store && typeof window.Store.getAppState === 'function') {
         const state = window.Store.getAppState();
         // Ensure currentStage defaults to 'Item Listing' if invalid
-        if (!state || !state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'].includes(state.currentStage)) {
+        if (!state || !state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results'].includes(state.currentStage)) {
             if (!state || !state.currentStage) {
                 const newState = { currentStage: 'Item Listing', buckets: initializeBuckets(), locked: true };
                 saveAppState(newState);
@@ -247,7 +247,7 @@ export function getAppState() {
     if (stored) {
         const state = JSON.parse(stored);
         // Ensure currentStage defaults to 'Item Listing' if invalid
-        if (!state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'].includes(state.currentStage)) {
+        if (!state.currentStage || !['Item Listing', 'urgency', 'value', 'duration', 'Results'].includes(state.currentStage)) {
             state.currentStage = 'Item Listing';
             saveAppState(state);
         }
@@ -283,7 +283,7 @@ export function setEntryStage(stage) {
 // Set current stage for tests (with validation like app.js)
 // Note: This is test-specific logic, not using API directly
 export function setCurrentStage(stage) {
-    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'];
+    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results'];
     if (!STAGE_ORDER.includes(stage)) {
         return {
             success: false,
@@ -336,7 +336,7 @@ export function advanceStage() {
         return window.TestAdapter.advanceStage();
     }
     // Fallback implementation for tests
-    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'];
+    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results'];
     const appState = getAppState();
     const items = getItems();
     const currentStage = appState.currentStage || 'Item Listing';
@@ -345,7 +345,7 @@ export function advanceStage() {
     if (currentIndex === -1 || currentIndex >= STAGE_ORDER.length - 1) {
         return {
             success: false,
-            error: 'Error: Already at the final stage (CD3). Cannot advance further.'
+            error: 'Error: Already at the final stage (Results). Cannot advance further.'
         };
     }
     
@@ -399,7 +399,7 @@ export function backStage() {
         return window.TestAdapter.backStage();
     }
     // Fallback implementation for tests
-    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'];
+    const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results'];
     const appState = getAppState();
     const currentStage = appState.currentStage || 'Item Listing';
     

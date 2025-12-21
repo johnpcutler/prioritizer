@@ -1,7 +1,7 @@
 import { CATEGORIES, LEVELS } from './constants.js';
 
 // Stage order
-export const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results', 'CD3'];
+export const STAGE_ORDER = ['Item Listing', 'urgency', 'value', 'duration', 'Results'];
 
 // Declarative Stage Validation Rules
 export const STAGE_RULES = {
@@ -17,8 +17,7 @@ export const STAGE_RULES = {
     'duration': [
         items => items.every(i => i.duration && i.duration > 0) || 'All items need duration set before advancing to Results.'
     ],
-    'Results': [],
-    'CD3': []
+    'Results': []
 };
 
 // Validate stage requirements
@@ -113,8 +112,7 @@ export const STAGE_CONTROLLER = {
             'urgency': 'Urgency',
             'value': 'Value',
             'duration': 'Duration',
-            'Results': 'Results',
-            'CD3': 'CD3'
+            'Results': 'Results'
         };
         return displayNames[stage] || stage;
     },
