@@ -2217,18 +2217,39 @@ button:disabled {
     }
     
     .duration-item-controls .duration-select {
-        width: 100%;
+        width: 90%;
+        max-width: 120px;
+        min-width: 70px;
     }
     
     /* Make column 1 (value labels and parking lot) narrower on mobile */
-    /* Update grid template to use narrower first column */
+    /* Update grid template to use narrower first column - just enough to fit vertical text */
     .grid {
-        grid-template-columns: 50px 1fr 1fr 1fr;
+        grid-template-columns: 30px 1fr 1fr 1fr;
     }
     
     .grid-label-row {
-        width: 50px;
-        min-width: 50px;
+        width: 30px;
+        min-width: 30px;
+    }
+    
+    /* Truncate column labels (urgency labels) on mobile to prevent cutoff */
+    .grid-label-column {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        padding: 5px 2px; /* Reduce horizontal padding to save space */
+    }
+    
+    /* Clip text after 2 characters for urgency quick buttons (pills/tags) on mobile */
+    /* Show at least 2 letters to distinguish between similar words, then ellipsis */
+    .urgency-quick-btn {
+        max-width: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: var(--space-xs);
+        padding-right: var(--space-xs);
     }
     
     /* Reduce item font sizes by one notch on mobile */
