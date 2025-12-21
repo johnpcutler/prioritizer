@@ -34,6 +34,17 @@ function getBucketTitle(buckets, category, level) {
 }
 
 /**
+ * Get bucket weight for a given category and level
+ */
+function getBucketWeight(buckets, category, level) {
+    if (!buckets || !buckets[category] || !level || level === 0) {
+        return '';
+    }
+    const weight = buckets[category][level]?.weight;
+    return weight !== undefined && weight !== null ? weight : '';
+}
+
+/**
  * Format notes array as readable text
  * Concatenates all notes with semicolons
  */
@@ -83,10 +94,13 @@ export function exportToCSV(items, appState) {
             'Link',
             'Urgency',
             'Urgency Title',
+            'Urgency Weight',
             'Value',
             'Value Title',
+            'Value Weight',
             'Duration',
             'Duration Title',
+            'Duration Weight',
             'Cost of Delay',
             'CD3',
             'Confidence Weighted CD3',
@@ -117,10 +131,13 @@ export function exportToCSV(items, appState) {
         'Link',
         'Urgency',
         'Urgency Title',
+        'Urgency Weight',
         'Value',
         'Value Title',
+        'Value Weight',
         'Duration',
         'Duration Title',
+        'Duration Weight',
         'Cost of Delay',
         'CD3',
         'Confidence Weighted CD3',
@@ -138,10 +155,13 @@ export function exportToCSV(items, appState) {
         const link = item.link || '';
         const urgency = item.urgency || 0;
         const urgencyTitle = getBucketTitle(buckets, 'urgency', urgency);
+        const urgencyWeight = getBucketWeight(buckets, 'urgency', urgency);
         const value = item.value || 0;
         const valueTitle = getBucketTitle(buckets, 'value', value);
+        const valueWeight = getBucketWeight(buckets, 'value', value);
         const duration = item.duration || 0;
         const durationTitle = getBucketTitle(buckets, 'duration', duration);
+        const durationWeight = getBucketWeight(buckets, 'duration', duration);
         const costOfDelay = item.costOfDelay || 0;
         const cd3 = item.CD3 || 0;
         
@@ -166,10 +186,13 @@ export function exportToCSV(items, appState) {
             formatCSVValue(link),
             formatCSVValue(urgency || ''),
             formatCSVValue(urgencyTitle),
+            formatCSVValue(urgencyWeight),
             formatCSVValue(value || ''),
             formatCSVValue(valueTitle),
+            formatCSVValue(valueWeight),
             formatCSVValue(duration || ''),
             formatCSVValue(durationTitle),
+            formatCSVValue(durationWeight),
             formatCSVValue(costOfDelay.toFixed(2)),
             formatCSVValue(cd3.toFixed(2)),
             formatCSVValue(confidenceWeightedCD3),
