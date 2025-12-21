@@ -5,6 +5,7 @@ import { updateStageView } from '../stageView.js';
 import { allItemsWithValueAndUrgencyHaveDuration, canSetDuration } from '../../models/derived/items.js';
 import { renderItemHeader, getItemCardClasses } from '../render/itemHeader.js';
 import { trackStageView } from '../../analytics/stageEvents.js';
+import { initCalloutInfoIcons } from '../overlay/calloutOverlay.js';
 
 // Display duration view (only visible in duration stage)
 export function updateDurationView() {
@@ -147,6 +148,9 @@ function displayDurationViewContent() {
             durationNoValueContent.classList.add('empty');
         }
     }
+    
+    // Initialize callout info icon for mobile
+    initCalloutInfoIcons();
 }
 
 // Render a single item in the duration view

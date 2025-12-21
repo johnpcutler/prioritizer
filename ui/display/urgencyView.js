@@ -4,6 +4,7 @@ import { escapeHtml } from '../forms.js';
 import { updateStageView } from '../stageView.js';
 import { getParkingLotItems, allItemsHave } from '../../models/derived/items.js';
 import { trackStageView } from '../../analytics/stageEvents.js';
+import { initCalloutInfoIcons } from '../overlay/calloutOverlay.js';
 
 // Display urgency view (only visible in urgency stage)
 export function updateUrgencyView() {
@@ -102,6 +103,9 @@ function displayUrgencyViewContent() {
             noValueContent.innerHTML = itemsWithoutUrgency.map(item => renderUrgencyItem(item, isLocked, urgency1Title, urgency2Title, urgency3Title)).join('');
         }
     }
+    
+    // Initialize callout info icon for mobile
+    initCalloutInfoIcons();
 }
 
 // Render items in an urgency column

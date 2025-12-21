@@ -4,6 +4,7 @@ import { escapeHtml } from '../forms.js';
 import { updateStageView } from '../stageView.js';
 import { getValueParkingLotItems, allItemsWithUrgencyHaveValue, canSetValue } from '../../models/derived/items.js';
 import { trackStageView } from '../../analytics/stageEvents.js';
+import { initCalloutInfoIcons } from '../overlay/calloutOverlay.js';
 
 // Display value view (only visible in value stage)
 export function updateValueView() {
@@ -193,6 +194,9 @@ function displayValueViewContent() {
             }
         }
     }
+    
+    // Initialize callout info icon for mobile
+    initCalloutInfoIcons();
 }
 
 // Render a single item in the value view
