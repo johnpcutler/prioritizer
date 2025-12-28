@@ -131,3 +131,4 @@ function setupInfoIcon(cornerElement, calloutElement) {
     cornerElement.appendChild(iconBtn);
 }
 
+

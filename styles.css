@@ -1282,7 +1282,7 @@ button:disabled {
 /* Callout Info Icon - shown in grid corner on mobile */
 /* Hidden on desktop, shown on mobile */
 .callout-info-icon {
-    display: none;
+    display: none; /* Hidden by default, shown on mobile via media query */
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -1292,7 +1292,6 @@ button:disabled {
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
