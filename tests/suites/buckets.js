@@ -443,6 +443,25 @@ function testSetDurationTitle() {
     assertEqual(appStateAfter3.buckets.duration[2].title, 'MEDIUM', 'Duration 2 should still have custom title');
 }
 
+// Test: Duration title command persists through app state reload
+async function testDurationTitlePersistsViaCommand() {
+    await TestAdapter.init();
+    TestAdapter.startApp();
+
+    const result = TestAdapter.setDurationTitle(2, '2-6w');
+    assert(result && result.success, 'Setting duration title through command should succeed');
+
+    let appState = TestAdapter.getAppState();
+    assertEqual(appState.buckets.duration[2].title, '2-6w', 'Duration 2 title should update in app state');
+
+    if (window.Store && typeof window.Store.reload === 'function') {
+        window.Store.reload();
+    }
+
+    appState = TestAdapter.getAppState();
+    assertEqual(appState.buckets.duration[2].title, '2-6w', 'Duration 2 title should persist after store reload');
+}
+
 // Test: Set duration description
 function testSetDurationDescription() {
     localStorage.removeItem(TEST_STORAGE_KEY);
@@ -493,6 +512,7 @@ export const bucketsTests = [
     { number: 26, name: 'Set Value Description', fn: testSetValueDescription },
     { number: 27, name: 'Duration Buckets Default Titles and Descriptions', fn: testDurationBucketsDefaults },
     { number: 28, name: 'Set Duration Title', fn: testSetDurationTitle },
-    { number: 29, name: 'Set Duration Description', fn: testSetDurationDescription }
+    { number: 29, name: 'Set Duration Description', fn: testSetDurationDescription },
+    { number: 30, name: 'Duration Title Persists Via Command', fn: testDurationTitlePersistsViaCommand }
 ];
 

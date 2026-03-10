@@ -168,6 +168,14 @@ export function populateSettings() {
             weightInput.value = buckets.duration[level].weight || '';
         }
     }
+
+    // Populate Duration Titles
+    for (let level = 1; level <= 3; level++) {
+        const titleInput = document.getElementById(`durationTitle${level}`);
+        if (titleInput && buckets.duration && buckets.duration[level]) {
+            titleInput.value = buckets.duration[level].title || '';
+        }
+    }
     
     // Populate Urgency Titles
     for (let level = 1; level <= 3; level++) {

@@ -44,6 +44,7 @@ function testExportItemsWithAllFields() {
     localStorage.removeItem(TEST_APP_STATE_KEY);
     
     const buckets = initializeBuckets();
+    buckets.duration[1].title = '2-5d';
     const appState = {
         currentStage: 'Results',
         buckets: buckets,
@@ -91,7 +92,7 @@ function testExportItemsWithAllFields() {
     assert(dataRow.includes('3'), 'Should include value');
     assert(dataRow.includes('KILLER'), 'Should include value title');
     assert(dataRow.includes('1'), 'Should include duration');
-    assert(dataRow.includes('1-3d'), 'Should include duration title');
+    assert(dataRow.includes('2-5d'), 'Should include custom duration title');
     assert(dataRow.includes('Active'), 'Should include active status');
     assert(dataRow.includes('2'), 'Should include notes count');
 }

@@ -467,6 +467,7 @@ function setupEventListeners() {
         setUrgencyDescription,
         setValueTitle,
         setValueDescription,
+        setDurationTitle,
         // Items
         addItem,
         bulkAddItems,

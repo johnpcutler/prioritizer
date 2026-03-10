@@ -97,6 +97,7 @@ export function setupAllEventListeners(handlers) {
         setUrgencyDescription,
         setValueTitle,
         setValueDescription,
+        setDurationTitle,
         // Items
         addItem,
         bulkAddItems,
@@ -128,7 +129,8 @@ export function setupAllEventListeners(handlers) {
         setUrgencyTitle,
         setUrgencyDescription,
         setValueTitle,
-        setValueDescription
+        setValueDescription,
+        setDurationTitle
     });
     
     setupItemsListeners({

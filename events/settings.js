@@ -81,7 +81,8 @@ export function setupSettingsListeners(handlers) {
         setUrgencyTitle,
         setUrgencyDescription,
         setValueTitle,
-        setValueDescription
+        setValueDescription,
+        setDurationTitle
     } = handlers;
 
     // Settings button - toggle settings view (desktop and mobile)
@@ -168,6 +169,8 @@ export function setupSettingsListeners(handlers) {
                     result = setUrgencyTitle(level, value);
                 } else if (category === 'value') {
                     result = setValueTitle(level, value);
+                } else if (category === 'duration') {
+                    result = setDurationTitle(level, value);
                 }
             } else if (type === 'description') {
                 const input = document.getElementById(`${category}Description${level}`);
